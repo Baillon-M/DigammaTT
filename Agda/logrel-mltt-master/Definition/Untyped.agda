@@ -225,128 +225,32 @@ TrueBboolToTerm n Btrue = Truetrue
 TrueBboolToTerm n Bfalse = Truefalse
 
 
-data InLCon {n : Nat} (t u : Term n) : LCon → Set
+data InLCon : ∀ {n : Nat} (t : Term n) (b : Term n) → LCon → Set
   where
-    InHere :  ∀ (m : Nat) (b : Bbool) (t=m : t PE.≡ natToTerm n m) (u=b : u PE.≡ BboolToTerm n b) (γ : LCon) → InLCon t u (addₗ m b γ)
-    InThere :  ∀ (γ : LCon) (γε : InLCon t u γ) (m : Nat) (b' : Bbool) → InLCon t u (addₗ m b' γ)
+    InHere :  ∀ {n : Nat} (t : Nat) (b : Bbool) (γ : LCon) → InLCon (natToTerm n t) (BboolToTerm n b) (addₗ t b γ)
+    InThere :  ∀ {n : Nat} (t b : Term n) (γ : LCon) (γε : InLCon t b γ) (m : Nat) (b' : Bbool) → InLCon t b (addₗ m b' γ)
 
-data DifferentNat : ∀ (t u : Nat) → Set where
-  Diff0r : ∀ t → DifferentNat (1+ t) 0
-  Diff0l : ∀ t → DifferentNat 0 (1+ t)
-  DiffSuc : ∀ (t u : Nat) → DifferentNat t u → DifferentNat (1+ t) (1+ u)
-  
-
-data DifferentTrueNat {n : Nat} : ∀ (t u : Term n) → Set where
-  Diff0rTrueNat : ∀ (t : Term n) (tε : TrueNat t) → DifferentTrueNat (suc t) zero
-  Diff0lTrueNat : ∀ (t : Term n) (tε : TrueNat t) → DifferentTrueNat zero (suc t)
-  DiffSucTrueNat : ∀ (t u : Term n) → DifferentTrueNat t u → DifferentTrueNat (suc t) (suc u)
+data DifferentNat {n : Nat} : ∀ (t u : Term n) → Set where
+  Diff0r : ∀ (t : Term n) (tε : TrueNat t) → DifferentNat (suc t) zero
+  Diff0l : ∀ (t : Term n) (tε : TrueNat t) → DifferentNat zero (suc t)
+  DiffSuc : ∀ (t u : Term n) → DifferentNat t u → DifferentNat (suc t) (suc u)
   
                 
 data NotInLCon {n : Nat} (t : Term n) : LCon → Set
   where
     NotInε : TrueNat t → NotInLCon t εₗ 
-    NotInThere : ∀ (γ : LCon) (γε : NotInLCon t γ) (m : Nat) (b : Bbool) → DifferentTrueNat t (natToTerm n m) → NotInLCon t (addₗ m b γ)
-
-data NotInLConNat (n : Nat) : LCon → Set
-  where 
-    NotInεNat : NotInLConNat n εₗ 
-    NotInThereNat : ∀ (γ : LCon) (γε : NotInLConNat n γ) (m : Nat) (b : Bbool) → DifferentNat n m → NotInLConNat n (addₗ m b γ)
-
-data ⊢ₗ_ : LCon → Set
-  where
-    ⊢ₗₑ : ⊢ₗ εₗ
-    ⊢ₗ• : ∀ (γ : LCon) (γε : ⊢ₗ γ) (n : Nat) (b : Bbool) (nbε : NotInLConNat n γ) → ⊢ₗ (addₗ n b γ) 
-
-data _≤ₗ_ (l : LCon) : LCon → Set
-  where
-    ≤ₗ-refl : l ≤ₗ l
-    ≤ₗ-add : ∀ n b l' → l ≤ₗ l' → l ≤ₗ (addₗ n b l')
-
-≤ₗ-rev : ∀ {l l' n b} → (addₗ n b l) ≤ₗ l' → l ≤ₗ l'
-≤ₗ-rev ≤ₗ-refl = ≤ₗ-add _ _ _ ≤ₗ-refl
-≤ₗ-rev (≤ₗ-add n b l' lε) = ≤ₗ-add n b l' (≤ₗ-rev lε)
-
-Suc≠0 : ∀ n → (1+ n) PE.≡ 0 → PE.⊥
-Suc≠0 n ()
-
-Suc= : ∀ n m → (1+ n) PE.≡ (1+ m) → n PE.≡ m
-Suc= n m PE.refl = PE.refl
+    NotInThere : ∀ (γ : LCon) (γε : NotInLCon t γ) (m : Nat) (b : Bbool) → DifferentNat t (natToTerm n m) → NotInLCon t (addₗ m b γ)
 
 
-DifferentNatDifferent : ∀ (t u : Nat) → DifferentNat t u → t PE.≡ u → PE.⊥
-DifferentNatDifferent _ _ (Diff0l u) ()
-DifferentNatDifferent _ _ (Diff0r t) ()
-DifferentNatDifferent _ _ (DiffSuc t u tuε) PE.refl = DifferentNatDifferent t t tuε PE.refl
 
-DifferentDifferentNat : ∀ (n m : Nat) → (n PE.≡ m → PE.⊥) → DifferentNat n m
-DifferentDifferentNat 0 0 neq = PE.⊥-elim (neq PE.refl)
-DifferentDifferentNat 0 (1+ m) neq = Diff0l m
-DifferentDifferentNat (1+ n) 0 neq = Diff0r n
-DifferentDifferentNat (1+ n) (1+ m) neq = DiffSuc n m (DifferentDifferentNat n m λ e → neq (PE.cong 1+ e))
-
-DifferentNatSym : ∀ (n m : Nat) (n≠m : DifferentNat n m) → DifferentNat m n
-DifferentNatSym _ _ (Diff0l u)  = Diff0r u
-DifferentNatSym _ _ (Diff0r t) = Diff0l t
-DifferentNatSym _ _ (DiffSuc t u tuε) = DiffSuc u t (DifferentNatSym t u tuε)
-
-DifferentNatHProp :  ∀ (n m : Nat) (e e' : DifferentNat n m) → e PE.≡ e'
-DifferentNatHProp _ _ (Diff0l u) (Diff0l u)  = PE.refl
-DifferentNatHProp _ _ (Diff0r t) (Diff0r u) = PE.refl
-DifferentNatHProp _ _ (DiffSuc t u tuε) (DiffSuc t u tuε') rewrite DifferentNatHProp t u tuε tuε' = PE.refl
-
-NotInLConNatHProp : ∀ (n : Nat) (l : LCon) (nε nε' : NotInLConNat n l) → nε PE.≡ nε'
-NotInLConNatHProp n εₗ NotInεNat NotInεNat = PE.refl
-NotInLConNatHProp n (addₗ m b γ) (NotInThereNat _ nε .m .b e) (NotInThereNat .γ nε' .m .b e') rewrite (NotInLConNatHProp n γ nε nε') rewrite DifferentNatHProp _ _ e e' = PE.refl
-
-⊢ₗ-HProp : ∀ l (lε lε' : ⊢ₗ l) → lε PE.≡ lε'
-⊢ₗ-HProp εₗ  ⊢ₗₑ  ⊢ₗₑ = PE.refl
-⊢ₗ-HProp (addₗ n b γ) (⊢ₗ• l lε n b nbε) (⊢ₗ• l lε' n b nbε') rewrite (NotInLConNatHProp n γ nbε nbε') rewrite ⊢ₗ-HProp l lε lε' = PE.refl
-
-DifferentTrueNatDifferent : ∀ (t u : Term n) → DifferentTrueNat t u → t PE.≡ u → PE.⊥
-DifferentTrueNatDifferent _ _ (Diff0lTrueNat u uε) ()
-DifferentTrueNatDifferent _ _ (Diff0rTrueNat t tε) ()
-DifferentTrueNatDifferent _ _ (DiffSucTrueNat t t tuε) PE.refl = DifferentTrueNatDifferent t t tuε PE.refl
-
-DifferentDifferentTrueNat : ∀ {k m : Term n} → TrueNat k → TrueNat m → (k PE.≡ m → PE.⊥) → DifferentTrueNat k m
-DifferentDifferentTrueNat Truezero Truezero neq = PE.⊥-elim (neq PE.refl)
-DifferentDifferentTrueNat Truezero (Truesuc m) neq = Diff0lTrueNat _ m
-DifferentDifferentTrueNat (Truesuc n) Truezero neq = Diff0rTrueNat _ n
-DifferentDifferentTrueNat (Truesuc n) (Truesuc m) neq = DiffSucTrueNat _ _ (DifferentDifferentTrueNat n m λ e → neq (PE.cong suc e))
-
-DifferentNatDifferentTrueNat : ∀ (k m : Nat) (t u : Term n) → DifferentNat k m → t PE.≡ natToTerm n k → u PE.≡ natToTerm n m → DifferentTrueNat t u
-DifferentNatDifferentTrueNat _ _ _ _ (Diff0l u) e1 e2 rewrite e1 rewrite e2 = Diff0lTrueNat _ (TrueNatToTerm _ _)
-DifferentNatDifferentTrueNat _ _ _ _ (Diff0r u) e1 e2 rewrite e1 rewrite e2 = Diff0rTrueNat _ (TrueNatToTerm _ _)
-DifferentNatDifferentTrueNat _ _ _ _ (DiffSuc t u t≠u) e1 e2 rewrite e1 rewrite e2 = DiffSucTrueNat _ _ (DifferentNatDifferentTrueNat t u _ _ t≠u PE.refl PE.refl)
-
-NotInLCon≤ₗ : ∀ {l l'} {t : Term n} {m b} → ((addₗ m b l) ≤ₗ l') → NotInLCon t l' → t PE.≡ (natToTerm n m) → PE.⊥
-NotInLCon≤ₗ (≤ₗ-refl) (NotInThere _ _ m b t≠m) = DifferentTrueNatDifferent _ _ t≠m
-NotInLCon≤ₗ (≤ₗ-add m' b' l' lε) (NotInThere _ γε m' b' t≠k) e = NotInLCon≤ₗ lε γε e
-
-NotInLConNatNotInLCon : ∀ (t : Term n) m l → NotInLConNat m l → t PE.≡ natToTerm n m → NotInLCon t l
-NotInLConNatNotInLCon t m εₗ NotInεNat e rewrite e = NotInε (TrueNatToTerm _ _)
-NotInLConNatNotInLCon t m (addₗ n b l) (NotInThereNat l lε n b m≠n) e rewrite e = NotInThere l (NotInLConNatNotInLCon _ m l lε PE.refl) n b (DifferentNatDifferentTrueNat m n _ _ m≠n PE.refl PE.refl)
-
-NotInLConNotInLCon : ∀ (t b : Term n) l → NotInLCon t l → InLCon t b l → PE.⊥
-NotInLConNotInLCon t b εₗ _ ()
-NotInLConNotInLCon t u (addₗ n b l) (NotInThere l lε n b notn) (InHere n b t=n u=m l) rewrite t=n = DifferentTrueNatDifferent _ _ notn PE.refl
-NotInLConNotInLCon _ _ (addₗ n b l) (NotInThere l notlε n b notn) (InThere l lε n b) = NotInLConNotInLCon _ _ l notlε lε
-
-decidEqNat : ∀ (n m : Nat) → (n PE.≡ m) ⊎ (n PE.≡ m → PE.⊥)
-decidEqNat 0 0 = inj₁ PE.refl
-decidEqNat (1+ n) 0 = inj₂ (Suc≠0 n)
-decidEqNat 0 (1+ m) = inj₂ λ e → Suc≠0 m (PE.sym e)
-decidEqNat (1+ n) (1+ m) with decidEqNat n m 
-decidEqNat (1+ n) (1+ m) | inj₁ e rewrite e = inj₁ PE.refl
-decidEqNat (1+ n) (1+ m) | inj₂ neq = inj₂ λ e → neq (Suc= n m e)
-
-decidEqTrueNat :  ∀ (t u : Term n) (tε : TrueNat t) (uε : TrueNat u) → (t PE.≡ u) ⊎ (DifferentTrueNat t u)
-decidEqTrueNat zero zero Truezero Truezero = inj₁ PE.refl
-decidEqTrueNat .(suc _) .zero (Truesuc tε) Truezero = inj₂ (Diff0rTrueNat _ tε)
-decidEqTrueNat zero .(suc _) Truezero (Truesuc uε) = inj₂ (Diff0lTrueNat _ uε)
-decidEqTrueNat .(suc _) .(suc _) (Truesuc tε) (Truesuc uε)
-  with decidEqTrueNat _ _ tε uε
-decidEqTrueNat .(suc _) .(suc _) (Truesuc tε) (Truesuc uε) | inj₁ k rewrite k = inj₁ PE.refl
-decidEqTrueNat .(suc _) .(suc _) (Truesuc tε) (Truesuc uε) | inj₂ k = inj₂ (DiffSucTrueNat _ _ k)
+decidEqNat :  ∀ (t u : Term n) (tε : TrueNat t) (uε : TrueNat u) → (t PE.≡ u) ⊎ (DifferentNat t u)
+decidEqNat zero zero Truezero Truezero = inj₁ PE.refl
+decidEqNat .(suc _) .zero (Truesuc tε) Truezero = inj₂ (Diff0r _ tε)
+decidEqNat zero .(suc _) Truezero (Truesuc uε) = inj₂ (Diff0l _ uε)
+decidEqNat .(suc _) .(suc _) (Truesuc tε) (Truesuc uε)
+  with decidEqNat _ _ tε uε
+decidEqNat .(suc _) .(suc _) (Truesuc tε) (Truesuc uε) | inj₁ k rewrite k = inj₁ PE.refl
+decidEqNat .(suc _) .(suc _) (Truesuc tε) (Truesuc uε) | inj₂ k = inj₂ (DiffSuc _ _ k)
 
 EqNatEqTrueNat : ∀ (t u : Term n) (tε : TrueNat t) (uε : TrueNat u) (e : t PE.≡ u) → (PE.subst TrueNat e tε PE.≡ uε)
 EqNatEqTrueNat zero zero Truezero Truezero PE.refl = PE.refl
@@ -354,31 +258,20 @@ EqNatEqTrueNat .(suc _) .(suc _) (Truesuc tε) (Truesuc uε) PE.refl = PE.cong T
 
 decidInLCon : ∀ (γ : LCon) (t : Term n) (tε : TrueNat t) → (∃ (λ b → InLCon t b γ)) ⊎ (NotInLCon t γ)
 decidInLCon εₗ t tε = inj₂ (NotInε tε)
-decidInLCon (addₗ m b γ) t tε with decidEqTrueNat _ _ tε (TrueNatToTerm _ m)
-decidInLCon (addₗ m b γ) t tε | inj₁ k rewrite k rewrite (PE.sym (EqNatEqTrueNat _ _ (TrueNatToTerm _ m) tε PE.refl)) = inj₁ ((BboolToTerm _ b) , InHere m b PE.refl PE.refl γ)
+decidInLCon (addₗ m b γ) t tε with decidEqNat _ _ tε (TrueNatToTerm _ m)
+decidInLCon (addₗ m b γ) t tε | inj₁ k rewrite k rewrite (PE.sym (EqNatEqTrueNat _ _ (TrueNatToTerm _ m) tε PE.refl)) = inj₁ ((BboolToTerm _ b) , InHere m b γ)
 decidInLCon (addₗ m b γ) t tε | inj₂ k with decidInLCon γ t tε
-decidInLCon (addₗ m b' γ) t tε | inj₂ k | inj₁ (b , j) = inj₁ (b , InThere γ j m b')
+decidInLCon (addₗ m b' γ) t tε | inj₂ k | inj₁ (b , j) = inj₁ (b , InThere t b γ j m b')
 decidInLCon (addₗ m b γ) t tε | inj₂ k | inj₂ j = inj₂ (NotInThere γ j m b k)
 
 InLConTrueNat : ∀ {n} (t : Term n) b l → InLCon t b l → TrueNat t
-InLConTrueNat _ _ _ (InHere t b t=m u=b l) rewrite t=m = TrueNatToTerm _ t
-InLConTrueNat t b (addₗ t2 b2 l) (InThere _ tε t2 b2) = InLConTrueNat t b l tε
+InLConTrueNat _ _ _ (InHere t b l) = TrueNatToTerm _ t
+InLConTrueNat t b (addₗ t2 b2 l) (InThere _ _ _ tε t2 b2) = InLConTrueNat t b l tε
 
 InLConTrueBool : ∀ {n} (t : Term n) b l → InLCon t b l → TrueBool b
-InLConTrueBool _ _ _ (InHere t b t=m u=b l) rewrite u=b = TrueBboolToTerm _ b
-InLConTrueBool t b (addₗ t2 b2 l) (InThere _ tε t2 b2) = InLConTrueBool t b l tε
+InLConTrueBool _ _ _ (InHere t b l) = TrueBboolToTerm _ b
+InLConTrueBool t b (addₗ t2 b2 l) (InThere _ _ _ tε t2 b2) = InLConTrueBool t b l tε
 
-InLConUnique : ∀ {n} (t b b' : Term n) l (lε : ⊢ₗ l) → InLCon t b l → InLCon t b' l → b PE.≡ b'
-InLConUnique t b b' εₗ ⊢ₗₑ () ()
-InLConUnique t u u' (addₗ n b l) (⊢ₗ• l lε n b nbε) (InHere n b t=n u=b l) (InHere n b t=n' u=b' l) = PE.trans u=b (PE.sym u=b')
-InLConUnique t u u' (addₗ n b l) (⊢ₗ• l lε n b nbε) (InHere n b t=n u=b l) (InThere _ inl n b) = PE.⊥-elim (NotInLConNotInLCon _ _ _ (NotInLConNatNotInLCon _ _ _ nbε t=n) inl)
-InLConUnique t u u' (addₗ n b l) (⊢ₗ• l lε n b nbε) (InThere _ inl n b) (InHere n b t=n u=b l) = PE.⊥-elim (NotInLConNotInLCon _ _ _ (NotInLConNatNotInLCon _ _ _ nbε t=n) inl)
-InLConUnique t u u' (addₗ n b l) (⊢ₗ• l lε n b nbε) (InThere _ inl n b) (InThere _ inl' n b) = InLConUnique _ _ _ l lε inl inl'
-
--- InLConUnique .(natToTerm _ n) .(BboolToTerm _ Btrue) false _ (⊢ₗ• l lε n Btrue nbε) (InHere n Btrue l) (InThere _ false l inl' _ _) = PE.⊥-elim (NotInLConNotInLCon _ _ l (NotInLConNatNotInLCon _ _ l nbε PE.refl) inl')
---InLConUnique t b b' (addₗ n b₁ γ) (⊢ₗ• .γ lε .n .b₁ nbε)
---    (InThere .t .b .γ x .n .b₁)
---    (InThere .t .b' .γ x₁ .n .b₁) = ?
 --findBoolLCon : ∀ {n : Nat} (t : Term n) (γ : LCon) → InLCon t γ → Bbool
 --findBoolLCon _ _ (InHere t γ b) = b
 --findBoolLCon _ _ (InThere t tε γ γε m b) = findBoolLCon _ γ γε
@@ -392,29 +285,13 @@ permut (1+ n) (addₗ n1 b1 l) = addₗ n1 b1 (permut n l)
 permutInLCon : ∀ {n : Nat} (m : Nat) (l : LCon) (t b : Term n)
                → InLCon t b l
                → InLCon t b (permut m l)
-permutInLCon 0 (addₗ t b εₗ) _ _ (InHere t b t=m u=b εₗ) = InHere t b t=m u=b εₗ       
-permutInLCon 0 (addₗ t b (addₗ t2 b2 l)) _ _ (InHere m b t=m u=b .(addₗ t2 b2 l)) = InThere _ (InHere m b t=m u=b l) t2 b2
-permutInLCon 0 (addₗ x x₁ (addₗ m b l)) t u (InThere .(addₗ m b l) (InHere m b t=m u=b l) .x .x₁) = InHere m b t=m u=b (addₗ x x₁ _)
-permutInLCon 0 (addₗ x x₁ (addₗ x₂ x₃ l)) t _ (InThere .(addₗ x₂ x₃ l) (InThere .l x₄ .x₂ .x₃) .x .x₁) = InThere _ (InThere _ x₄ _ _) _ _
-permutInLCon (1+ m) (addₗ t b εₗ) _ _ (InHere t b t=m u=b .εₗ) = InHere t b t=m u=b εₗ
-permutInLCon (1+ m) (addₗ x x₁ l) t _ (InThere .l x₂ .x .x₁) = InThere (permut _ l) (permutInLCon _ _ _ _ x₂) _ _
-permutInLCon (1+ m) (addₗ x x₁ (addₗ x₂ x₃ l)) .(natToTerm _ x) _ (InHere .x .x₁ PE.refl PE.refl .(addₗ x₂ x₃ l)) = InHere x _ PE.refl PE.refl _
-
-permutNotInLConNat : ∀ (m : Nat) (l : LCon) (t : Nat)
-               → NotInLConNat t l
-               → NotInLConNat t (permut m l)
-permutNotInLConNat 0 εₗ _ tε = tε 
-permutNotInLConNat 0 (addₗ t b εₗ) _ tε = tε
-permutNotInLConNat 0 (addₗ n b (addₗ m b' l)) t (NotInThereNat _ (NotInThereNat l lε m b' neqm) n b neqn) = NotInThereNat _ (NotInThereNat _ lε n b neqn) m b' neqm
-permutNotInLConNat (1+ m) εₗ t tε = tε
-permutNotInLConNat (1+ m) (addₗ k b l) t (NotInThereNat l lε k b neqk) = NotInThereNat _ (permutNotInLConNat m l t lε) k b neqk
-
-permutε : ∀ (n : Nat) {l : LCon} (lε : ⊢ₗ l)
-            → ⊢ₗ (permut n l)
-permutε n ⊢ₗₑ = ⊢ₗₑ
-permutε 0 (⊢ₗ• εₗ ⊢ₗₑ m b mbε) = ⊢ₗ• εₗ ⊢ₗₑ m b mbε
-permutε 0 (⊢ₗ• _ (⊢ₗ• γ γε m b mbε) m' b' (NotInThereNat _ mbε' _ _ neq)) = ⊢ₗ• _ (⊢ₗ• _ γε m' b' mbε') m b (NotInThereNat _ mbε _ _ (DifferentNatSym m' m neq))
-permutε (1+ n) (⊢ₗ• γ γε m b mbε) =  ⊢ₗ• _ (permutε n γε) m b (permutNotInLConNat n γ m mbε)
+permutInLCon 0 (addₗ t b εₗ) _ _ (InHere t b εₗ) = InHere t b εₗ       
+permutInLCon 0 (addₗ t b (addₗ t2 b2 l)) _ _ (InHere t b .(addₗ t2 b2 l)) = InThere _ _ _ (InHere t b l) t2 b2
+permutInLCon 0 (addₗ x x₁ (addₗ t b l)) _ _ (InThere _ _ .(addₗ t b l) (InHere t b l) .x .x₁) = InHere t b _
+permutInLCon 0 (addₗ x x₁ (addₗ x₂ x₃ l)) t _ (InThere .t _ .(addₗ x₂ x₃ l) (InThere .t _ .l x₄ .x₂ .x₃) .x .x₁) = InThere _ _ _ (InThere _ _ _ x₄ _ _) _ _
+permutInLCon (1+ m) (addₗ t b εₗ) _ _ (InHere t b .εₗ) = InHere t b εₗ
+permutInLCon (1+ m) (addₗ x x₁ l) t _ (InThere .t _ .l x₂ .x .x₁) = InThere _ _ (permut _ l) (permutInLCon _ _ _ _ x₂) _ _
+permutInLCon (1+ m) (addₗ x x₁ (addₗ x₂ x₃ l)) .(natToTerm _ x) _ (InHere .x .x₁ .(addₗ x₂ x₃ l)) = InHere x _ _
 
 --permutfindBoolLCon : ∀ {n : Nat} (m : Nat) (l : LCon) (t : Term n)
 --               → (tε : InLCon t l)
@@ -445,35 +322,12 @@ mutual
     Scontn    : ContainsNeutral t → ContainsNeutral (suc t)
 
 
-data αNeutral {l : LCon} {lε : ⊢ₗ l} : Term n → Set where
-  αₙ-base   : TrueNat t → NotInLCon t l → αNeutral (α t)
-  ∘ₙ        : αNeutral {l} {lε} t   → αNeutral (t ∘ u)
-  fstₙ      : αNeutral {l} {lε} t   → αNeutral (fst t)
-  sndₙ      : αNeutral {l} {lε} t   → αNeutral (snd t)
-  natrecₙ   : αNeutral {l} {lε} v   → αNeutral (natrec G t u v)
-  boolrecₙ  : αNeutral {l} {lε} v   → αNeutral (boolrec G t u v)
-  Emptyrecₙ : αNeutral {l} {lε} t   → αNeutral (Emptyrec A t)
-  αₙ-rec    : αNeutral {l} {lε} t   → αNeutral (α t)
-
-BackταNeutral : ∀ {l : LCon} {lε : ⊢ₗ l} {n b nbε} → αNeutral {_} {⊢ₗ• l lε n b nbε} t → αNeutral {l} {lε} t
-BackταNeutral (αₙ-base tε (NotInThere l notinl n b t≠n)) = αₙ-base tε notinl
-BackταNeutral (αₙ-rec tε) = αₙ-rec (BackταNeutral tε)
-BackταNeutral (∘ₙ d) = ∘ₙ (BackταNeutral d)
-BackταNeutral (fstₙ d) = fstₙ (BackταNeutral d)
-BackταNeutral (sndₙ d) = sndₙ (BackταNeutral d)
-BackταNeutral (natrecₙ d) = natrecₙ (BackταNeutral d)
-BackταNeutral (boolrecₙ d) = boolrecₙ (BackταNeutral d)
-BackταNeutral (Emptyrecₙ d) = Emptyrecₙ (BackταNeutral d)
-
-NotTrueNatαNe : ∀ {l : LCon} {lε : ⊢ₗ l} → (t : Term n) → TrueNat t → αNeutral {l} {lε} t → PE.⊥
-NotTrueNatαNe _ (Truesuc tε) () -- = {!!}
-
 
 -- Weak head normal forms (whnfs).
 
 -- These are the (lazy) values of our language.
 
-data Whnf {l : LCon} {lε : ⊢ₗ l} {n : Nat} : Term n → Set where
+data Whnf {l : LCon} {n : Nat} : Term n → Set where
 
   -- Type constructors are whnfs.
   Uₙ     : Whnf U
@@ -497,7 +351,7 @@ data Whnf {l : LCon} {lε : ⊢ₗ l} {n : Nat} : Term n → Set where
   ne    : Neutral t → Whnf t
 
   -- α's are whnfs if their argument is not in the list l. Otherwise it will reduce.
-  αₙ : αNeutral {l} {lε} t → Whnf t
+  αₙ : NotInLCon t l → Whnf (α t)
 
 
 -- Whnf inequalities.
@@ -556,16 +410,6 @@ true≢ne () PE.refl
 false≢ne : Neutral t → false PE.≢ t
 false≢ne () PE.refl
 
-TrueNat≢Cne : ContainsNeutral t → TrueNat t → PE.⊥
-TrueNat≢Cne (ncontn tε) (Truezero) = zero≢ne tε PE.refl
-TrueNat≢Cne (Scontn tε) (Truesuc kε) = TrueNat≢Cne tε kε
-
-TrueNat≢U : TrueNat {n} U → PE.⊥
-TrueNat≢U ()
-
-TrueBool≢U : TrueBool {n} U → PE.⊥
-TrueBool≢U ()
-
 -- Several views on whnfs (note: not recursive).
 
 -- A whnf of type ℕ is either zero, suc t, or neutral.
@@ -586,7 +430,7 @@ data Boolean {n : Nat} : Term n → Set where
 -- A (small) type in whnf is either Π A B, Σ A B, ℕ, Empty, Unit or neutral.
 -- Large types could also be U.
 
-data Type {n : Nat} {l : LCon} {lε : ⊢ₗ l} : Term n → Set where
+data Type {n : Nat} : Term n → Set where
   Πₙ     :             Type (Π A ▹ B)
   Σₙ     :             Type (Σ A ▹ B)
   ℕₙ     :             Type ℕ
@@ -594,9 +438,8 @@ data Type {n : Nat} {l : LCon} {lε : ⊢ₗ l} : Term n → Set where
   Emptyₙ :             Type Empty
   Unitₙ  :             Type Unit
   ne     : Neutral t → Type t
-  αne   : αNeutral {l} {lε} t → Type t
 
-⟦_⟧-type : ∀ {l lε} (W : BindingType) → Type {_} {l} {lε} (⟦ W ⟧ F ▹ G)
+⟦_⟧-type : ∀ (W : BindingType) → Type (⟦ W ⟧ F ▹ G)
 ⟦ BΠ ⟧-type = Πₙ
 ⟦ BΣ ⟧-type = Σₙ
 
@@ -615,21 +458,17 @@ data Product {n : Nat} : Term n → Set where
 -- These views classify only whnfs.
 -- Natural, Type, Function and Product are a subsets of Whnf.
 
-TrueNatNatural : TrueNat t → Natural t
-TrueNatNatural Truezero = zeroₙ
-TrueNatNatural (Truesuc tε) = sucₙ
-
-naturalWhnf : ∀ {l : LCon} {lε} → Natural t → Whnf {l} {lε} t
+naturalWhnf : ∀ {l : LCon} → Natural t → Whnf {l} t
 naturalWhnf sucₙ   = sucₙ
 naturalWhnf zeroₙ  = zeroₙ
 naturalWhnf (ne x) = ne x
 
-booleanWhnf : ∀ {l : LCon} {lε} → Boolean t → Whnf {l} {lε} t
+booleanWhnf : ∀ {l : LCon} → Boolean t → Whnf {l} t
 booleanWhnf trueₙ   = trueₙ
 booleanWhnf falseₙ  = falseₙ
 booleanWhnf (ne x) = ne x
 
-typeWhnf : ∀ {l : LCon} {lε} → Type {_} {l} {lε} A → Whnf {l} {lε} A
+typeWhnf : ∀ {l : LCon} → Type A → Whnf {l} A
 typeWhnf Πₙ     = Πₙ
 typeWhnf Σₙ     = Σₙ
 typeWhnf ℕₙ     = ℕₙ
@@ -637,17 +476,16 @@ typeWhnf 𝔹ₙ     = 𝔹ₙ
 typeWhnf Emptyₙ = Emptyₙ
 typeWhnf Unitₙ  = Unitₙ
 typeWhnf (ne x) = ne x
-typeWhnf (αne x) = αₙ x
 
-functionWhnf : ∀ {l : LCon} {lε} → Function t → Whnf {l} {lε} t
+functionWhnf : ∀ {l : LCon} → Function t → Whnf {l} t
 functionWhnf lamₙ   = lamₙ
 functionWhnf (ne x) = ne x
 
-productWhnf : ∀ {l : LCon} {lε} → Product t → Whnf {l} {lε} t
+productWhnf : ∀ {l : LCon} → Product t → Whnf {l} t
 productWhnf prodₙ  = prodₙ
 productWhnf (ne x) = ne x
 
-⟦_⟧ₙ : ∀ {l : LCon} {lε} → (W : BindingType) → Whnf {l} {lε} (⟦ W ⟧ F ▹ G)
+⟦_⟧ₙ : ∀ {l : LCon} → (W : BindingType) → Whnf {l} (⟦ W ⟧ F ▹ G)
 ⟦_⟧ₙ BΠ = Πₙ
 ⟦_⟧ₙ BΣ = Σₙ
 
@@ -731,34 +569,6 @@ mutual
   wkContainsNeutral ρ (ncontn t) = ncontn (wkNeutral ρ t)
   wkContainsNeutral ρ (Scontn t) = Scontn (wkContainsNeutral ρ t)
 
-wkTrueNat : ∀ ρ → TrueNat t → TrueNat {n} (wk ρ t)
-wkTrueNat ρ Truezero = Truezero
-wkTrueNat ρ (Truesuc tε) = Truesuc (wkTrueNat _ tε)
-
-wkNatToTerm :  ∀ {n m } (ρ : Wk m n) (t : Nat) →  wk ρ (natToTerm n t) PE.≡ natToTerm m t
-wkNatToTerm ρ Nat.zero = PE.refl
-wkNatToTerm ρ (1+ t) rewrite (wkNatToTerm ρ t) = PE.refl
-
-wkDifferentTrueNat : ∀ {n m } (ρ : Wk m n) (t u : Term n) → DifferentTrueNat t u → DifferentTrueNat {m} (wk ρ t) (wk ρ u)
-wkDifferentTrueNat ρ _ _ (Diff0rTrueNat _ tε) = Diff0rTrueNat _ (wkTrueNat _ tε)
-wkDifferentTrueNat ρ _ _ (Diff0lTrueNat _ tε) = Diff0lTrueNat _ (wkTrueNat _ tε)
-wkDifferentTrueNat ρ _ _ (DiffSucTrueNat _ _ e) = DiffSucTrueNat _ _ (wkDifferentTrueNat ρ _ _ e)
-
-
-wkNotInLCon : ∀ l ρ → NotInLCon t l → NotInLCon {n} (wk ρ t) l 
-wkNotInLCon _ ρ (NotInε tε) = NotInε (wkTrueNat _ tε)
-wkNotInLCon (addₗ m b γ) ρ (NotInThere .γ γε .m .b e) = NotInThere γ (wkNotInLCon _ _ γε) m b (PE.subst (λ h → DifferentTrueNat _ h) ((wkNatToTerm ρ m)) (wkDifferentTrueNat ρ _ _ e))
-
-αwkNeutral : ∀ {l lε} ρ → αNeutral {l} {lε} t → αNeutral {l} {lε} {n} (wk ρ t)
-αwkNeutral ρ (αₙ-base nε notn)       = αₙ-base (wkTrueNat _ nε) (wkNotInLCon _ _ notn)
-αwkNeutral ρ (αₙ-rec n)       = αₙ-rec (αwkNeutral _ n)
-αwkNeutral  ρ (∘ₙ n)        = ∘ₙ (αwkNeutral ρ n)
-αwkNeutral ρ (fstₙ n)      = fstₙ (αwkNeutral ρ n)
-αwkNeutral ρ (sndₙ n)      = sndₙ (αwkNeutral ρ n)
-αwkNeutral ρ (natrecₙ n)   = natrecₙ (αwkNeutral ρ n)
-αwkNeutral ρ (boolrecₙ n)   = boolrecₙ (αwkNeutral ρ n)
-αwkNeutral ρ (Emptyrecₙ e) = Emptyrecₙ (αwkNeutral ρ e)
-
 -- Weakening can be applied to our whnf views.
 
 wkNatural : ∀ ρ → Natural t → Natural {n} (wk ρ t)
@@ -766,7 +576,7 @@ wkNatural ρ sucₙ   = sucₙ
 wkNatural ρ zeroₙ  = zeroₙ
 wkNatural ρ (ne x) = ne (wkNeutral ρ x)
 
-wkType : ∀ {l lε} ρ → Type {_} {l} {lε} t → Type {n} {l} {lε} (wk ρ t)
+wkType : ∀ ρ → Type t → Type {n} (wk ρ t)
 wkType ρ Πₙ     = Πₙ
 wkType ρ Σₙ     = Σₙ
 wkType ρ ℕₙ     = ℕₙ
@@ -774,7 +584,6 @@ wkType ρ 𝔹ₙ     = 𝔹ₙ
 wkType ρ Emptyₙ = Emptyₙ
 wkType ρ Unitₙ  = Unitₙ
 wkType ρ (ne x) = ne (wkNeutral ρ x)
-wkType ρ (αne x) = αne (αwkNeutral ρ x)
 
 wkFunction : ∀ ρ → Function t → Function {n} (wk ρ t)
 wkFunction ρ lamₙ   = lamₙ
@@ -784,17 +593,33 @@ wkProduct : ∀ ρ → Product t → Product {n} (wk ρ t)
 wkProduct ρ prodₙ  = prodₙ
 wkProduct ρ (ne x) = ne (wkNeutral ρ x)
 
+wkTrueNat : ∀ ρ → TrueNat t → TrueNat {n} (wk ρ t)
+wkTrueNat ρ Truezero = Truezero
+wkTrueNat ρ (Truesuc tε) = Truesuc (wkTrueNat _ tε)
+
+wkDifferentNat : ∀ {n m } (ρ : Wk m n) (t u : Term n) → DifferentNat t u → DifferentNat {m} (wk ρ t) (wk ρ u)
+wkDifferentNat ρ _ _ (Diff0r _ tε) = Diff0r _ (wkTrueNat _ tε)
+wkDifferentNat ρ _ _ (Diff0l _ tε) = Diff0l _ (wkTrueNat _ tε)
+wkDifferentNat ρ _ _ (DiffSuc _ _ e) = DiffSuc _ _ (wkDifferentNat ρ _ _ e)
+
+
+wkNatToTerm :  ∀ {n m } (ρ : Wk m n) (t : Nat) →  wk ρ (natToTerm n t) PE.≡ natToTerm m t
+wkNatToTerm ρ Nat.zero = PE.refl
+wkNatToTerm ρ (1+ t) rewrite (wkNatToTerm ρ t) = PE.refl
 
 wkBboolToTerm :  ∀ {n m } (ρ : Wk m n) (b : Bbool) →  wk ρ (BboolToTerm n b) PE.≡ BboolToTerm m b
 wkBboolToTerm ρ Btrue = PE.refl
 wkBboolToTerm ρ Bfalse = PE.refl
 
 wkInLCon : ∀ l ρ → InLCon t b l → InLCon {n} (wk ρ t) (wk ρ b) l 
-wkInLCon _ ρ (InHere t b t=m u=b l) rewrite  t=m rewrite u=b rewrite (wkBboolToTerm ρ b) rewrite (wkNatToTerm ρ t) = InHere _ _ PE.refl PE.refl l -- InHere t b l
-wkInLCon _ ρ (InThere l tbε t2 b2) = InThere l (wkInLCon l ρ tbε) t2 b2
+wkInLCon _ ρ (InHere t b l) rewrite  (wkBboolToTerm ρ b) rewrite (wkNatToTerm ρ t) = InHere t b l
+wkInLCon _ ρ (InThere t b l tbε t2 b2) = InThere _ _ l (wkInLCon l ρ tbε) t2 b2
 
+wkNotInLCon : ∀ l ρ → NotInLCon t l → NotInLCon {n} (wk ρ t) l 
+wkNotInLCon _ ρ (NotInε tε) = NotInε (wkTrueNat _ tε)
+wkNotInLCon (addₗ m b γ) ρ (NotInThere .γ γε .m .b e) = NotInThere γ (wkNotInLCon _ _ γε) m b (PE.subst (λ h → DifferentNat _ h) ((wkNatToTerm ρ m)) (wkDifferentNat ρ _ _ e))
 
-wkWhnf : ∀ {l lε} ρ → Whnf {l} {lε} t → Whnf {l} {lε} {n} (wk ρ t)
+wkWhnf : ∀ {l} ρ → Whnf {l} t → Whnf {l} {n} (wk ρ t)
 wkWhnf ρ Uₙ      = Uₙ
 wkWhnf ρ Πₙ      = Πₙ
 wkWhnf ρ Σₙ      = Σₙ
@@ -810,7 +635,7 @@ wkWhnf ρ trueₙ   = trueₙ
 wkWhnf ρ falseₙ   = falseₙ
 wkWhnf ρ starₙ   = starₙ
 wkWhnf ρ (ne x)  = ne (wkNeutral ρ x)
-wkWhnf ρ (αₙ tε) = αₙ (αwkNeutral ρ tε)
+wkWhnf ρ (αₙ tε) = αₙ (wkNotInLCon _ _ tε)
 
 -- Non-dependent version of Π.
 

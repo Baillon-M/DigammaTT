@@ -15,7 +15,6 @@ private
     Γ : Con Term n
     Δ : Con Term ℓ
     l : LCon
-    lε : ⊢ₗ l
     ρ : Wk ℓ n
     A A′ B B′ C : Term n
     a a′ b b′ e e′ : Term n
@@ -31,242 +30,242 @@ record EqRelSet : Set₁ where
     ---------------
 
     -- Equality of types
-    _/_⊢_≅_   : Con Term n → {l : LCon} → ⊢ₗ l → (A B : Term n)   → Set
+    _/_⊢_≅_   : Con Term n → LCon → (A B : Term n)   → Set
 
     -- Equality of terms
-    _/_⊢_≅_∷_ : Con Term n → {l : LCon} → ⊢ₗ l → (t u A : Term n) → Set
+    _/_⊢_≅_∷_ : Con Term n → LCon → (t u A : Term n) → Set
 
     -- Equality of neutral terms
-    _/_⊢_~_∷_ : Con Term n → {l : LCon} → ⊢ₗ l → (t u A : Term n) → Set
+    _/_⊢_~_∷_ : Con Term n → LCon → (t u A : Term n) → Set
 
     ----------------
     -- Properties --
     ----------------
 
     -- Generic equality compatibility
-    ~-to-≅ₜ : Γ / lε ⊢ k ~ j ∷ A
-            → Γ / lε ⊢ k ≅ j ∷ A
+    ~-to-≅ₜ : Γ / l ⊢ k ~ j ∷ A
+            → Γ / l ⊢ k ≅ j ∷ A
 
     -- Judgmental conversion compatibility
-    ≅-eq  : Γ / lε ⊢ A ≅ B
-          → Γ / lε ⊢ A ≡ B
-    ≅ₜ-eq : Γ / lε ⊢ t ≅ u ∷ A
-          → Γ / lε ⊢ t ≡ u ∷ A
+    ≅-eq  : Γ / l ⊢ A ≅ B
+          → Γ / l ⊢ A ≡ B
+    ≅ₜ-eq : Γ / l ⊢ t ≅ u ∷ A
+          → Γ / l ⊢ t ≡ u ∷ A
 
     -- Universe
-    ≅-univ : Γ / lε ⊢ A ≅ B ∷ U
-           → Γ / lε ⊢ A ≅ B
+    ≅-univ : Γ / l ⊢ A ≅ B ∷ U
+           → Γ / l ⊢ A ≅ B
 
     -- Symmetry
-    ≅-sym  : Γ / lε ⊢ A ≅ B     → Γ / lε ⊢ B ≅ A
-    ≅ₜ-sym : Γ / lε ⊢ t ≅ u ∷ A → Γ / lε ⊢ u ≅ t ∷ A
-    ~-sym  : Γ / lε ⊢ k ~ j ∷ A → Γ / lε ⊢ j ~ k ∷ A
+    ≅-sym  : Γ / l ⊢ A ≅ B     → Γ / l ⊢ B ≅ A
+    ≅ₜ-sym : Γ / l ⊢ t ≅ u ∷ A → Γ / l ⊢ u ≅ t ∷ A
+    ~-sym  : Γ / l ⊢ k ~ j ∷ A → Γ / l ⊢ j ~ k ∷ A
 
     -- Transitivity
-    ≅-trans  : Γ / lε ⊢ A ≅ B     → Γ / lε ⊢ B ≅ C     → Γ / lε ⊢ A ≅ C
-    ≅ₜ-trans : Γ / lε ⊢ t ≅ u ∷ A → Γ / lε ⊢ u ≅ v ∷ A → Γ / lε ⊢ t ≅ v ∷ A
-    ~-trans  : Γ / lε ⊢ k ~ j ∷ A → Γ / lε ⊢ j ~ m ∷ A → Γ / lε ⊢ k ~ m ∷ A
+    ≅-trans  : Γ / l ⊢ A ≅ B     → Γ / l ⊢ B ≅ C     → Γ / l ⊢ A ≅ C
+    ≅ₜ-trans : Γ / l ⊢ t ≅ u ∷ A → Γ / l ⊢ u ≅ v ∷ A → Γ / l ⊢ t ≅ v ∷ A
+    ~-trans  : Γ / l ⊢ k ~ j ∷ A → Γ / l ⊢ j ~ m ∷ A → Γ / l ⊢ k ~ m ∷ A
 
     -- Conversion
-    ≅-conv : Γ / lε ⊢ t ≅ u ∷ A → Γ / lε ⊢ A ≡ B → Γ / lε ⊢ t ≅ u ∷ B
-    ~-conv : Γ / lε ⊢ k ~ j ∷ A → Γ / lε ⊢ A ≡ B → Γ / lε ⊢ k ~ j ∷ B
+    ≅-conv : Γ / l ⊢ t ≅ u ∷ A → Γ / l ⊢ A ≡ B → Γ / l ⊢ t ≅ u ∷ B
+    ~-conv : Γ / l ⊢ k ~ j ∷ A → Γ / l ⊢ A ≡ B → Γ / l ⊢ k ~ j ∷ B
 
     -- Weakening
     ≅-wk  : ρ ∷ Δ ⊆ Γ
-          → ⊢ Δ / lε
-          → Γ / lε ⊢ A ≅ B
-          → Δ / lε ⊢ wk ρ A ≅ wk ρ B
+          → ⊢ Δ / l
+          → Γ / l ⊢ A ≅ B
+          → Δ / l ⊢ wk ρ A ≅ wk ρ B
     ≅ₜ-wk : ρ ∷ Δ ⊆ Γ
-          → ⊢ Δ / lε
-          → Γ / lε ⊢ t ≅ u ∷ A
-          → Δ / lε ⊢ wk ρ t ≅ wk ρ u ∷ wk ρ A
+          → ⊢ Δ / l
+          → Γ / l ⊢ t ≅ u ∷ A
+          → Δ / l ⊢ wk ρ t ≅ wk ρ u ∷ wk ρ A
     ~-wk  : ρ ∷ Δ ⊆ Γ
-          → ⊢ Δ / lε
-          → Γ / lε ⊢ k ~ j ∷ A
-          → Δ / lε ⊢ wk ρ k ~ wk ρ j ∷ wk ρ A
+          → ⊢ Δ / l
+          → Γ / l ⊢ k ~ j ∷ A
+          → Δ / l ⊢ wk ρ k ~ wk ρ j ∷ wk ρ A
 
     -- Weak head expansion
-    ≅-red : Γ / lε ⊢ A ⇒* A′
-          → Γ / lε ⊢ B ⇒* B′
-          → Whnf {l} {lε} A′
-          → Whnf {l} {lε} B′
-          → Γ / lε ⊢ A′ ≅ B′
-          → Γ / lε ⊢ A  ≅ B
+    ≅-red : Γ / l ⊢ A ⇒* A′
+          → Γ / l ⊢ B ⇒* B′
+          → Whnf {l} A′
+          → Whnf {l} B′
+          → Γ / l ⊢ A′ ≅ B′
+          → Γ / l ⊢ A  ≅ B
 
-    ≅ₜ-red : Γ / lε ⊢ A ⇒* B
-           → Γ / lε ⊢ a ⇒* a′ ∷ B
-           → Γ / lε ⊢ b ⇒* b′ ∷ B
-           → Whnf {l} {lε} B
-           → Whnf {l} {lε} a′
-           → Whnf {l} {lε} b′
-           → Γ / lε ⊢ a′ ≅ b′ ∷ B
-           → Γ / lε ⊢ a  ≅ b  ∷ A
+    ≅ₜ-red : Γ / l ⊢ A ⇒* B
+           → Γ / l ⊢ a ⇒* a′ ∷ B
+           → Γ / l ⊢ b ⇒* b′ ∷ B
+           → Whnf {l} B
+           → Whnf {l} a′
+           → Whnf {l} b′
+           → Γ / l ⊢ a′ ≅ b′ ∷ B
+           → Γ / l ⊢ a  ≅ b  ∷ A
 
     -- Universe type reflexivity
-    ≅-Urefl   : ⊢ Γ / lε → Γ / lε ⊢ U ≅ U
+    ≅-Urefl   : ⊢ Γ / l → Γ / l ⊢ U ≅ U
 
     -- Natural number type reflexivity
-    ≅-ℕrefl   : ⊢ Γ / lε → Γ / lε ⊢ ℕ ≅ ℕ
-    ≅ₜ-ℕrefl  : ⊢ Γ / lε → Γ / lε ⊢ ℕ ≅ ℕ ∷ U
+    ≅-ℕrefl   : ⊢ Γ / l → Γ / l ⊢ ℕ ≅ ℕ
+    ≅ₜ-ℕrefl  : ⊢ Γ / l → Γ / l ⊢ ℕ ≅ ℕ ∷ U
 
     -- Empty type reflexivity
-    ≅-Emptyrefl   : ⊢ Γ / lε → Γ / lε ⊢ Empty ≅ Empty
-    ≅ₜ-Emptyrefl  : ⊢ Γ / lε → Γ / lε ⊢ Empty ≅ Empty ∷ U
+    ≅-Emptyrefl   : ⊢ Γ / l → Γ / l ⊢ Empty ≅ Empty
+    ≅ₜ-Emptyrefl  : ⊢ Γ / l → Γ / l ⊢ Empty ≅ Empty ∷ U
 
     -- Unit type reflexivity
-    ≅-Unitrefl   : ⊢ Γ / lε → Γ / lε ⊢ Unit ≅ Unit
-    ≅ₜ-Unitrefl  : ⊢ Γ / lε → Γ / lε ⊢ Unit ≅ Unit ∷ U
+    ≅-Unitrefl   : ⊢ Γ / l → Γ / l ⊢ Unit ≅ Unit
+    ≅ₜ-Unitrefl  : ⊢ Γ / l → Γ / l ⊢ Unit ≅ Unit ∷ U
 
     -- Unit η-equality
-    ≅ₜ-η-unit : Γ / lε ⊢ e ∷ Unit
-              → Γ / lε ⊢ e′ ∷ Unit
-              → Γ / lε ⊢ e ≅ e′ ∷ Unit
+    ≅ₜ-η-unit : Γ / l ⊢ e ∷ Unit
+              → Γ / l ⊢ e′ ∷ Unit
+              → Γ / l ⊢ e ≅ e′ ∷ Unit
 
     -- Π-congruence
 
     ≅-Π-cong  : ∀ {F G H E}
-              → Γ / lε ⊢ F
-              → Γ / lε ⊢ F ≅ H
-              → Γ ∙ F / lε ⊢ G ≅ E
-              → Γ / lε ⊢ Π F ▹ G ≅ Π H ▹ E
+              → Γ / l ⊢ F
+              → Γ / l ⊢ F ≅ H
+              → Γ ∙ F / l ⊢ G ≅ E
+              → Γ / l ⊢ Π F ▹ G ≅ Π H ▹ E
 
     ≅ₜ-Π-cong : ∀ {F G H E}
-              → Γ / lε ⊢ F
-              → Γ / lε ⊢ F ≅ H ∷ U
-              → Γ ∙ F / lε ⊢ G ≅ E ∷ U
-              → Γ / lε ⊢ Π F ▹ G ≅ Π H ▹ E ∷ U
+              → Γ / l ⊢ F
+              → Γ / l ⊢ F ≅ H ∷ U
+              → Γ ∙ F / l ⊢ G ≅ E ∷ U
+              → Γ / l ⊢ Π F ▹ G ≅ Π H ▹ E ∷ U
 
     -- Σ-congruence
 
     ≅-Σ-cong  : ∀ {F G H E}
-              → Γ / lε ⊢ F
-              → Γ / lε ⊢ F ≅ H
-              → Γ ∙ F / lε ⊢ G ≅ E
-              → Γ / lε ⊢ Σ F ▹ G ≅ Σ H ▹ E
+              → Γ / l ⊢ F
+              → Γ / l ⊢ F ≅ H
+              → Γ ∙ F / l ⊢ G ≅ E
+              → Γ / l ⊢ Σ F ▹ G ≅ Σ H ▹ E
 
     ≅ₜ-Σ-cong : ∀ {F G H E}
-              → Γ / lε ⊢ F
-              → Γ / lε ⊢ F ≅ H ∷ U
-              → Γ ∙ F / lε ⊢ G ≅ E ∷ U
-              → Γ / lε ⊢ Σ F ▹ G ≅ Σ H ▹ E ∷ U
+              → Γ / l ⊢ F
+              → Γ / l ⊢ F ≅ H ∷ U
+              → Γ ∙ F / l ⊢ G ≅ E ∷ U
+              → Γ / l ⊢ Σ F ▹ G ≅ Σ H ▹ E ∷ U
 
     -- Zero reflexivity
-    ≅ₜ-zerorefl : ⊢ Γ / lε → Γ / lε ⊢ zero ≅ zero ∷ ℕ
+    ≅ₜ-zerorefl : ⊢ Γ / l → Γ / l ⊢ zero ≅ zero ∷ ℕ
 
     -- Successor congruence
-    ≅-suc-cong : ∀ {m n} → Γ / lε ⊢ m ≅ n ∷ ℕ → Γ / lε ⊢ suc m ≅ suc n ∷ ℕ
+    ≅-suc-cong : ∀ {m n} → Γ / l ⊢ m ≅ n ∷ ℕ → Γ / l ⊢ suc m ≅ suc n ∷ ℕ
 
     -- α congruence
-    ≅-α-cong : ∀ {m n} → Γ / lε ⊢ m ≅ n ∷ ℕ → Γ / lε ⊢ α m ≅ α n ∷ 𝔹
+    ≅-α-cong : ∀ {m n} → Γ / l ⊢ m ≅ n ∷ ℕ → Γ / l ⊢ α m ≅ α n ∷ 𝔹
 
     -- true reflexivity
-    ≅ₜ-truerefl : ⊢ Γ / lε → Γ / lε ⊢ true ≅ true ∷ 𝔹
+    ≅ₜ-truerefl : ⊢ Γ / l → Γ / l ⊢ true ≅ true ∷ 𝔹
     
     -- false reflexivity
-    ≅ₜ-falserefl : ⊢ Γ / lε → Γ / lε ⊢ false ≅ false ∷ 𝔹
+    ≅ₜ-falserefl : ⊢ Γ / l → Γ / l ⊢ false ≅ false ∷ 𝔹
 
     -- η-equality
     ≅-η-eq : ∀ {f g F G}
-           → Γ / lε ⊢ F
-           → Γ / lε ⊢ f ∷ Π F ▹ G
-           → Γ / lε ⊢ g ∷ Π F ▹ G
+           → Γ / l ⊢ F
+           → Γ / l ⊢ f ∷ Π F ▹ G
+           → Γ / l ⊢ g ∷ Π F ▹ G
            → Function f
            → Function g
-           → Γ ∙ F / lε ⊢ wk1 f ∘ var x0 ≅ wk1 g ∘ var x0 ∷ G
-           → Γ / lε ⊢ f ≅ g ∷ Π F ▹ G
+           → Γ ∙ F / l ⊢ wk1 f ∘ var x0 ≅ wk1 g ∘ var x0 ∷ G
+           → Γ / l ⊢ f ≅ g ∷ Π F ▹ G
 
     -- η for product types
     ≅-Σ-η : ∀ {p r F G}
-          → Γ / lε ⊢ F
-          → Γ ∙ F / lε ⊢ G
-          → Γ / lε ⊢ p ∷ Σ F ▹ G
-          → Γ / lε ⊢ r ∷ Σ F ▹ G
+          → Γ / l ⊢ F
+          → Γ ∙ F / l ⊢ G
+          → Γ / l ⊢ p ∷ Σ F ▹ G
+          → Γ / l ⊢ r ∷ Σ F ▹ G
           → Product p
           → Product r
-          → Γ / lε ⊢ fst p ≅ fst r ∷ F
-          → Γ / lε ⊢ snd p ≅ snd r ∷ G [ fst p ]
-          → Γ / lε ⊢ p ≅ r ∷ Σ F ▹ G
+          → Γ / l ⊢ fst p ≅ fst r ∷ F
+          → Γ / l ⊢ snd p ≅ snd r ∷ G [ fst p ]
+          → Γ / l ⊢ p ≅ r ∷ Σ F ▹ G
 
     -- Variable reflexivity
-    ~-var : ∀ {x A} → Γ / lε ⊢ var x ∷ A → Γ / lε ⊢ var x ~ var x ∷ A
+    ~-var : ∀ {x A} → Γ / l ⊢ var x ∷ A → Γ / l ⊢ var x ~ var x ∷ A
 
     -- Application congruence
     ~-app : ∀ {a b f g F G}
-          → Γ / lε ⊢ f ~ g ∷ Π F ▹ G
-          → Γ / lε ⊢ a ≅ b ∷ F
-          → Γ / lε ⊢ f ∘ a ~ g ∘ b ∷ G [ a ]
+          → Γ / l ⊢ f ~ g ∷ Π F ▹ G
+          → Γ / l ⊢ a ≅ b ∷ F
+          → Γ / l ⊢ f ∘ a ~ g ∘ b ∷ G [ a ]
 
     -- Product projections congruence
     ~-fst : ∀ {p r F G}
-          → Γ / lε ⊢ F
-          → Γ ∙ F / lε ⊢ G
-          → Γ / lε ⊢ p ~ r ∷ Σ F ▹ G
-          → Γ / lε ⊢ fst p ~ fst r ∷ F
+          → Γ / l ⊢ F
+          → Γ ∙ F / l ⊢ G
+          → Γ / l ⊢ p ~ r ∷ Σ F ▹ G
+          → Γ / l ⊢ fst p ~ fst r ∷ F
 
     ~-snd : ∀ {p r F G}
-          → Γ / lε ⊢ F
-          → Γ ∙ F / lε ⊢ G
-          → Γ / lε ⊢ p ~ r ∷ Σ F ▹ G
-          → Γ / lε ⊢ snd p ~ snd r ∷ G [ fst p ]
+          → Γ / l ⊢ F
+          → Γ ∙ F / l ⊢ G
+          → Γ / l ⊢ p ~ r ∷ Σ F ▹ G
+          → Γ / l ⊢ snd p ~ snd r ∷ G [ fst p ]
 
     -- Natural recursion congruence
     ~-natrec : ∀ {z z′ s s′ n n′ F F′}
-             → Γ ∙ ℕ / lε ⊢ F ≅ F′
-             → Γ  / lε    ⊢ z ≅ z′ ∷ F [ zero ]
-             → Γ / lε     ⊢ s ≅ s′ ∷ Π ℕ ▹ (F ▹▹ F [ suc (var x0) ]↑)
-             → Γ / lε     ⊢ n ~ n′ ∷ ℕ
-             → Γ / lε     ⊢ natrec F z s n ~ natrec F′ z′ s′ n′ ∷ F [ n ]
+             → Γ ∙ ℕ / l ⊢ F ≅ F′
+             → Γ  / l    ⊢ z ≅ z′ ∷ F [ zero ]
+             → Γ / l     ⊢ s ≅ s′ ∷ Π ℕ ▹ (F ▹▹ F [ suc (var x0) ]↑)
+             → Γ / l     ⊢ n ~ n′ ∷ ℕ
+             → Γ / l     ⊢ natrec F z s n ~ natrec F′ z′ s′ n′ ∷ F [ n ]
              
     -- Boolean recursion congruence
     ~-boolrec : ∀ {t t′ f f′ b b′ F F′}
-             → Γ ∙ 𝔹 / lε ⊢ F ≅ F′
-             → Γ  / lε    ⊢ t ≅ t′ ∷ F [ true ]
-             → Γ  / lε    ⊢ f ≅ f′ ∷ F [ false ]
-             → Γ / lε     ⊢ b ~ b′ ∷ 𝔹
-             → Γ / lε     ⊢ boolrec F t f b ~ boolrec F′ t′ f′ b′ ∷ F [ b ]
+             → Γ ∙ 𝔹 / l ⊢ F ≅ F′
+             → Γ  / l    ⊢ t ≅ t′ ∷ F [ true ]
+             → Γ  / l    ⊢ f ≅ f′ ∷ F [ false ]
+             → Γ / l     ⊢ b ~ b′ ∷ 𝔹
+             → Γ / l     ⊢ boolrec F t f b ~ boolrec F′ t′ f′ b′ ∷ F [ b ]
 
     -- Empty recursion congruence
     ~-Emptyrec : ∀ {n n′ F F′}
-               → Γ / lε ⊢ F ≅ F′
-               → Γ / lε ⊢ n ~ n′ ∷ Empty
-               → Γ / lε ⊢ Emptyrec F n ~ Emptyrec F′ n′ ∷ F
+               → Γ / l ⊢ F ≅ F′
+               → Γ / l ⊢ n ~ n′ ∷ Empty
+               → Γ / l ⊢ Emptyrec F n ~ Emptyrec F′ n′ ∷ F
 
     -- Fascist congruence on types
-    ≅-ϝ : ∀ {n nε A B}    → Γ / ⊢ₗ• l lε n Btrue nε  ⊢ A ≅ B
-                          → Γ / ⊢ₗ• l lε n Bfalse nε  ⊢ A ≅ B
-                          → Γ / lε                ⊢ A ≅ B
+    ≅-ϝ : ∀ {n A B}    → Γ / (addₗ n Btrue l)  ⊢ A ≅ B
+                       → Γ / (addₗ n Bfalse l) ⊢ A ≅ B
+                       → Γ / l                ⊢ A ≅ B
   
     -- Fascist congruence on terms
-    ≅ₜ-ϝ : ∀ {n nε t u A}  → Γ / ⊢ₗ• l lε n Btrue nε   ⊢ t ≅ u ∷ A
-                       → Γ / ⊢ₗ• l lε n Bfalse nε  ⊢ t ≅ u ∷ A
-                       → Γ / lε                ⊢ t ≅ u ∷ A
+    ≅ₜ-ϝ : ∀ {n t u A}  → Γ / (addₗ n Btrue l)  ⊢ t ≅ u ∷ A
+                       → Γ / (addₗ n Bfalse l) ⊢ t ≅ u ∷ A
+                       → Γ / l                ⊢ t ≅ u ∷ A
 
 -- Fascist congruence on neutrals
-    ~-ϝ : ∀ {n nε t u A}  → Γ / ⊢ₗ• l lε n Btrue nε   ⊢ t ~ u ∷ A
-                          → Γ / ⊢ₗ• l lε n Bfalse nε  ⊢ t ~ u ∷ A
-                          → Γ / lε                ⊢ t ~ u ∷ A
+    ~-ϝ : ∀ {n t u A}  → Γ / (addₗ n Btrue l)  ⊢ t ~ u ∷ A
+                       → Γ / (addₗ n Bfalse l) ⊢ t ~ u ∷ A
+                       → Γ / l                ⊢ t ~ u ∷ A
 
   -- Star reflexivity
-  ≅ₜ-starrefl : ⊢ Γ / lε → Γ / lε ⊢ star ≅ star ∷ Unit
+  ≅ₜ-starrefl : ⊢ Γ / l → Γ / l ⊢ star ≅ star ∷ Unit
   ≅ₜ-starrefl [Γ] = ≅ₜ-η-unit (starⱼ [Γ]) (starⱼ [Γ])
 
   -- Composition of universe and generic equality compatibility
-  ~-to-≅ : ∀ {k j} → Γ / lε ⊢ k ~ j ∷ U → Γ / lε ⊢ k ≅ j
+  ~-to-≅ : ∀ {k j} → Γ / l ⊢ k ~ j ∷ U → Γ / l ⊢ k ≅ j
   ~-to-≅ k~j = ≅-univ (~-to-≅ₜ k~j)
 
 
   ≅-W-cong : ∀ {F G H E} W
-          → Γ / lε ⊢ F
-          → Γ / lε ⊢ F ≅ H
-          → Γ ∙ F / lε ⊢ G ≅ E
-          → Γ / lε ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ H ▹ E
+          → Γ / l ⊢ F
+          → Γ / l ⊢ F ≅ H
+          → Γ ∙ F / l ⊢ G ≅ E
+          → Γ / l ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ H ▹ E
   ≅-W-cong BΠ = ≅-Π-cong
   ≅-W-cong BΣ = ≅-Σ-cong
 
   ≅ₜ-W-cong : ∀ {F G H E} W
-            → Γ / lε ⊢ F
-            → Γ / lε ⊢ F ≅ H ∷ U
-            → Γ ∙ F / lε ⊢ G ≅ E ∷ U
-            → Γ / lε ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ H ▹ E ∷ U
+            → Γ / l ⊢ F
+            → Γ / l ⊢ F ≅ H ∷ U
+            → Γ ∙ F / l ⊢ G ≅ E ∷ U
+            → Γ / l ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ H ▹ E ∷ U
   ≅ₜ-W-cong BΠ = ≅ₜ-Π-cong
   ≅ₜ-W-cong BΣ = ≅ₜ-Σ-cong
