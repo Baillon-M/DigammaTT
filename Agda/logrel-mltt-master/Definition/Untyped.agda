@@ -570,18 +570,20 @@ TrueBool≢U ()
 
 -- A whnf of type ℕ is either zero, suc t, or neutral.
 
-data Natural {n : Nat} : Term n → Set where
+data Natural {n : Nat} {l} {lε} : Term n → Set where
   zeroₙ :             Natural zero
   sucₙ  :             Natural (suc t)
   ne    : Neutral t → Natural t
+  neα   : αNeutral {l} {lε} t → Natural t
 
 
 -- A whnf of type 𝔹 is either true, false, or neutral.
 
-data Boolean {n : Nat} : Term n → Set where
+data Boolean {n : Nat} {l} {lε} : Term n → Set where
   trueₙ :             Boolean true
   falseₙ  :           Boolean false
   ne    : Neutral t → Boolean t
+  neα   : αNeutral {l} {lε} t → Boolean t
 
 -- A (small) type in whnf is either Π A B, Σ A B, ℕ, Empty, Unit or neutral.
 -- Large types could also be U.
@@ -602,9 +604,10 @@ data Type {n : Nat} {l : LCon} {lε : ⊢ₗ l} : Term n → Set where
 
 -- A whnf of type Π A ▹ B is either lam t or neutral.
 
-data Function {n : Nat} : Term n → Set where
+data Function {n : Nat} {l} {lε} : Term n → Set where
   lamₙ : Function (lam t)
   ne   : Neutral t → Function t
+  neα : αNeutral {l} {lε} t → Function t
 
 -- A whnf of type Σ A ▹ B is either prod t u or neutral.
 
@@ -615,19 +618,21 @@ data Product {n : Nat} : Term n → Set where
 -- These views classify only whnfs.
 -- Natural, Type, Function and Product are a subsets of Whnf.
 
-TrueNatNatural : TrueNat t → Natural t
+TrueNatNatural : ∀ {l lε} → TrueNat t → Natural {_} {l} {lε} t
 TrueNatNatural Truezero = zeroₙ
 TrueNatNatural (Truesuc tε) = sucₙ
 
-naturalWhnf : ∀ {l : LCon} {lε} → Natural t → Whnf {l} {lε} t
+naturalWhnf : ∀ {l : LCon} {lε} → Natural {_} {l} {lε} t → Whnf {l} {lε} t
 naturalWhnf sucₙ   = sucₙ
 naturalWhnf zeroₙ  = zeroₙ
 naturalWhnf (ne x) = ne x
+naturalWhnf (neα x) = αₙ x
 
-booleanWhnf : ∀ {l : LCon} {lε} → Boolean t → Whnf {l} {lε} t
+booleanWhnf : ∀ {l : LCon} {lε} → Boolean {_} {l} {lε} t → Whnf {l} {lε} t
 booleanWhnf trueₙ   = trueₙ
 booleanWhnf falseₙ  = falseₙ
 booleanWhnf (ne x) = ne x
+booleanWhnf (neα x) = αₙ x
 
 typeWhnf : ∀ {l : LCon} {lε} → Type {_} {l} {lε} A → Whnf {l} {lε} A
 typeWhnf Πₙ     = Πₙ
@@ -639,9 +644,10 @@ typeWhnf Unitₙ  = Unitₙ
 typeWhnf (ne x) = ne x
 typeWhnf (αne x) = αₙ x
 
-functionWhnf : ∀ {l : LCon} {lε} → Function t → Whnf {l} {lε} t
+functionWhnf : ∀ {l : LCon} {lε} → Function {_} {l} {lε} t → Whnf {l} {lε} t
 functionWhnf lamₙ   = lamₙ
 functionWhnf (ne x) = ne x
+functionWhnf (neα x) = αₙ x
 
 productWhnf : ∀ {l : LCon} {lε} → Product t → Whnf {l} {lε} t
 productWhnf prodₙ  = prodₙ
@@ -761,10 +767,17 @@ wkNotInLCon (addₗ m b γ) ρ (NotInThere .γ γε .m .b e) = NotInThere γ (wk
 
 -- Weakening can be applied to our whnf views.
 
-wkNatural : ∀ ρ → Natural t → Natural {n} (wk ρ t)
+wkNatural : ∀ ρ {l} {lε} → Natural  {_} {l} {lε} t → Natural {n} {l} {lε} (wk ρ t)
 wkNatural ρ sucₙ   = sucₙ
 wkNatural ρ zeroₙ  = zeroₙ
 wkNatural ρ (ne x) = ne (wkNeutral ρ x)
+wkNatural ρ (neα x) = neα (αwkNeutral ρ x)
+
+wkBoolean : ∀ {l} {lε} ρ → Boolean  {_} {l} {lε} t → Boolean {n} {l} {lε} (wk ρ t)
+wkBoolean ρ trueₙ   = trueₙ
+wkBoolean ρ falseₙ  = falseₙ
+wkBoolean ρ (ne x) = ne (wkNeutral ρ x)
+wkBoolean ρ (neα x) = neα (αwkNeutral ρ x)
 
 wkType : ∀ {l lε} ρ → Type {_} {l} {lε} t → Type {n} {l} {lε} (wk ρ t)
 wkType ρ Πₙ     = Πₙ
@@ -776,9 +789,11 @@ wkType ρ Unitₙ  = Unitₙ
 wkType ρ (ne x) = ne (wkNeutral ρ x)
 wkType ρ (αne x) = αne (αwkNeutral ρ x)
 
-wkFunction : ∀ ρ → Function t → Function {n} (wk ρ t)
+wkFunction : ∀ {l lε} ρ → Function {_} {l} {lε} t → Function {n} {l} {lε} (wk ρ t)
 wkFunction ρ lamₙ   = lamₙ
 wkFunction ρ (ne x) = ne (wkNeutral ρ x)
+wkFunction ρ (neα x) = neα (αwkNeutral ρ x)
+
 
 wkProduct : ∀ ρ → Product t → Product {n} (wk ρ t)
 wkProduct ρ prodₙ  = prodₙ

@@ -725,6 +725,19 @@ data _/_⊢_⇒*_ (Γ : Con Term n) {l : LCon} (lε : ⊢ₗ l) : Term n → Ter
       → Γ / lε ⊢ A′ ⇒* B
       → Γ / lε ⊢ A  ⇒* B
 
+
+τRed* : ∀ {l : LCon} {lε : ⊢ₗ l} {A B n b nε}
+             → Γ / lε ⊢ A ⇒* B
+             → Γ / (⊢ₗ• l lε n b nε) ⊢ A ⇒* B
+τRed* (id d) = id (τTy _ _ _ _ d)
+τRed* ((univ d) ⇨ d') = univ (τRedTerm d) ⇨ τRed* d'
+
+τRed*Term : ∀ {l : LCon} {lε : ⊢ₗ l} {t u A n b nε}
+             → Γ / lε ⊢ t ⇒* u ∷ A
+             → Γ / (⊢ₗ• l lε n b nε) ⊢ t ⇒* u ∷ A
+τRed*Term (id d) = id (τTerm _ _ _ _ d)
+τRed*Term (d ⇨ d') = τRedTerm d ⇨ τRed*Term d'
+
 -- Type reduction to whnf
 _/_⊢_↘_ : (Γ : Con Term n) → {l : LCon} → (lε : ⊢ₗ l) → Term n → Term n → Set
 Γ / lε ⊢ A ↘ B = Γ / lε ⊢ A ⇒* B × Whnf {_} {lε} B
@@ -748,6 +761,11 @@ record _/_⊢_:⇒*:_ (Γ : Con Term n) {l : LCon} (lε : ⊢ₗ l) (A B : Term 
     ⊢A : Γ / lε ⊢ A
     ⊢B : Γ / lε ⊢ B
     D  : Γ / lε ⊢ A ⇒* B
+
+τwfRed* : ∀ {l : LCon} {lε : ⊢ₗ l} {A B n b nε}
+             → Γ / lε ⊢ A :⇒*: B
+             → Γ / (⊢ₗ• l lε n b nε) ⊢ A :⇒*: B
+τwfRed* [ ⊢A , ⊢B , A⇨B ] = [ τTy _ _ _ _ ⊢A , τTy _ _ _ _ ⊢B , τRed* A⇨B ]
 
 open _/_⊢_:⇒*:_ using () renaming (D to red; ⊢A to ⊢A-red; ⊢B to ⊢B-red) public
 
