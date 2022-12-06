@@ -30,7 +30,7 @@ escape (Emptyᵣ [ ⊢A , ⊢B , D ]) = ⊢A
 escape (Unitᵣ [ ⊢A , ⊢B , D ]) = ⊢A
 escape (ne′ K [ ⊢A , ⊢B , D ] neK K≡K) = ⊢A
 escape (Bᵣ′ W F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) = ⊢A
-escape (ϝᵣ [ ⊢A , ⊢B , D ] αB B=B tB fB) = ⊢A
+escape (ϝᵣ tA fA) = ϝⱼ (escape tA) (escape fA)
 escape (emb 0<1 A) = escape A
       
 -- Reducible type equality respect the equality relation.
@@ -49,7 +49,7 @@ escapeEq {k = k} (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext)
              A=B = LogRel.escapeEqB k (logRelRec _) (Bᵣ _ _ D ⊢F ⊢G A≡A [F] [G] G-ext) A=B
   -- ≅-red (red D) D′ ⟦ W ⟧ₙ ⟦ W ⟧ₙ A≡B
 escapeEq (emb 0<1 A) A≡B = escapeEq A A≡B
-escapeEq (ϝᵣ [ ⊢A , ⊢B , D ] αB B=B tB fB) ( x , y ) = ≅-trans (≅-red D (id ⊢B) (αₙ αB) (αₙ αB) B=B) (≅-ϝ (escapeEq tB x) (escapeEq fB y))
+escapeEq (ϝᵣ tA fA) ( x , y ) = ≅-ϝ (escapeEq tA x) (escapeEq fA y)
 
 -- Reducible terms are well-formed.
 escapeTerm : ∀ {k A t} → ([A] : Γ / lε ⊩⟨ k ⟩ A)
@@ -70,7 +70,7 @@ escapeTerm (Bᵣ′ BΠ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
 escapeTerm (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                (Σₜ p [ ⊢t , ⊢u , d ] pProd p≅p [fst] [snd]) =
   conv ⊢t (sym (subset* (red D)))
-escapeTerm (ϝᵣ [ ⊢A , ⊢B , D ] αB B=B tB fB) ( x , y ) = ϝⱼ (conv (escapeTerm tB x) (sym (subset* (τRed* D)))) (conv (escapeTerm fB y) (sym (subset* (τRed* D))))
+escapeTerm (ϝᵣ tA fA) ( x , y ) = ϝⱼ (escapeTerm tA x) (escapeTerm fA y)
 escapeTerm (emb 0<1 A) t = escapeTerm A t
 
 -- Reducible term equality respect the equality relation.
@@ -102,4 +102,5 @@ escapeTermEq (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                  (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] [fstp] [fstr] [fst≡] [snd≡]) =
   ≅ₜ-red (red D) (redₜ d) (redₜ d′) Σₙ (productWhnf pProd) (productWhnf rProd) p≅r
 escapeTermEq (emb 0<1 A) t≡u = escapeTermEq A t≡u
-escapeTermEq (ϝᵣ [ ⊢A , ⊢B , D ] αB B=B tB fB) ( x , y ) = ≅ₜ-ϝ (≅-conv (escapeTermEq tB x) (sym (subset* (τRed* D)))) (≅-conv (escapeTermEq fB y) (sym (subset* (τRed* D))))
+escapeTermEq (ϝᵣ tA fA) ( x , y ) = ≅ₜ-ϝ (escapeTermEq tA x) (escapeTermEq fA y)
+

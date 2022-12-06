@@ -18,39 +18,44 @@ private
   variable
     n : Nat
     Γ : Con Term n
+    l : LCon
+    lε : ⊢ₗ l
 
 -- Reflexivity of reducible types.
-reflEq : ∀ {l A} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ A ≡ A / [A]
-reflEq (Uᵣ′ l′ l< ⊢Γ) = PE.refl
-reflEq (ℕᵣ D) = red D
+reflEq : ∀ {k A} ([A] : Γ / lε ⊩⟨ k ⟩ A) → Γ / lε ⊩⟨ k ⟩ A ≡ A / [A]
+reflEq (Uᵣ′ k′ k< ⊢Γ) = PE.refl
+reflEq (ℕᵣ D) = ⊩ℕ≡ _ _ (red D)
 reflEq (Emptyᵣ D) = red D
 reflEq (Unitᵣ D) = red D
 reflEq (ne′ K [ ⊢A , ⊢B , D ] neK K≡K) =
   ne₌ _ [ ⊢A , ⊢B , D ] neK K≡K
 reflEq (Bᵣ′ W F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) =
-   B₌ _ _ D A≡A
+   B₌ _ _ _ _ _ _ _ _ _ _ _ D A≡A
       (λ ρ ⊢Δ → reflEq ([F] ρ ⊢Δ))
       (λ ρ ⊢Δ [a] → reflEq ([G] ρ ⊢Δ [a]))
 reflEq (emb 0<1 [A]) = reflEq [A]
+reflEq (ϝᵣ tA fA) = reflEq tA , reflEq fA
 
 reflNatural-prop : ∀ {n}
-                 → Natural-prop Γ n
-                 → [Natural]-prop Γ n n
+                 → Natural-prop Γ lε n
+                 → [Natural]-prop Γ lε n n
 reflNatural-prop (sucᵣ (ℕₜ n d t≡t prop)) =
   sucᵣ (ℕₜ₌ n n d d t≡t
             (reflNatural-prop prop))
 reflNatural-prop zeroᵣ = zeroᵣ
 reflNatural-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
+reflNatural-prop (ℕϝ ⊢n αn (ℕₜ k red k=k prop) (ℕₜ k' red' k'=k' prop')) = [ℕ]ϝ αn αn (ℕₜ₌ _ _ red red k=k (reflNatural-prop prop))
+                                                                                      (ℕₜ₌ _ _ red' red' k'=k' (reflNatural-prop prop'))
 
 reflEmpty-prop : ∀ {n}
-                 → Empty-prop Γ n
-                 → [Empty]-prop Γ n n
+                 → Empty-prop Γ lε n
+                 → [Empty]-prop Γ lε n n
 reflEmpty-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 
 -- Reflexivity of reducible terms.
-reflEqTerm : ∀ {l A t} ([A] : Γ ⊩⟨ l ⟩ A)
-           → Γ ⊩⟨ l ⟩ t ∷ A / [A]
-           → Γ ⊩⟨ l ⟩ t ≡ t ∷ A / [A]
+reflEqTerm : ∀ {k A t} ([A] : Γ / lε ⊩⟨ k ⟩ A)
+           → Γ / lε ⊩⟨ k ⟩ t ∷ A / [A]
+           → Γ / lε ⊩⟨ k ⟩ t ≡ t ∷ A / [A]
 reflEqTerm (Uᵣ′ ⁰ 0<1 ⊢Γ) (Uₜ A d typeA A≡A [A]) =
   Uₜ₌ A A d d typeA typeA A≡A [A] [A] (reflEq [A])
 reflEqTerm (ℕᵣ D) (ℕₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
@@ -71,3 +76,4 @@ reflEqTerm (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d pPro
     (reflEqTerm ([F] id (wf ⊢F)) [fst])
     (reflEqTerm ([G] id (wf ⊢F) [fst]) [snd])
 reflEqTerm (emb 0<1 [A]) t = reflEqTerm [A] t
+reflEqTerm (ϝᵣ tA fA) ( x , y ) = reflEqTerm tA x , reflEqTerm fA y 

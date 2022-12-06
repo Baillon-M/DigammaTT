@@ -455,11 +455,8 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
       Bᵣ  : ∀ {A} W → Γ / lε ⊩¹B⟨ W ⟩ A → Γ / lε ⊩¹ A
       emb : ∀ {A j′} (j< : j′ < j) (let open LogRelKit (rec j<))
             ([A] : Γ / lε ⊩ A) → Γ / lε ⊩¹ A
-      ϝᵣ  : ∀ {A B m mε} →  Γ / lε ⊢ A :⇒*: B
-                         → αNeutral {l} {lε} B
-                         → Γ / lε ⊢ B ≅ B
-                         → Γ / (⊢ₗ• l lε m Btrue mε)   ⊩¹ B
-                         → Γ / (⊢ₗ• l lε m Bfalse mε)  ⊩¹ B
+      ϝᵣ  : ∀ {A m mε} → Γ / (⊢ₗ• l lε m Btrue mε)   ⊩¹ A
+                         → Γ / (⊢ₗ• l lε m Bfalse mε)  ⊩¹ A
                          → Γ / lε ⊩¹ A
 
     _/_⊩¹_≡_/_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A B : Term ℓ) → Γ / lε ⊩¹ A → Set
@@ -469,7 +466,7 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     Γ / lε ⊩¹ A ≡ B / Unitᵣ D = Γ / lε ⊩Unit A ≡ B
     Γ / lε ⊩¹ A ≡ B / ne neA = Γ / lε ⊩ne A ≡ B / neA
     Γ / lε ⊩¹ A ≡ B / Bᵣ W BA = Γ / lε ⊩¹B⟨ W ⟩ A ≡ B / BA
-    Γ / lε ⊩¹ A ≡ B / ϝᵣ A⇒B αB B=B tB fB = (Γ / _ ⊩¹ _ ≡ B / tB) × (Γ / _ ⊩¹ _ ≡ B / fB)
+    Γ / lε ⊩¹ A ≡ B / ϝᵣ tA fA = (Γ / _ ⊩¹ _ ≡ B / tA) × (Γ / _ ⊩¹ _ ≡ B / fA)
     Γ / lε ⊩¹ A ≡ B / emb j< [A] = Γ / lε ⊩ A ≡ B / [A]
       where open LogRelKit (rec j<)
 
@@ -481,7 +478,7 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     Γ / lε ⊩¹ t ∷ A / ne neA = Γ / lε ⊩ne t ∷ A / neA
     Γ / lε ⊩¹ t ∷ A / Bᵣ BΠ ΠA  = Γ / lε ⊩¹Π t ∷ A / ΠA
     Γ / lε ⊩¹ t ∷ A / Bᵣ BΣ ΣA  = Γ / lε ⊩¹Σ t ∷ A / ΣA
-    Γ / lε ⊩¹ t ∷ A / ϝᵣ A⇒B αB B=B tB fB = (Γ / _ ⊩¹ t ∷ _ / tB) × (Γ / _ ⊩¹ t ∷ _ / fB)
+    Γ / lε ⊩¹ t ∷ A / ϝᵣ tA fA = (Γ / _ ⊩¹ t ∷ _ / tA) × (Γ / _ ⊩¹ t ∷ _ / fA)
     Γ / lε ⊩¹ t ∷ A / emb j< [A] = Γ / lε ⊩ t ∷ A / [A]
       where open LogRelKit (rec j<)
 
@@ -493,7 +490,7 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     Γ / lε ⊩¹ t ≡ u ∷ A / ne neA = Γ / lε ⊩ne t ≡ u ∷ A / neA
     Γ / lε ⊩¹ t ≡ u ∷ A / Bᵣ BΠ ΠA = Γ / lε ⊩¹Π t ≡ u ∷ A / ΠA
     Γ / lε ⊩¹ t ≡ u ∷ A / Bᵣ BΣ ΣA  = Γ / lε ⊩¹Σ t ≡ u ∷ A / ΣA
-    Γ / lε ⊩¹ t ≡ u ∷ A / ϝᵣ A⇒B αB B=B tB fB = (Γ / _ ⊩¹ t ≡ u ∷ _ / tB) × (Γ / _ ⊩¹ t ≡ u ∷ _ / fB)
+    Γ / lε ⊩¹ t ≡ u ∷ A / ϝᵣ tA fA = (Γ / _ ⊩¹ t ≡ u ∷ _ / tA) × (Γ / _ ⊩¹ t ≡ u ∷ _ / fA)
     Γ / lε ⊩¹ t ≡ u ∷ A / emb j< [A] = Γ / lε ⊩ t ≡ u ∷ A / [A]
       where open LogRelKit (rec j<)
 
