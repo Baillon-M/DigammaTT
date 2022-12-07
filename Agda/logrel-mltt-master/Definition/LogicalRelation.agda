@@ -427,7 +427,7 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
       ∃ λ p → Γ / lε ⊢ t :⇒*: p ∷ Σ F ▹ G
             × Product p
             × Γ / lε ⊢ p ≅ p ∷ Σ F ▹ G
-            × (Σ (Γ / lε ⊩¹ fst p ∷ U.wk id F / [F] {_} {_} {≤ₗ-refl} {lε} id (wf ⊢F)) λ [fst]
+            × (Σ (Γ / lε ⊩¹ fst p ∷ U.wk id F / [F] {_} {_} {λ n l inl → inl} {lε} id (wf ⊢F)) λ [fst]
                  → Γ / lε ⊩¹ snd p ∷ U.wk (lift id) G [ fst p ] / [G] id (wf ⊢F) [fst])
 
     -- Term equality of Σ-type
@@ -440,9 +440,9 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
                × Γ / lε ⊢ p ≅ r ∷ Σ F ▹ G
                × Γ / lε ⊩¹Σ t ∷ A / [A]
                × Γ / lε ⊩¹Σ u ∷ A / [A]
-               × (Σ (Γ / lε ⊩¹ fst p ∷ U.wk id F / [F] {_} {_} {≤ₗ-refl} {lε} id (wf ⊢F)) λ [fstp]
-                    → Γ / lε ⊩¹ fst r ∷ U.wk id F / [F] {_} {_} {≤ₗ-refl} {lε} id (wf ⊢F)
-                    × Γ / lε ⊩¹ fst p ≡ fst r ∷ U.wk id F / [F] {_} {_} {≤ₗ-refl} {lε} id (wf ⊢F)
+               × (Σ (Γ / lε ⊩¹ fst p ∷ U.wk id F / [F] {_} {_} {λ n l inl → inl} {lε} id (wf ⊢F)) λ [fstp]
+                    → Γ / lε ⊩¹ fst r ∷ U.wk id F / [F] {_} {_} {λ n b inl → inl} {lε} id (wf ⊢F)
+                    × Γ / lε ⊩¹ fst p ≡ fst r ∷ U.wk id F / [F] {_} {_} {λ n b inl → inl} {lε} id (wf ⊢F)
                     × Γ / lε ⊩¹ snd p ≡ snd r ∷ U.wk (lift id) G [ fst p ] / [G] id (wf ⊢F) [fstp])
 
     -- Logical relation definition
@@ -554,25 +554,39 @@ _/_⊩⟨_⟩_∷_/_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (j : Type
 _/_⊩⟨_⟩_≡_∷_/_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (j : TypeLevel) (t u A : Term ℓ) → Γ / lε ⊩⟨ j ⟩ A → Set
 Γ / lε ⊩⟨ j ⟩ t ≡ u ∷ A / [A] = Γ / lε ⊩ t ≡ u ∷ A / [A] where open LogRelKit (kit j)
 
-TyPermLog : ∀ {k A n} ([A] :  Γ / lε ⊩⟨ k ⟩ A) → Γ / (permutε n lε) ⊩⟨ k ⟩ A
-TyPermLog (Uᵣ′ k′ k< ⊢Γ) = Uᵣ′ k′ k< (ConPerm _ _ ⊢Γ) --  Uᵣ′ k′ k< (τCon _ _ _ _ ⊢Γ)
-TyPermLog (ℕᵣ [ ⊢A , ⊢ℕ , D ]) = ℕᵣ ([ TyPerm _ _ ⊢A , TyPerm _ _ ⊢ℕ , RedPerm* D ])
-TyPermLog (Emptyᵣ [ ⊢A , ⊢Empty , D ]) = Emptyᵣ ([ TyPerm _ _ ⊢A , TyPerm _ _ ⊢Empty , RedPerm* D ]) 
-TyPermLog (Unitᵣ [ ⊢A , ⊢Unit , D ]) = Unitᵣ ([ TyPerm _ _ ⊢A , TyPerm _ _ ⊢Unit , RedPerm* D ])
-TyPermLog (ne (ne K [ ⊢A , ⊢K , D ] neK K≡K)) = ne (ne K [ TyPerm _ _ ⊢A , TyPerm _ _ ⊢K , RedPerm* D ] neK (~-Perm K≡K))
-TyPermLog (Bᵣ W (Bᵣ F G [ ⊢A , ⊢Π , D ] ⊢F ⊢G A≡A [F] [G] G-ext)) = Bᵣ W (Bᵣ F G [ TyPerm _ _ ⊢A , TyPerm _ _ ⊢Π , RedPerm* D ] (TyPerm _ _ ⊢F) (TyPerm _ _ ⊢G) (≅-Perm A≡A) [F] {!!} {!!}) --
-TyPermLog (emb {l} {lε} {A}  0<1 [A]) = {!!} --  emb 0<1 (TyPermLog [A]) 
-TyPermLog (ϝᵣ [ ⊢B , ⊢C , D ] αB  tB fB) = {!!} --  {!!} --  ϝᵣ ([ ⊢A , ⊢C , ⇒*-comp D' D ]) αB tB fB 
+
+-- TyLog≤ : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} (≤ε : l ≤ₗ l') {k A}
+--            → ([A] :  Γ / lε ⊩⟨ k ⟩ A) → Γ / lε' ⊩⟨ k ⟩ A
+-- TyLog≤ f< (Uᵣ′ k′ k< ⊢Γ) = Uᵣ′ k′ k<  (Con≤ f< ⊢Γ)
+-- TyLog≤ f< (ℕᵣ [ ⊢A , ⊢ℕ , D ]) = ℕᵣ ([ Ty≤ f< ⊢A , Ty≤ f< ⊢ℕ , Red≤* f< D ])
+-- TyLog≤ f< (Emptyᵣ [ ⊢A , ⊢Empty , D ]) = Emptyᵣ ([ Ty≤ f< ⊢A , Ty≤ f< ⊢Empty , Red≤* f< D ])
+-- TyLog≤ f< (Unitᵣ [ ⊢A , ⊢Unit , D ]) = Unitᵣ ([ Ty≤ f< ⊢A , Ty≤ f< ⊢Unit , Red≤* f< D ])
+-- TyLog≤ f< (ne (ne K [ ⊢A , ⊢K , D ] neK K≡K)) = ne (ne K ([ Ty≤ f< ⊢A , Ty≤ f< ⊢K , Red≤* f< D ]) neK (~-≤ f< K≡K))
+-- TyLog≤ {l = l} {l' = l'} f< (Bᵣ W (Bᵣ F G [ ⊢A , ⊢Π , D ] ⊢F ⊢G A≡A [F] [G] G-ext)) =
+--   Bᵣ W (Bᵣ F G ([ Ty≤ f< ⊢A , Ty≤ f< ⊢Π , Red≤* f< D ]) (Ty≤ f< ⊢F) (Ty≤ f< ⊢G) (≅-≤ f< A≡A) [F] (λ {m} {ρ} {Δ} {a} {l'} {≤ε} → [G] {_} {_} {_} {_} {_} {λ n b inl → ≤ε n b (f< n b inl)}) G-ext)
+-- TyLog≤ f< (emb {l} {lε} {A}  0<1 [A]) = emb 0<1 (TyLog≤ f< [A]) 
+-- TyLog≤ f< (ϝᵣ {m = m} {mε = mε} [ ⊢A , ⊢B , D ] αB  tB fB) = ϝᵣ {!!} {!!} {!!} {!!}
 
 
-τTyLog : ∀ {k A n b nε} ([A] :  Γ / lε ⊩⟨ k ⟩ A) → Γ / (⊢ₗ• l lε n b nε) ⊩⟨ k ⟩ A
-τTyLog (Uᵣ′ k′ k< ⊢Γ) = Uᵣ′ k′ k< (τCon _ _ _ _ ⊢Γ)
-τTyLog (ℕᵣ [ ⊢A , ⊢ℕ , D ]) = ℕᵣ ([ τTy _ _ _ _ ⊢A , τTy _ _ _ _ ⊢ℕ , τRed* D ])
-τTyLog (Emptyᵣ [ ⊢A , ⊢Empty , D ]) = Emptyᵣ ([ τTy _ _ _ _ ⊢A , τTy _ _ _ _ ⊢Empty , τRed* D ]) --  Emptyᵣ ([ ⊢A , ⊢Empty , ⇒*-comp D' D ])
-τTyLog (Unitᵣ [ ⊢A , ⊢Unit , D ]) = Unitᵣ ([ τTy _ _ _ _ ⊢A , τTy _ _ _ _ ⊢Unit , τRed* D ]) --  Unitᵣ ([ ⊢A , ⊢Unit , ⇒*-comp D' D ])
-τTyLog (ne (ne K [ ⊢A , ⊢K , D ] neK K≡K)) = ne (ne K ([ τTy _ _ _ _ ⊢A , τTy _ _ _ _ ⊢K , τRed* D ]) neK (~-τ K≡K)) --  ne (ne K ([ ⊢A , ⊢K , ⇒*-comp D' D ]) neK K≡K)
-τTyLog (Bᵣ W (Bᵣ F G [ ⊢A , ⊢Π , D ] ⊢F ⊢G A≡A [F] [G] G-ext)) =
-     Bᵣ W (Bᵣ F G ([ τTy _ _ _ _ ⊢A , τTy _ _ _ _ ⊢Π , τRed* D ]) (τTy _ _ _ _ ⊢F) (τTy _ _ _ _ ⊢G) (≅-τ A≡A)
-       (λ {m} {l'} {≤ε} → [F] {m} {l'} {≤ₗ-rev ≤ε}) [G] G-ext)
-τTyLog (emb {l} {lε} {A}  0<1 [A]) = emb 0<1 (τTyLog [A]) 
-τTyLog (ϝᵣ [ ⊢B , ⊢C , D ] αB  tB fB) = {!!} --  ϝᵣ ([ ⊢A , ⊢C , ⇒*-comp D' D ]) αB tB fB 
+-- TyPermLog : ∀ {k A n} ([A] :  Γ / lε ⊩⟨ k ⟩ A) → Γ / (permutε n lε) ⊩⟨ k ⟩ A
+-- TyPermLog (Uᵣ′ k′ k< ⊢Γ) = Uᵣ′ k′ k< (ConPerm _ _ ⊢Γ) --  Uᵣ′ k′ k< (τCon _ _ _ _ ⊢Γ)
+-- TyPermLog (ℕᵣ [ ⊢A , ⊢ℕ , D ]) = ℕᵣ ([ TyPerm _ _ ⊢A , TyPerm _ _ ⊢ℕ , RedPerm* D ])
+-- TyPermLog (Emptyᵣ [ ⊢A , ⊢Empty , D ]) = Emptyᵣ ([ TyPerm _ _ ⊢A , TyPerm _ _ ⊢Empty , RedPerm* D ]) 
+-- TyPermLog (Unitᵣ [ ⊢A , ⊢Unit , D ]) = Unitᵣ ([ TyPerm _ _ ⊢A , TyPerm _ _ ⊢Unit , RedPerm* D ])
+-- TyPermLog (ne (ne K [ ⊢A , ⊢K , D ] neK K≡K)) = ne (ne K [ TyPerm _ _ ⊢A , TyPerm _ _ ⊢K , RedPerm* D ] neK {!!}) -- (~-Perm K≡K))
+-- TyPermLog (Bᵣ W (Bᵣ F G [ ⊢A , ⊢Π , D ] ⊢F ⊢G A≡A [F] [G] G-ext)) = {!!}
+-- TyPermLog (emb {l} {lε} {A}  0<1 [A]) = emb 0<1 (TyPermLog [A]) 
+-- TyPermLog {n = n} (ϝᵣ {m = m} {mε = mε} [ ⊢A , ⊢B , D ] αB  tB fB) = ϝᵣ {_} {_} {_} {_} {_} {_} {_} {_} {m} {permutNotInLConNat _ _ _ mε} ([ TyPerm _ _ ⊢A , TyPerm _ _ ⊢B , RedPerm* D ]) {!!} (TyPermLog  tB) (TyPermLog fB)
+
+
+-- τTyLog : ∀ {k A n b nε} ([A] :  Γ / lε ⊩⟨ k ⟩ A) → Γ / (⊢ₗ• l lε n b nε) ⊩⟨ k ⟩ A
+-- τTyLog (Uᵣ′ k′ k< ⊢Γ) = Uᵣ′ k′ k< (τCon _ _ _ _ ⊢Γ)
+-- τTyLog (ℕᵣ [ ⊢A , ⊢ℕ , D ]) = ℕᵣ ([ τTy _ _ _ _ ⊢A , τTy _ _ _ _ ⊢ℕ , τRed* D ])
+-- τTyLog (Emptyᵣ [ ⊢A , ⊢Empty , D ]) = Emptyᵣ ([ τTy _ _ _ _ ⊢A , τTy _ _ _ _ ⊢Empty , τRed* D ]) --  Emptyᵣ ([ ⊢A , ⊢Empty , ⇒*-comp D' D ])
+-- τTyLog (Unitᵣ [ ⊢A , ⊢Unit , D ]) = Unitᵣ ([ τTy _ _ _ _ ⊢A , τTy _ _ _ _ ⊢Unit , τRed* D ]) --  Unitᵣ ([ ⊢A , ⊢Unit , ⇒*-comp D' D ])
+-- τTyLog (ne (ne K [ ⊢A , ⊢K , D ] neK K≡K)) = ne (ne K ([ τTy _ _ _ _ ⊢A , τTy _ _ _ _ ⊢K , τRed* D ]) neK (~-τ K≡K)) --  ne (ne K ([ ⊢A , ⊢K , ⇒*-comp D' D ]) neK K≡K)
+-- τTyLog (Bᵣ W (Bᵣ F G [ ⊢A , ⊢Π , D ] ⊢F ⊢G A≡A [F] [G] G-ext)) =
+--      Bᵣ W (Bᵣ F G ([ τTy _ _ _ _ ⊢A , τTy _ _ _ _ ⊢Π , τRed* D ]) (τTy _ _ _ _ ⊢F) (τTy _ _ _ _ ⊢G) (≅-τ A≡A)
+--        (λ {m} {l'} {≤ε} → [F] {m} {l'} {≤ₗ-rev ≤ε}) [G] G-ext)
+-- τTyLog (emb {l} {lε} {A}  0<1 [A]) = emb 0<1 (τTyLog [A]) 
+-- τTyLog (ϝᵣ [ ⊢B , ⊢C , D ] αB  tB fB) = {!!} --  ϝᵣ ([ ⊢A , ⊢C , ⇒*-comp D' D ]) αB tB fB 

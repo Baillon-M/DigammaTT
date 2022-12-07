@@ -9,7 +9,7 @@ open import Definition.Typed
 open import Definition.Typed.Weakening
 open import Definition.Typed.Properties
 open import Definition.LogicalRelation
-open import Definition.LogicalRelation.Properties.Escape
+open import Definition.LogicalRelation.Properties.Escape as ES
 
 open import Tools.Nat
 open import Tools.Product
@@ -27,30 +27,22 @@ reflEqAux (Uᵣ′ k′ k< ⊢Γ) [ ⊢A , ⊢B' , D' ] rewrite redU* D' = PE.re
 reflEqAux (ℕᵣ [ ⊢B , ⊢ℕ , D ]) [ ⊢A , ⊢B' , D' ] = ⊩ℕ≡ _ _ (red ( [ ⊢A , ⊢ℕ , ⇒*-comp D' D ] ))
 reflEqAux (Emptyᵣ [ ⊢B , ⊢Empty , D ]) [ ⊢A , ⊢B' , D' ] = ⇒*-comp D' D
 reflEqAux (Unitᵣ [ ⊢B , ⊢Empty , D ]) [ ⊢A , ⊢B' , D' ] = ⇒*-comp D' D
-reflEqAux (ne (ne K D neK K≡K)) [ ⊢A , ⊢B , D' ] = ne₌ _ [ ⊢A , ⊢B-red D , ⇒*-comp D' (red D) ] neK K≡K
+reflEqAux (ne (ne K [ ⊢A' , ⊢K , D ] neK K≡K)) [ ⊢A , ⊢B , D' ] = ne₌ _ [ ⊢A , ⊢K , ⇒*-comp D' D ] neK K≡K
 reflEqAux (Bᵣ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) [ ⊢A , ⊢B , D' ] =
   B₌ F G D ⊢F ⊢G A≡A [F] [G] G-ext _ _ (⇒*-comp D' (red D)) A≡A
-    (λ {m} {_} {_} {l'} {≤ε} {lε'} ρ Δ → reflEqAux ([F] ρ Δ) (idRed:*: (Definition.Typed.Weakening.wk ρ Δ (τTy≤ₗ ≤ε ⊢F))))
-    λ {m} {ρ} {_} {a} {l'} {≤ε} {lε'} [ρ] ⊢Δ [a] → reflEqAux ([G] [ρ] ⊢Δ [a]) {!!}
-reflEqAux (emb j< [A]) [ ⊢A , ⊢B , D ] = {!!}
+    (λ {m} {_} {_} {l'} {≤ε} {lε'} ρ Δ → reflEqAux ([F] ρ Δ) (idRed:*: (Definition.Typed.Weakening.wk ρ Δ (Ty≤ ≤ε ⊢F))))
+    λ {m} {ρ} {_} {a} {l'} {≤ε} {lε'} [ρ] ⊢Δ [a] → reflEqAux ([G] [ρ] ⊢Δ [a]) (idRed:*: (escape ([G] [ρ] ⊢Δ [a])))
+--  B₌ F G D ⊢F ⊢G A≡A [F] [G] G-ext _ _ (⇒*-comp D' (red D)) A≡A
+--    (λ {m} {_} {_} {l'} {≤ε} {lε'} ρ Δ → reflEqAux ([F] ρ Δ) (idRed:*: (Definition.Typed.Weakening.wk ρ Δ (Ty≤ ≤ε ⊢F))))
+--    λ {m} {ρ} {_} {a} {l'} {≤ε} {lε'} [ρ] ⊢Δ [a] → reflEqAux ([G] [ρ] ⊢Δ [a]) {!!}
+reflEqAux (emb 0<1 [A]) D = reflEqAux [A] D
 reflEqAux (ϝᵣ {B = B} ([ ⊢A , ⊢B , D ]) αB [B] [B]₁) [ ⊢A' , ⊢B' , D' ] = reflEqAux [B] ([ τTy _ _ _ _ ⊢A' , τTy _ _ _ _ ⊢B , ⇒*-comp (τRed* D') (τRed* D) ]) ,
                                                                           reflEqAux [B]₁ ([ τTy _ _ _ _ ⊢A' , τTy _ _ _ _ ⊢B , ⇒*-comp (τRed* D') (τRed* D) ])
 
 
 -- Reflexivity of reducible types.
 reflEq : ∀ {k A} ([A] : Γ / lε ⊩⟨ k ⟩ A) → Γ / lε ⊩⟨ k ⟩ A ≡ A / [A]
-reflEq (Uᵣ′ k′ k< ⊢Γ) = PE.refl
-reflEq (ℕᵣ D) = ⊩ℕ≡ _ _ (red D)
-reflEq (Emptyᵣ D) = red D
-reflEq (Unitᵣ D) = red D
-reflEq (ne′ K [ ⊢A , ⊢B , D ] neK K≡K) =
-  ne₌ _ [ ⊢A , ⊢B , D ] neK K≡K
-reflEq (Bᵣ′ W F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) =
-   B₌ _ _ _ _ _ _ _ _ _ _ _ D A≡A
-      (λ ρ ⊢Δ → reflEq ([F] ρ ⊢Δ))
-      (λ ρ ⊢Δ [a] → reflEq ([G] ρ ⊢Δ [a]))
-reflEq (emb 0<1 [A]) = reflEq [A]
-reflEq (ϝᵣ A⇒B αB tB fB) = {!!} , {!!} -- reflEq tA , reflEq fA
+reflEq [A] = reflEqAux [A] (idRed:*: (escape [A]))
 
 -- reflNatural-prop : ∀ {n}
 --                  → Natural-prop Γ lε n
