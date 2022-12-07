@@ -555,6 +555,20 @@ mutual
   τConvTerm lε n b nbε (α-conv x y) = α-conv (τTerm lε n b nbε x) (InThere _ y _ _)
 
 
+τTy≤ₗ : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {A}
+             → l ≤ₗ l'
+             → Γ / lε ⊢ A
+             → Γ / lε' ⊢ A
+τTy≤ₗ {lε = lε} {lε' = lε'} ≤ₗ-refl ⊢A rewrite ⊢ₗ-HProp _ lε lε' = ⊢A
+τTy≤ₗ {lε = lε} {lε' =  ⊢ₗ• l lε' n b nε} (≤ₗ-add n b l' ≤ε) ⊢A =  τTy _ _ _ _ (τTy≤ₗ ≤ε ⊢A)
+
+τTerm≤ₗ : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {t A}
+             → l ≤ₗ l'
+             → Γ / lε ⊢ t ∷ A
+             → Γ / lε' ⊢ t ∷ A
+τTerm≤ₗ {lε = lε} {lε' = lε'} ≤ₗ-refl ⊢t rewrite ⊢ₗ-HProp _ lε lε' = ⊢t
+τTerm≤ₗ {lε = lε} {lε' =  ⊢ₗ• l lε' n b nε} (≤ₗ-add n b l' ≤ε) ⊢t =  τTerm _ _ _ _ (τTerm≤ₗ ≤ε ⊢t)
+
 -- -- ConvU : ∀ lε → Γ / lε ⊢ A ≡ U
 -- --             → A PE.≡ U
 -- -- ConvU lε (reflε ⊢Γ) = PE.refl
@@ -667,6 +681,26 @@ data _/_⊢_⇒_∷_ (Γ : Con Term n) : ∀ {l : LCon} (lε : ⊢ₗ l) → Ter
                  → Γ / lε     ⊢ n ∷ ℕ
                  → InLCon n b l
                  → Γ / lε     ⊢ α n ⇒ b ∷ 𝔹
+                 
+RedTermPerm : ∀ {l : LCon} {lε : ⊢ₗ l} {t u A n}
+              → Γ / lε ⊢ t ⇒ u ∷ A
+              → Γ / (permutε n lε) ⊢ t ⇒ u ∷ A
+RedTermPerm (conv x x₁) = conv (RedTermPerm x) (ConvTyPerm _ _ x₁) -- conv (RedTermPerm x) (τConvTy _ _ _ _ x₁)
+RedTermPerm (app-subst x x₁) = app-subst (RedTermPerm x) (TermPerm _ _ x₁)
+RedTermPerm (β-red x x₁ x₂) = β-red (TyPerm _ _ x) (TermPerm _ _ x₁) (TermPerm _ _ x₂)
+RedTermPerm (fst-subst x x₁ x₂) = fst-subst (TyPerm _ _ x) (TyPerm _ _ x₁) (RedTermPerm x₂)
+RedTermPerm (snd-subst x x₁ x₂) = snd-subst (TyPerm _ _ x) (TyPerm _ _ x₁) (RedTermPerm x₂)
+RedTermPerm (Σ-β₁ x x₁ x₂ x₃) = Σ-β₁ (TyPerm _ _ x) (TyPerm _ _ x₁) (TermPerm _ _ x₂) (TermPerm _ _ x₃)
+RedTermPerm (Σ-β₂ x x₁ x₂ x₃) = Σ-β₂ (TyPerm _ _ x) (TyPerm _ _ x₁) (TermPerm _ _ x₂) (TermPerm _ _ x₃)
+RedTermPerm (natrec-subst x x₁ x₂ x₃) = natrec-subst (TyPerm _ _ x) (TermPerm _ _ x₁) (TermPerm _ _ x₂) (RedTermPerm x₃)
+RedTermPerm (natrec-zero x x₁ x₂) =  natrec-zero (TyPerm _ _ x) (TermPerm _ _ x₁) (TermPerm _ _ x₂)
+RedTermPerm (natrec-suc x x₁ x₂ x₃) = natrec-suc (TermPerm _ _ x) (TyPerm _ _ x₁) (TermPerm _ _ x₂) (TermPerm _ _ x₃)
+RedTermPerm (boolrec-subst x x₁ x₂ x₃) = boolrec-subst (TyPerm _ _ x) (TermPerm _ _ x₁) (TermPerm _ _ x₂) (RedTermPerm x₃)
+RedTermPerm (boolrec-true x x₁ x₂) = boolrec-true (TyPerm _ _ x) (TermPerm _ _ x₁) (TermPerm _ _ x₂)
+RedTermPerm (boolrec-false x x₁ x₂) = boolrec-false (TyPerm _ _ x) (TermPerm _ _ x₁) (TermPerm _ _ x₂)
+RedTermPerm (Emptyrec-subst x x₁) = Emptyrec-subst (TyPerm _ _ x) (RedTermPerm x₁)
+RedTermPerm (α-subst x₁) = α-subst (RedTermPerm x₁)
+RedTermPerm (α-red ⊢n inl) = α-red (TermPerm _ _ ⊢n) (permutInLCon _ _ _ _ inl)
 
 
 τRedTerm : ∀ {l : LCon} {lε : ⊢ₗ l} {t u A n b nε}
@@ -725,6 +759,18 @@ data _/_⊢_⇒*_ (Γ : Con Term n) {l : LCon} (lε : ⊢ₗ l) : Term n → Ter
       → Γ / lε ⊢ A′ ⇒* B
       → Γ / lε ⊢ A  ⇒* B
 
+⇒*-comp : ∀ {l : LCon} {lε : ⊢ₗ l} {A B C}
+            → Γ / lε ⊢ A ⇒* B
+            → Γ / lε ⊢ B ⇒* C
+            → Γ / lε ⊢ A ⇒* C
+⇒*-comp (id x) d' = d'
+⇒*-comp (x ⇨ d) d' = x ⇨ ⇒*-comp d d'
+
+RedPerm* : ∀ {l : LCon} {lε : ⊢ₗ l} {A B n}
+             → Γ / lε ⊢ A ⇒* B
+             → Γ / permutε n lε ⊢ A ⇒* B
+RedPerm* (id d) = id (TyPerm _ _ d) 
+RedPerm* ((univ d) ⇨ d') = univ (RedTermPerm d) ⇨ RedPerm* d'
 
 τRed* : ∀ {l : LCon} {lε : ⊢ₗ l} {A B n b nε}
              → Γ / lε ⊢ A ⇒* B

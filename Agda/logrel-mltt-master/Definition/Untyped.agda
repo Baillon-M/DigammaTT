@@ -257,14 +257,23 @@ data ⊢ₗ_ : LCon → Set
     ⊢ₗₑ : ⊢ₗ εₗ
     ⊢ₗ• : ∀ (γ : LCon) (γε : ⊢ₗ γ) (n : Nat) (b : Bbool) (nbε : NotInLConNat n γ) → ⊢ₗ (addₗ n b γ) 
 
-data _≤ₗ_ (l : LCon) : LCon → Set
+permut : ∀ (n : Nat) (l : LCon) → LCon
+permut n εₗ = εₗ
+permut 0 (addₗ n2 b2 εₗ) = addₗ n2 b2 εₗ
+permut 0 (addₗ n1 b1 (addₗ n2 b2 l)) = (addₗ n2 b2 (addₗ n1 b1 l))
+permut (1+ n) (addₗ n1 b1 l) = addₗ n1 b1 (permut n l)
+
+
+data _≤ₗ_ : ∀ (l : LCon) → LCon → Set
   where
-    ≤ₗ-refl : l ≤ₗ l
-    ≤ₗ-add : ∀ n b l' → l ≤ₗ l' → l ≤ₗ (addₗ n b l')
+    ≤ₗ-refl : ∀ {l} → l ≤ₗ l
+    ≤ₗ-add : ∀ {l} n b l' → l ≤ₗ l' → l ≤ₗ (addₗ n b l')
+    ≤ₗ-perm : ∀ {l} n1 n2 b1 b2 l' → addₗ n1 b1 (addₗ n2 b2 l) ≤ₗ l' → (addₗ n2 b2 (addₗ n1 b1 l)) ≤ₗ l'
 
 ≤ₗ-rev : ∀ {l l' n b} → (addₗ n b l) ≤ₗ l' → l ≤ₗ l'
 ≤ₗ-rev ≤ₗ-refl = ≤ₗ-add _ _ _ ≤ₗ-refl
 ≤ₗ-rev (≤ₗ-add n b l' lε) = ≤ₗ-add n b l' (≤ₗ-rev lε)
+≤ₗ-rev (≤ₗ-perm n1 n2 b1 b2 l' ≤ₗ-refl) = {!!}
 
 Suc≠0 : ∀ n → (1+ n) PE.≡ 0 → PE.⊥
 Suc≠0 n ()
@@ -382,12 +391,6 @@ InLConUnique t u u' (addₗ n b l) (⊢ₗ• l lε n b nbε) (InThere _ inl n b
 --findBoolLCon : ∀ {n : Nat} (t : Term n) (γ : LCon) → InLCon t γ → Bbool
 --findBoolLCon _ _ (InHere t γ b) = b
 --findBoolLCon _ _ (InThere t tε γ γε m b) = findBoolLCon _ γ γε
-
-permut : ∀ (n : Nat) (l : LCon) → LCon
-permut n εₗ = εₗ
-permut 0 (addₗ n2 b2 εₗ) = addₗ n2 b2 εₗ
-permut 0 (addₗ n1 b1 (addₗ n2 b2 l)) = (addₗ n2 b2 (addₗ n1 b1 l))
-permut (1+ n) (addₗ n1 b1 l) = addₗ n1 b1 (permut n l)
 
 permutInLCon : ∀ {n : Nat} (m : Nat) (l : LCon) (t b : Term n)
                → InLCon t b l

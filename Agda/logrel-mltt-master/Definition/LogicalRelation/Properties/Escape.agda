@@ -22,6 +22,18 @@ private
     l : LCon
     lε : ⊢ₗ l
 
+escapeAux : ∀ {k A B} ([B] :  Γ / lε ⊩⟨ k ⟩ B) →  Γ / lε ⊢ A :⇒*: B →  Γ / lε ⊩⟨ k ⟩ A
+escapeAux (Uᵣ′ k′ k< ⊢Γ) [ ⊢A , ⊢B' , D' ] rewrite redU* D' = Uᵣ′ k′ k< ⊢Γ
+escapeAux (ℕᵣ [ ⊢B , ⊢ℕ , D ]) [ ⊢A , ⊢B' , D' ] = ℕᵣ ([ ⊢A , ⊢ℕ , ⇒*-comp D' D ])
+escapeAux (Emptyᵣ [ ⊢B , ⊢Empty , D ]) [ ⊢A , ⊢B' , D' ] = Emptyᵣ ([ ⊢A , ⊢Empty , ⇒*-comp D' D ])
+escapeAux (Unitᵣ [ ⊢B , ⊢Unit , D ]) [ ⊢A , ⊢B' , D' ] = Unitᵣ ([ ⊢A , ⊢Unit , ⇒*-comp D' D ])
+escapeAux (ne (ne K [ ⊢B , ⊢K , D ] neK K≡K)) [ ⊢A , ⊢B' , D' ] = ne (ne K ([ ⊢A , ⊢K , ⇒*-comp D' D ]) neK K≡K)
+escapeAux (Bᵣ W (Bᵣ F G [ ⊢B , ⊢Π , D ] ⊢F ⊢G A≡A [F] [G] G-ext)) ([ ⊢A , ⊢B' , D' ]) =
+  Bᵣ W (Bᵣ F G ([ ⊢A , ⊢Π , ⇒*-comp D' D ]) ⊢F ⊢G A≡A (λ {m} {l'} {≤ε} → [F] {m} {l'} {≤ε}) [G] G-ext)
+escapeAux (emb {l} {lε} {A}  0<1 [A]) D = emb 0<1 (escapeAux [A] D)  
+escapeAux (ϝᵣ [ ⊢B , ⊢C , D ] αB  tB fB) [ ⊢A , ⊢B' , D' ] = ϝᵣ ([ ⊢A , ⊢C , ⇒*-comp D' D ]) αB tB fB 
+
+
 -- Reducible types are well-formed.
 escape : ∀ {k A} → Γ / lε ⊩⟨ k ⟩ A → Γ / lε ⊢ A
 escape (Uᵣ′ k′ k< ⊢Γ) = Uⱼ ⊢Γ
@@ -30,7 +42,7 @@ escape (Emptyᵣ [ ⊢A , ⊢B , D ]) = ⊢A
 escape (Unitᵣ [ ⊢A , ⊢B , D ]) = ⊢A
 escape (ne′ K [ ⊢A , ⊢B , D ] neK K≡K) = ⊢A
 escape (Bᵣ′ W F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) = ⊢A
-escape (ϝᵣ tA fA) = ϝⱼ (escape tA) (escape fA)
+escape (ϝᵣ A⇒B αB  tB fB) = ϝⱼ (escape (escapeAux {!!} {!!})) (escape {!!})
 escape (emb 0<1 A) = escape A
       
 -- Reducible type equality respect the equality relation.
@@ -49,7 +61,7 @@ escapeEq {k = k} (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext)
              A=B = LogRel.escapeEqB k (logRelRec _) (Bᵣ _ _ D ⊢F ⊢G A≡A [F] [G] G-ext) A=B
   -- ≅-red (red D) D′ ⟦ W ⟧ₙ ⟦ W ⟧ₙ A≡B
 escapeEq (emb 0<1 A) A≡B = escapeEq A A≡B
-escapeEq (ϝᵣ tA fA) ( x , y ) = ≅-ϝ (escapeEq tA x) (escapeEq fA y)
+escapeEq (ϝᵣ  A⇒B αB  tB fB) ( x , y ) = ≅-ϝ (escapeEq {!!} x) (escapeEq {!!} y)
 
 -- Reducible terms are well-formed.
 escapeTerm : ∀ {k A t} → ([A] : Γ / lε ⊩⟨ k ⟩ A)
@@ -70,7 +82,7 @@ escapeTerm (Bᵣ′ BΠ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
 escapeTerm (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                (Σₜ p [ ⊢t , ⊢u , d ] pProd p≅p [fst] [snd]) =
   conv ⊢t (sym (subset* (red D)))
-escapeTerm (ϝᵣ tA fA) ( x , y ) = ϝⱼ (escapeTerm tA x) (escapeTerm fA y)
+escapeTerm (ϝᵣ A⇒B αB  tB fB) ( x , y ) = ϝⱼ (escapeTerm {!!} x) (escapeTerm {!!} y)
 escapeTerm (emb 0<1 A) t = escapeTerm A t
 
 -- Reducible term equality respect the equality relation.
@@ -101,6 +113,6 @@ escapeTermEq (Bᵣ′ BΠ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
 escapeTermEq (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                  (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] [fstp] [fstr] [fst≡] [snd≡]) =
   ≅ₜ-red (red D) (redₜ d) (redₜ d′) Σₙ (productWhnf pProd) (productWhnf rProd) p≅r
-escapeTermEq (emb 0<1 A) t≡u = escapeTermEq A t≡u
-escapeTermEq (ϝᵣ tA fA) ( x , y ) = ≅ₜ-ϝ (escapeTermEq tA x) (escapeTermEq fA y)
+escapeTermEq (emb 0<1 A) t≡u = escapeTermEq A t≡u 
+escapeTermEq (ϝᵣ A⇒B αB  tB fB) ( x , y ) = ≅ₜ-ϝ (escapeTermEq {!!} x) (escapeTermEq {!!} y)
 
