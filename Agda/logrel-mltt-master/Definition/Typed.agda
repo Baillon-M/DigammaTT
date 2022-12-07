@@ -442,132 +442,152 @@ NatToℕ : ∀ m {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ (
 NatToℕ 0 ⊢Γ = zeroⱼ ⊢Γ
 NatToℕ (1+ m) ⊢Γ = sucⱼ (NatToℕ m ⊢Γ)
 
-
-
 mutual
-  τCon : ∀ {l : LCon} (lε : ⊢ₗ l) n b nbε
-           → ⊢ Γ / lε
-           → ⊢ Γ / (⊢ₗ• l lε n b nbε)
-  τCon lε n b nbε ε = ε
-  τCon lε n b nbε (⊢Γ ∙ ⊢A) = τCon lε n b nbε ⊢Γ ∙ τTy lε n b nbε ⊢A
-  τCon lε m b nbε (ϝ {n = n} g d) with decidEqNat m n
-  τCon lε m Btrue nbε (ϝ {n = n} {nε = nε} g d) | TS.inj₁ e rewrite e rewrite NotInLConNatHProp _ _ nε nbε  = g
-  τCon lε m Bfalse nbε (ϝ {n = n} {nε = nε} g d) | TS.inj₁ e rewrite e rewrite NotInLConNatHProp _ _ nε nbε = d
-  τCon lε m b nbε (ϝ {n = n} {nε = nε} g d) | TS.inj₂ neq = ϝ (ConPerm _ 0 (τCon _ m b (NotInThereNat _ nbε _ _ (DifferentDifferentNat m n neq)) g))
-                                                             (ConPerm _ 0 (τCon _ m b (NotInThereNat _ nbε _ _ (DifferentDifferentNat m n neq)) d))
-  -- = ϝ (ConPerm {!!} 0 (τCon (⊢ₗ• _ _ _ Btrue _) _ _ {!!} g)) (ConPerm {!!} {!!} {!!})
-
-  τTy : ∀ {l : LCon} (lε : ⊢ₗ l) n b nbε
-           → Γ / lε ⊢ A
-           → Γ / (⊢ₗ• l lε n b nbε) ⊢ A
-  τTy lε n b nbε (Uⱼ ⊢Γ) = Uⱼ (τCon lε n b nbε ⊢Γ) 
-  τTy lε n b nbε (ℕⱼ ⊢Γ) = ℕⱼ (τCon lε n b nbε ⊢Γ)
-  τTy lε n b nbε (𝔹ⱼ ⊢Γ) = 𝔹ⱼ (τCon lε n b nbε ⊢Γ)
-  τTy lε n b nbε (Emptyⱼ ⊢Γ) = Emptyⱼ (τCon lε n b nbε ⊢Γ)
-  τTy lε n b nbε (Unitⱼ ⊢Γ) = Unitⱼ (τCon lε n b nbε ⊢Γ)
-  τTy lε n b nbε (Πⱼ A ▹ B) = Πⱼ τTy lε n b nbε A ▹ τTy lε n b nbε B
-  τTy lε n b nbε (Σⱼ A ▹ B) = Σⱼ τTy lε n b nbε A ▹ τTy lε n b nbε B
-  τTy lε n b nbε (univ u) = univ (τTerm lε n b nbε u)
-  τTy lε m b nbε (ϝⱼ {n = n} {nε = nε} g d) with decidEqNat m n
-  τTy lε m Btrue nbε (ϝⱼ {n = n} {nε = nε} g d) | TS.inj₁ e rewrite e rewrite NotInLConNatHProp _ _ nε nbε = g
-  τTy lε m Bfalse nbε (ϝⱼ {n = n} {nε = nε} g d) | TS.inj₁ e rewrite e rewrite NotInLConNatHProp _ _ nε nbε = d
-  τTy lε m b nbε (ϝⱼ {n = n} {nε = nε} g d) | TS.inj₂ neq  = ϝⱼ (TyPerm _ 0 (τTy _ m b (NotInThereNat _ nbε _ _ (DifferentDifferentNat m n neq)) g))
-                                                               (TyPerm _ 0 (τTy _ m b (NotInThereNat _ nbε _ _ (DifferentDifferentNat m n neq)) d))
-  
-  τTerm : ∀ {l : LCon} (lε : ⊢ₗ l) n b nbε {t}
-           → Γ / lε ⊢ t ∷ A
-           → Γ / (⊢ₗ• l lε n b nbε) ⊢ t ∷ A
-  τTerm lε n b nbε (ℕⱼ ⊢Γ) = ℕⱼ (τCon lε n b nbε ⊢Γ)
-  τTerm lε n b nbε (𝔹ⱼ ⊢Γ) = 𝔹ⱼ (τCon lε n b nbε ⊢Γ)
-  τTerm lε n b nbε (Emptyⱼ ⊢Γ) = Emptyⱼ (τCon lε n b nbε ⊢Γ)
-  τTerm lε n b nbε (Unitⱼ ⊢Γ) = Unitⱼ (τCon lε n b nbε ⊢Γ)
-  τTerm lε n b nbε (Πⱼ A ▹ B) = Πⱼ τTerm lε n b nbε A ▹ τTerm lε n b nbε B
-  τTerm lε n b nbε (Σⱼ A ▹ B) = Σⱼ τTerm lε n b nbε A ▹ τTerm lε n b nbε B
-  τTerm lε n b nbε (var ⊢Γ x) = var (τCon lε n b nbε ⊢Γ) x
-  τTerm lε n b nbε (lamⱼ ⊢F x) = lamⱼ (τTy lε n b nbε ⊢F) (τTerm lε n b nbε x)
-  τTerm lε n b nbε (t ∘ⱼ u) = τTerm lε n b nbε t ∘ⱼ τTerm lε n b nbε u
-  τTerm lε n b nbε (prodⱼ x x₁ x₂ x₃) = prodⱼ (τTy lε n b nbε x) (τTy lε n b nbε x₁) (τTerm lε n b nbε x₂) (τTerm lε n b nbε x₃)
-  τTerm lε n b nbε (fstⱼ x x₁ x₂) = fstⱼ (τTy lε n b nbε x) (τTy lε n b nbε x₁) (τTerm lε n b nbε x₂)
-  τTerm lε n b nbε (sndⱼ x x₁ x₂) = sndⱼ (τTy lε n b nbε x) (τTy lε n b nbε x₁) (τTerm lε n b nbε x₂)
-  τTerm lε n b nbε (zeroⱼ ⊢Γ) = zeroⱼ (τCon lε n b nbε ⊢Γ)
-  τTerm lε n b nbε (sucⱼ ⊢n) = sucⱼ (τTerm lε n b nbε ⊢n)
-  τTerm lε n b nbε (natrecⱼ x x₁ x₂ x₃) = natrecⱼ (τTy lε n b nbε x) (τTerm lε n b nbε x₁) (τTerm lε n b nbε x₂) (τTerm lε n b nbε x₃)
-  τTerm lε n b nbε (trueⱼ ⊢Γ) = trueⱼ (τCon lε n b nbε ⊢Γ)
-  τTerm lε n b nbε (falseⱼ ⊢Γ) = falseⱼ (τCon lε n b nbε ⊢Γ)
-  τTerm lε n b nbε (boolrecⱼ x x₁ x₂ x₃) = boolrecⱼ (τTy lε n b nbε x) (τTerm lε n b nbε x₁) (τTerm lε n b nbε x₂) (τTerm lε n b nbε x₃)
-  τTerm lε n b nbε (Emptyrecⱼ x x₁) = Emptyrecⱼ (τTy lε n b nbε x) (τTerm lε n b nbε x₁)
-  τTerm lε n b nbε (starⱼ ⊢Γ) = starⱼ (τCon lε n b nbε ⊢Γ)
-  τTerm lε n b nbε (conv x x₁) = conv (τTerm lε n b nbε x) (τConvTy lε n b nbε x₁)
-  τTerm lε n b nbε (αⱼ x) = αⱼ (τTerm lε n b nbε x)
-  τTerm lε m b nbε (ϝⱼ {n = n} {nε = nε} g d) with decidEqNat m n
-  τTerm lε m Btrue nbε (ϝⱼ {n = n} {nε = nε} g d) | TS.inj₁ e rewrite e rewrite NotInLConNatHProp _ _ nε nbε = g
-  τTerm lε m Bfalse nbε (ϝⱼ {n = n} {nε = nε} g d) | TS.inj₁ e rewrite e rewrite NotInLConNatHProp _ _ nε nbε = d
-  τTerm lε m b nbε (ϝⱼ {n = n} {nε = nε} g d) | TS.inj₂ neq  = ϝⱼ (TermPerm _ 0 (τTerm _ m b (NotInThereNat _ nbε _ _ (DifferentDifferentNat m n neq)) g))
-                                                                (TermPerm _ 0 (τTerm _ m b (NotInThereNat _ nbε _ _ (DifferentDifferentNat m n neq)) d))
-  
-  τConvTy : ∀ {l : LCon} (lε : ⊢ₗ l) n b nbε {A B}
-             → Γ / lε ⊢ A ≡ B
-             → Γ / (⊢ₗ• l lε n b nbε) ⊢ A ≡ B
-  τConvTy lε n b nbε (univ t≡u) = univ (τConvTerm lε n b nbε t≡u)
-  τConvTy lε n b nbε (refl A) = refl (τTy lε n b nbε A)
-  τConvTy lε n b nbε (sym A) = sym (τConvTy lε n b nbε A)
-  τConvTy lε n b nbε (trans t≡u u≡v) = trans (τConvTy lε n b nbε t≡u) (τConvTy lε n b nbε u≡v)
-  τConvTy lε n b nbε (Π-cong x x₁ x₂) = Π-cong (τTy lε n b nbε x) (τConvTy lε n b nbε x₁) (τConvTy lε n b nbε x₂)
-  τConvTy lε n b nbε (Σ-cong x x₁ x₂) = Σ-cong (τTy lε n b nbε x) (τConvTy lε n b nbε x₁) (τConvTy lε n b nbε x₂)
-  τConvTy lε m b nbε (ϝ-cong {n = n} {nε = nε} g d) with decidEqNat m n
-  τConvTy lε m Btrue nbε (ϝ-cong {n = n} {nε = nε} g d) | TS.inj₁ e rewrite e rewrite NotInLConNatHProp _ _ nε nbε = g
-  τConvTy lε m Bfalse nbε (ϝ-cong {n = n} {nε = nε} g d) | TS.inj₁ e rewrite e rewrite NotInLConNatHProp _ _ nε nbε = d
-  τConvTy lε m b nbε (ϝ-cong {n = n} {nε = nε} g d) | TS.inj₂ neq  = ϝ-cong (ConvTyPerm _ 0 (τConvTy _ m b (NotInThereNat _ nbε _ _ (DifferentDifferentNat m n neq)) g))
-                                                                           (ConvTyPerm _ 0 (τConvTy _ m b (NotInThereNat _ nbε _ _ (DifferentDifferentNat m n neq)) d))
-  
-  τConvTerm : ∀ {l : LCon} (lε : ⊢ₗ l) n b nbε {A t u}
-               → Γ / lε ⊢ t ≡ u ∷ A
-               → Γ / (⊢ₗ• l lε n b nbε) ⊢ t ≡ u ∷ A
-  τConvTerm lε n b nbε (refl t) = refl (τTerm lε n b nbε t)
-  τConvTerm lε n b nbε (sym x) = sym (τConvTerm lε n b nbε x)
-  τConvTerm lε n b nbε (trans x x₁) = trans (τConvTerm lε n b nbε x) (τConvTerm lε n b nbε x₁)
-  τConvTerm lε n b nbε (conv x x₁) = conv (τConvTerm lε n b nbε x) (τConvTy lε n b nbε x₁)
-  τConvTerm lε n b nbε (Π-cong x x₁ x₂) = Π-cong (τTy lε n b nbε x) (τConvTerm lε n b nbε x₁) (τConvTerm lε n b nbε x₂)
-  τConvTerm lε n b nbε (Σ-cong x x₁ x₂) = Σ-cong (τTy lε n b nbε x) (τConvTerm lε n b nbε x₁) (τConvTerm lε n b nbε x₂)
-  τConvTerm lε n b nbε (app-cong x x₁) = app-cong (τConvTerm lε n b nbε x) (τConvTerm lε n b nbε x₁)
-  τConvTerm lε n b nbε (β-red x x₁ x₂) = β-red (τTy lε n b nbε x) (τTerm lε n b nbε x₁) (τTerm lε n b nbε x₂)
-  τConvTerm lε n b nbε (η-eq x x₁ x₂ x₃) = η-eq (τTy lε n b nbε x) (τTerm lε n b nbε x₁) (τTerm lε n b nbε x₂) (τConvTerm lε n b nbε x₃)
-  τConvTerm lε n b nbε (fst-cong x x₁ x₂) = fst-cong (τTy lε n b nbε x) (τTy lε n b nbε x₁) (τConvTerm lε n b nbε x₂)
-  τConvTerm lε n b nbε (snd-cong x x₁ x₂) = snd-cong (τTy lε n b nbε x) (τTy lε n b nbε x₁) (τConvTerm lε n b nbε x₂)
-  τConvTerm lε n b nbε (Σ-β₁ x x₁ x₂ x₃) = Σ-β₁ (τTy lε n b nbε x) (τTy lε n b nbε x₁) (τTerm lε n b nbε x₂) (τTerm lε n b nbε x₃)
-  τConvTerm lε n b nbε (Σ-β₂ x x₁ x₂ x₃) = Σ-β₂ (τTy lε n b nbε x) (τTy lε n b nbε x₁) (τTerm lε n b nbε x₂) (τTerm lε n b nbε x₃)
-  τConvTerm lε n b nbε (Σ-η x x₁ x₂ x₃ x₄ x₅) = Σ-η (τTy lε n b nbε x) (τTy lε n b nbε x₁) (τTerm lε n b nbε x₂) (τTerm lε n b nbε x₃) (τConvTerm lε n b nbε x₄) (τConvTerm lε n b nbε x₅)
-  τConvTerm lε n b nbε (suc-cong x) = suc-cong (τConvTerm lε n b nbε x)
-  τConvTerm lε n b nbε (natrec-cong x x₁ x₂ x₃) = natrec-cong (τConvTy lε n b nbε x) (τConvTerm lε n b nbε x₁) (τConvTerm lε n b nbε x₂) (τConvTerm lε n b nbε x₃)
-  τConvTerm lε n b nbε (natrec-zero x x₁ x₂) = natrec-zero (τTy lε n b nbε x) (τTerm lε n b nbε x₁) (τTerm lε n b nbε x₂)
-  τConvTerm lε n b nbε (natrec-suc x x₁ x₂ x₃) = natrec-suc (τTerm lε n b nbε x) (τTy lε n b nbε x₁) (τTerm lε n b nbε x₂) (τTerm lε n b nbε x₃)
-  τConvTerm lε n b nbε (boolrec-cong x x₁ x₂ x₃) = boolrec-cong (τConvTy lε n b nbε x) (τConvTerm lε n b nbε x₁) (τConvTerm lε n b nbε x₂) (τConvTerm lε n b nbε x₃)
-  τConvTerm lε n b nbε (boolrec-true x x₁ x₂) = boolrec-true (τTy lε n b nbε x) (τTerm lε n b nbε x₁) (τTerm lε n b nbε x₂)
-  τConvTerm lε n b nbε (boolrec-false x x₁ x₂) = boolrec-false (τTy lε n b nbε x) (τTerm lε n b nbε x₁) (τTerm lε n b nbε x₂)
-  τConvTerm lε n b nbε (Emptyrec-cong x x₁) = Emptyrec-cong (τConvTy lε n b nbε x) (τConvTerm lε n b nbε x₁)
-  τConvTerm lε n b nbε (η-unit x x₁) = η-unit (τTerm lε n b nbε x) (τTerm lε n b nbε x₁)
-  τConvTerm lε n b nbε (α-cong x) = α-cong (τConvTerm lε n b nbε x)
-  τConvTerm lε m b nbε (ϝ-cong {n = n} {nε = nε} g d) with decidEqNat m n
-  τConvTerm lε m Btrue nbε (ϝ-cong {n = n} {nε = nε} g d) | TS.inj₁ e rewrite e rewrite NotInLConNatHProp _ _ nε nbε = g
-  τConvTerm lε m Bfalse nbε (ϝ-cong {n = n} {nε = nε} g d) | TS.inj₁ e rewrite e rewrite NotInLConNatHProp _ _ nε nbε = d
-  τConvTerm lε m b nbε (ϝ-cong {n = n} {nε = nε} g d) | TS.inj₂ neq  = ϝ-cong (ConvTermPerm _ 0 (τConvTerm _ m b (NotInThereNat _ nbε _ _ (DifferentDifferentNat m n neq)) g))
-                                                                             (ConvTermPerm _ 0 (τConvTerm _ m b (NotInThereNat _ nbε _ _ (DifferentDifferentNat m n neq)) d))
-  τConvTerm lε n b nbε (α-conv x y) = α-conv (τTerm lε n b nbε x) (InThere _ y _ _)
-
-
-τTy≤ₗ : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {A}
+  Con≤ : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'}
              → l ≤ₗ l'
-             → Γ / lε ⊢ A
-             → Γ / lε' ⊢ A
-τTy≤ₗ {lε = lε} {lε' = lε'} ≤ₗ-refl ⊢A rewrite ⊢ₗ-HProp _ lε lε' = ⊢A
-τTy≤ₗ {lε = lε} {lε' =  ⊢ₗ• l lε' n b nε} (≤ₗ-add n b l' ≤ε) ⊢A =  τTy _ _ _ _ (τTy≤ₗ ≤ε ⊢A)
+             → ⊢ Γ / lε
+             → ⊢ Γ / lε'
+  Con≤ f< ε = ε
+  Con≤ f<  (⊢Γ ∙ ⊢A) = Con≤ f< ⊢Γ ∙ Ty≤ f< ⊢A
+  Con≤ {l' = l'} f< (ϝ {n = n} {nε = nε} g d) with decidInLConNat l' n
+  Con≤ {l' = l'} f< (ϝ {n = n} {nε = nε} g d) | TS.inj₁ (TS.inj₁ inl' ) = Con≤ (≤ₗ-add _ _ _ f< inl') g
+  Con≤ {l' = l'} f< (ϝ {n = n} {nε = nε} g d) | TS.inj₁ (TS.inj₂ inl' ) = Con≤ (≤ₗ-add _ _ _ f< inl') d
+  Con≤ {l' = l'} f< (ϝ {n = n} {nε = nε} g d) | TS.inj₂ k = ϝ {_} {_} {_} {_} {_} {k} (Con≤ (≤ₗ-add _ _ _ (λ n b inl → InThere _ (f< _ _ inl) _ _) (InHereNat l')) g)
+                                                              (Con≤ (≤ₗ-add _ _ _ (λ n b inl → InThere _ (f< _ _ inl) _ _) (InHereNat l')) d)
 
-τTerm≤ₗ : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {t A}
-             → l ≤ₗ l'
-             → Γ / lε ⊢ t ∷ A
-             → Γ / lε' ⊢ t ∷ A
-τTerm≤ₗ {lε = lε} {lε' = lε'} ≤ₗ-refl ⊢t rewrite ⊢ₗ-HProp _ lε lε' = ⊢t
-τTerm≤ₗ {lε = lε} {lε' =  ⊢ₗ• l lε' n b nε} (≤ₗ-add n b l' ≤ε) ⊢t =  τTerm _ _ _ _ (τTerm≤ₗ ≤ε ⊢t)
+  Ty≤ : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {A}
+          → l ≤ₗ l'
+          → Γ / lε ⊢ A
+          → Γ / lε' ⊢ A
+  Ty≤ f< (Uⱼ ⊢Γ) = Uⱼ (Con≤ f< ⊢Γ)
+  Ty≤ f< (ℕⱼ ⊢Γ) = ℕⱼ (Con≤ f< ⊢Γ)
+  Ty≤ f< (𝔹ⱼ ⊢Γ) = 𝔹ⱼ (Con≤ f< ⊢Γ)
+  Ty≤ f< (Emptyⱼ ⊢Γ) = Emptyⱼ (Con≤ f< ⊢Γ)
+  Ty≤ f< (Unitⱼ ⊢Γ) = Unitⱼ (Con≤ f< ⊢Γ)
+  Ty≤ f< (Πⱼ A ▹ B) = Πⱼ Ty≤ f< A ▹ Ty≤ f< B 
+  Ty≤ f< (Σⱼ A ▹ B) = Σⱼ Ty≤ f< A ▹ Ty≤ f< B 
+  Ty≤ f< (univ u) = univ (Term≤ f< u)
+  Ty≤ {l' = l'} f< (ϝⱼ {n = n} {nε = nε} g d) with decidInLConNat l' n 
+  Ty≤ f< (ϝⱼ {n = n} {nε = nε} g d) | TS.inj₁ (TS.inj₁ inl' ) = Ty≤ (≤ₗ-add _ _ _ f< inl') g
+  Ty≤ f< (ϝⱼ {n = n} {nε = nε} g d) | TS.inj₁ (TS.inj₂ inl' ) = Ty≤ (≤ₗ-add _ _ _ f< inl') d
+  Ty≤ f< (ϝⱼ {n = n} {nε = nε} g d) | TS.inj₂ k = ϝⱼ {_} {_} {_} {_} {_} {_} {k}
+                                                     (Ty≤ (≤ₗ-add _ _ _ (λ n b inl → InThere _ (f< _ _ inl) _ _) (InHereNat _)) g)
+                                                     (Ty≤ (≤ₗ-add _ _ _ (λ n b inl → InThere _ (f< _ _ inl) _ _) (InHereNat _)) d)
+                                                                             
+  Term≤ : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {t}
+          → l ≤ₗ l'
+          → Γ / lε ⊢ t ∷ A
+          → Γ / lε' ⊢ t ∷ A
+  Term≤ f< (ℕⱼ ⊢Γ) = ℕⱼ (Con≤ f< ⊢Γ)
+  Term≤ f< (𝔹ⱼ ⊢Γ) = 𝔹ⱼ (Con≤ f< ⊢Γ)
+  Term≤ f< (Emptyⱼ ⊢Γ) = Emptyⱼ (Con≤ f< ⊢Γ)
+  Term≤ f< (Unitⱼ ⊢Γ) = Unitⱼ (Con≤ f< ⊢Γ)
+  Term≤ f< (Πⱼ A ▹ B) = Πⱼ Term≤ f< A ▹ Term≤ f< B 
+  Term≤ f< (Σⱼ A ▹ B) = Σⱼ Term≤ f< A ▹ Term≤ f< B 
+  Term≤ f< (var ⊢Γ x) = var (Con≤ f< ⊢Γ) x
+  Term≤ f< (lamⱼ ⊢F x) = lamⱼ (Ty≤ f< ⊢F) (Term≤ f< x)
+  Term≤ f< (t ∘ⱼ u) = Term≤ f< t ∘ⱼ Term≤ f< u
+  Term≤ f< (prodⱼ x x₁ x₂ x₃) = prodⱼ (Ty≤ f< x) (Ty≤ f< x₁) (Term≤ f< x₂) (Term≤ f< x₃)
+  Term≤ f< (fstⱼ x x₁ x₂) = fstⱼ (Ty≤ f< x) (Ty≤ f< x₁) (Term≤ f< x₂)
+  Term≤ f< (sndⱼ x x₁ x₂) = sndⱼ (Ty≤ f< x) (Ty≤ f< x₁) (Term≤ f< x₂)
+  Term≤ f< (zeroⱼ ⊢Γ) = zeroⱼ (Con≤ f< ⊢Γ)
+  Term≤ f< (sucⱼ ⊢n) = sucⱼ (Term≤ f< ⊢n)
+  Term≤ f< (natrecⱼ x x₁ x₂ x₃) = natrecⱼ (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂) (Term≤ f< x₃)
+  Term≤ f< (trueⱼ ⊢Γ) = trueⱼ (Con≤ f< ⊢Γ)
+  Term≤ f< (falseⱼ ⊢Γ) = falseⱼ (Con≤ f< ⊢Γ)
+  Term≤ f< (boolrecⱼ x x₁ x₂ x₃) = boolrecⱼ (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂) (Term≤ f< x₃)
+  Term≤ f< (Emptyrecⱼ x x₁) = Emptyrecⱼ (Ty≤ f< x) (Term≤ f< x₁)
+  Term≤ f< (starⱼ ⊢Γ) = starⱼ (Con≤ f< ⊢Γ)
+  Term≤ f< (conv x x₁) = conv (Term≤ f< x) (ConvTy≤ f< x₁)
+  Term≤ f< (αⱼ x) = αⱼ (Term≤ f< x)
+  Term≤ {l' = l'} f< (ϝⱼ {n = n} {nε = nε} g d) with decidInLConNat l' n 
+  Term≤ f< (ϝⱼ {n = n} {nε = nε} g d) | TS.inj₁ (TS.inj₁ inl' ) = Term≤ (≤ₗ-add _ _ _ f< inl') g
+  Term≤ f< (ϝⱼ {n = n} {nε = nε} g d) | TS.inj₁ (TS.inj₂ inl' ) = Term≤ (≤ₗ-add _ _ _ f< inl') d
+  Term≤ f< (ϝⱼ {n = n} {nε = nε} g d) | TS.inj₂ k = ϝⱼ {_} {_} {_} {_} {_} {_} {_} {k}
+                                                     (Term≤ (≤ₗ-add _ _ _ (λ n b inl → InThere _ (f< _ _ inl) _ _) (InHereNat _)) g)
+                                                     (Term≤ (≤ₗ-add _ _ _ (λ n b inl → InThere _ (f< _ _ inl) _ _) (InHereNat _)) d)
+                                                     
+  ConvTy≤ : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {A B}
+            → l ≤ₗ l'
+            → Γ / lε ⊢ A ≡ B
+            → Γ / lε' ⊢ A ≡ B
+  ConvTy≤ f< (univ t≡u) = univ (ConvTerm≤ f< t≡u) -- univ (Con≤vTerm lε n b nbε t≡u)
+  ConvTy≤ f< (refl A) = refl (Ty≤ f< A) -- refl (Ty≤ lε n b nbε A)
+  ConvTy≤ f< (sym A) = sym (ConvTy≤ f< A) -- sym (ConvTy≤ lε n b nbε A)
+  ConvTy≤ f< (trans t≡u u≡v) = trans (ConvTy≤ f< t≡u) (ConvTy≤ f< u≡v) -- trans (ConvTy≤ lε n b nbε t≡u) (ConvTy≤ lε n b nbε u≡v)
+  ConvTy≤ f< (Π-cong x x₁ x₂) = Π-cong (Ty≤ f< x) (ConvTy≤ f< x₁) (ConvTy≤ f< x₂)
+  ConvTy≤ f< (Σ-cong x x₁ x₂) = Σ-cong (Ty≤ f< x) (ConvTy≤ f< x₁) (ConvTy≤ f< x₂)
+  ConvTy≤ {l' = l'} f< (ϝ-cong {n = n} {nε = nε} g d) with decidInLConNat l' n 
+  ConvTy≤ f< (ϝ-cong {n = n} {nε = nε} g d) | TS.inj₁ (TS.inj₁ inl' ) = ConvTy≤ (≤ₗ-add _ _ _ f< inl') g
+  ConvTy≤ f< (ϝ-cong {n = n} {nε = nε} g d) | TS.inj₁ (TS.inj₂ inl' ) = ConvTy≤ (≤ₗ-add _ _ _ f< inl') d
+  ConvTy≤ f< (ϝ-cong {n = n} {nε = nε} g d) | TS.inj₂ k = ϝ-cong {_} {_} {_} {_} {_} {_} {_} {k}
+                                                     (ConvTy≤ (≤ₗ-add _ _ _ (λ n b inl → InThere _ (f< _ _ inl) _ _) (InHereNat _)) g)
+                                                     (ConvTy≤ (≤ₗ-add _ _ _ (λ n b inl → InThere _ (f< _ _ inl) _ _) (InHereNat _)) d)
+                                                     
+  ConvTerm≤ : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {A t u}
+              → l ≤ₗ l'
+              → Γ / lε ⊢ t ≡ u ∷ A
+              → Γ / lε' ⊢ t ≡ u ∷ A
+  ConvTerm≤ f< (refl t) = refl (Term≤ f< t) -- refl (Term≤ lε n b nbε t)
+  ConvTerm≤ f< (sym x) = sym (ConvTerm≤ f< x) -- sym (ConvTerm≤ lε n b nbε x)
+  ConvTerm≤ f< (trans x x₁) = trans (ConvTerm≤ f< x) (ConvTerm≤ f< x₁) -- trans (ConvTerm≤ f< x) (ConvTerm≤ f< x₁)
+  ConvTerm≤ f< (conv x x₁) = conv (ConvTerm≤ f< x) (ConvTy≤ f< x₁) -- conv (ConvTerm≤ lε n b nbε x) (ConvTy≤ lε n b nbε x₁)
+  ConvTerm≤ f< (Π-cong x x₁ x₂) = Π-cong (Ty≤ f< x) (ConvTerm≤ f< x₁) (ConvTerm≤ f< x₂)
+  ConvTerm≤ f< (Σ-cong x x₁ x₂) = Σ-cong (Ty≤ f< x) (ConvTerm≤ f< x₁) (ConvTerm≤ f< x₂)
+  ConvTerm≤ f< (app-cong x x₁) = app-cong (ConvTerm≤ f< x) (ConvTerm≤ f< x₁)
+  ConvTerm≤ f< (β-red x x₁ x₂) = β-red (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂)
+  ConvTerm≤ f< (η-eq x x₁ x₂ x₃) = η-eq (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂) (ConvTerm≤ f< x₃)
+  ConvTerm≤ f< (fst-cong x x₁ x₂) = fst-cong (Ty≤ f< x) (Ty≤ f< x₁) (ConvTerm≤ f< x₂)
+  ConvTerm≤ f< (snd-cong x x₁ x₂) = snd-cong (Ty≤ f< x) (Ty≤ f< x₁) (ConvTerm≤ f< x₂)
+  ConvTerm≤ f< (Σ-β₁ x x₁ x₂ x₃) = Σ-β₁ (Ty≤ f< x) (Ty≤ f< x₁) (Term≤ f< x₂) (Term≤ f< x₃)
+  ConvTerm≤ f< (Σ-β₂ x x₁ x₂ x₃) = Σ-β₂ (Ty≤ f< x) (Ty≤ f< x₁) (Term≤ f< x₂) (Term≤ f< x₃) 
+  ConvTerm≤ f< (Σ-η x x₁ x₂ x₃ x₄ x₅) = Σ-η (Ty≤ f< x) (Ty≤ f< x₁) (Term≤ f< x₂) (Term≤ f< x₃) (ConvTerm≤ f< x₄) (ConvTerm≤ f< x₅)
+  ConvTerm≤ f< (suc-cong x) = suc-cong (ConvTerm≤ f< x) -- suc-cong (ConvTerm≤ lε n b nbε x)
+  ConvTerm≤ f< (natrec-cong x x₁ x₂ x₃) = natrec-cong (ConvTy≤ f< x) (ConvTerm≤ f< x₁) (ConvTerm≤ f< x₂) (ConvTerm≤ f< x₃)
+  ConvTerm≤ f< (natrec-zero x x₁ x₂) = natrec-zero (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂)
+  ConvTerm≤ f< (natrec-suc x x₁ x₂ x₃) = natrec-suc (Term≤ f< x) (Ty≤ f< x₁) (Term≤ f< x₂) (Term≤ f< x₃)
+  ConvTerm≤ f< (boolrec-cong x x₁ x₂ x₃) = boolrec-cong (ConvTy≤ f< x) (ConvTerm≤ f< x₁) (ConvTerm≤ f< x₂) (ConvTerm≤ f< x₃)
+  ConvTerm≤ f< (boolrec-true x x₁ x₂) = boolrec-true (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂)
+  ConvTerm≤ f< (boolrec-false x x₁ x₂) = boolrec-false (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂)
+  ConvTerm≤ f< (Emptyrec-cong x x₁) = Emptyrec-cong (ConvTy≤ f< x) (ConvTerm≤ f< x₁)
+  ConvTerm≤ f< (η-unit x x₁) = η-unit (Term≤ f< x) (Term≤ f< x₁) -- η-unit (Term≤ lε n b nbε x) (Term≤ lε n b nbε x₁)
+  ConvTerm≤ f< (α-cong x) = α-cong (ConvTerm≤ f< x) -- α-cong (ConvTerm≤ lε n b nbε x)
+  ConvTerm≤ {l' = l'} f< (ϝ-cong {n = n} {nε = nε} g d) with decidInLConNat l' n 
+  ConvTerm≤ f< (ϝ-cong {n = n} {nε = nε} g d) | TS.inj₁ (TS.inj₁ inl' ) = ConvTerm≤ (≤ₗ-add _ _ _ f< inl') g
+  ConvTerm≤ f< (ϝ-cong {n = n} {nε = nε} g d) | TS.inj₁ (TS.inj₂ inl' ) = ConvTerm≤ (≤ₗ-add _ _ _ f< inl') d
+  ConvTerm≤ f< (ϝ-cong {n = n} {nε = nε} g d) | TS.inj₂ k = ϝ-cong {_} {_} {_} {_} {_} {_} {_} {_} {k}
+                                                     (ConvTerm≤ (≤ₗ-add _ _ _ (λ n b inl → InThere _ (f< _ _ inl) _ _) (InHereNat _)) g)
+                                                     (ConvTerm≤ (≤ₗ-add _ _ _ (λ n b inl → InThere _ (f< _ _ inl) _ _) (InHereNat _)) d)
+                                                     
+  ConvTerm≤ f< (α-conv x y) = α-conv (Term≤ f< x) (f< _ _ y)
+  
+
+
+τCon : ∀ {l : LCon} (lε : ⊢ₗ l) n b nbε
+         → ⊢ Γ / lε
+         → ⊢ Γ / (⊢ₗ• l lε n b nbε)
+τCon lε n b nbε ⊢Γ = Con≤ (λ n b inl → InThere _ inl _ _) ⊢Γ
+
+
+τTy : ∀ {l : LCon} (lε : ⊢ₗ l) n b nbε
+        → Γ / lε ⊢ A
+          → Γ / (⊢ₗ• l lε n b nbε) ⊢ A
+τTy lε n b nbε ⊢A = Ty≤ (λ n b inl → InThere _ inl _ _) ⊢A
+
+τTerm : ∀ {l : LCon} (lε : ⊢ₗ l) n b nbε {t}
+          → Γ / lε ⊢ t ∷ A
+          → Γ / (⊢ₗ• l lε n b nbε) ⊢ t ∷ A
+τTerm lε n b nbε ⊢t = Term≤ (λ n b inl → InThere _ inl _ _) ⊢t
+
+τConvTy : ∀ {l : LCon} (lε : ⊢ₗ l) n b nbε {A B}
+            → Γ / lε ⊢ A ≡ B
+            → Γ / (⊢ₗ• l lε n b nbε) ⊢ A ≡ B
+τConvTy lε n b nbε t≡u = ConvTy≤ (λ n b inl → InThere _ inl _ _) t≡u
+
+τConvTerm : ∀ {l : LCon} (lε : ⊢ₗ l) n b nbε {A t u}
+              → Γ / lε ⊢ t ≡ u ∷ A
+              → Γ / (⊢ₗ• l lε n b nbε) ⊢ t ≡ u ∷ A
+τConvTerm lε n b nbε t≡u = ConvTerm≤ (λ n b inl → InThere _ inl _ _) t≡u
 
 -- -- ConvU : ∀ lε → Γ / lε ⊢ A ≡ U
 -- --             → A PE.≡ U
@@ -703,33 +723,31 @@ RedTermPerm (α-subst x₁) = α-subst (RedTermPerm x₁)
 RedTermPerm (α-red ⊢n inl) = α-red (TermPerm _ _ ⊢n) (permutInLCon _ _ _ _ inl)
 
 
-τRedTerm : ∀ {l : LCon} {lε : ⊢ₗ l} {t u A n b nε}
-             → Γ / lε ⊢ t ⇒ u ∷ A
-             → Γ / (⊢ₗ• l lε n b nε) ⊢ t ⇒ u ∷ A
-τRedTerm (conv x x₁) = conv (τRedTerm x) (τConvTy _ _ _ _ x₁)
-τRedTerm (app-subst x x₁) = app-subst (τRedTerm x) (τTerm _ _ _ _ x₁)
-τRedTerm (β-red x x₁ x₂) = β-red (τTy _ _ _ _ x) (τTerm _ _ _ _ x₁) (τTerm _ _ _ _ x₂)
-τRedTerm (fst-subst x x₁ x₂) = fst-subst (τTy _ _ _ _ x) (τTy _ _ _ _ x₁) (τRedTerm x₂)
-τRedTerm (snd-subst x x₁ x₂) = snd-subst (τTy _ _ _ _ x) (τTy _ _ _ _ x₁) (τRedTerm x₂)
-τRedTerm (Σ-β₁ x x₁ x₂ x₃) = Σ-β₁ (τTy _ _ _ _ x) (τTy _ _ _ _ x₁) (τTerm _ _ _ _ x₂) (τTerm _ _ _ _ x₃)
-τRedTerm (Σ-β₂ x x₁ x₂ x₃) = Σ-β₂ (τTy _ _ _ _ x) (τTy _ _ _ _ x₁) (τTerm _ _ _ _ x₂) (τTerm _ _ _ _ x₃)
-τRedTerm (natrec-subst x x₁ x₂ x₃) = natrec-subst (τTy _ _ _ _ x) (τTerm _ _ _ _ x₁) (τTerm _ _ _ _ x₂) (τRedTerm x₃)
-τRedTerm (natrec-zero x x₁ x₂) = natrec-zero (τTy _ _ _ _ x) (τTerm _ _ _ _ x₁) (τTerm _ _ _ _ x₂)
-τRedTerm (natrec-suc x x₁ x₂ x₃) = natrec-suc (τTerm _ _ _ _ x) (τTy _ _ _ _ x₁) (τTerm _ _ _ _ x₂) (τTerm _ _ _ _ x₃)
-τRedTerm (boolrec-subst x x₁ x₂ x₃) = boolrec-subst (τTy _ _ _ _ x) (τTerm _ _ _ _ x₁) (τTerm _ _ _ _ x₂) (τRedTerm x₃)
-τRedTerm (boolrec-true x x₁ x₂) = boolrec-true (τTy _ _ _ _ x) (τTerm _ _ _ _ x₁) (τTerm _ _ _ _ x₂)
-τRedTerm (boolrec-false x x₁ x₂) = boolrec-false (τTy _ _ _ _ x) (τTerm _ _ _ _ x₁) (τTerm _ _ _ _ x₂)
-τRedTerm (Emptyrec-subst x x₁) = Emptyrec-subst (τTy _ _ _ _ x) (τRedTerm x₁)
-τRedTerm (α-subst x₁) = α-subst (τRedTerm x₁)
-τRedTerm (α-red ⊢n inl) = α-red (τTerm _ _ _ _ ⊢n) (InThere _ inl _ _)
-
-
-τRedTerm≤ₗ : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {t u A}
+RedTerm≤ : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {t u A}
              → l ≤ₗ l'
              → Γ / lε ⊢ t ⇒ u ∷ A
              → Γ / lε' ⊢ t ⇒ u ∷ A
-τRedTerm≤ₗ {lε = lε} {lε' = lε'} ≤ₗ-refl t⇒u rewrite ⊢ₗ-HProp _ lε lε' = t⇒u
-τRedTerm≤ₗ {lε = lε} {lε' =  ⊢ₗ• l lε' n b nε} (≤ₗ-add n b l' ≤ε) t⇒u =  τRedTerm (τRedTerm≤ₗ ≤ε t⇒u)
+RedTerm≤ f< (conv x x₁) = conv (RedTerm≤ f< x) (ConvTy≤ f< x₁)
+RedTerm≤ f< (app-subst x x₁) = app-subst (RedTerm≤ f< x) (Term≤ f< x₁)
+RedTerm≤ f< (β-red x x₁ x₂) = β-red (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂)
+RedTerm≤ f< (fst-subst x x₁ x₂) = fst-subst (Ty≤ f< x) (Ty≤ f< x₁) (RedTerm≤ f< x₂)
+RedTerm≤ f< (snd-subst x x₁ x₂) = snd-subst (Ty≤ f< x) (Ty≤ f< x₁) (RedTerm≤ f< x₂)
+RedTerm≤ f< (Σ-β₁ x x₁ x₂ x₃) = Σ-β₁ (Ty≤ f< x) (Ty≤ f< x₁) (Term≤ f< x₂) (Term≤ f< x₃)
+RedTerm≤ f< (Σ-β₂ x x₁ x₂ x₃) = Σ-β₂ (Ty≤ f< x) (Ty≤ f< x₁) (Term≤ f< x₂) (Term≤ f< x₃)
+RedTerm≤ f< (natrec-subst x x₁ x₂ x₃) = natrec-subst (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂) (RedTerm≤ f< x₃)
+RedTerm≤ f< (natrec-zero x x₁ x₂) = natrec-zero (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂)
+RedTerm≤ f< (natrec-suc x x₁ x₂ x₃) = natrec-suc (Term≤ f< x) (Ty≤ f< x₁) (Term≤ f< x₂) (Term≤ f< x₃)
+RedTerm≤ f< (boolrec-subst x x₁ x₂ x₃) = boolrec-subst (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂) (RedTerm≤ f< x₃)
+RedTerm≤ f< (boolrec-true x x₁ x₂) = boolrec-true (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂)
+RedTerm≤ f< (boolrec-false x x₁ x₂) = boolrec-false (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂)
+RedTerm≤ f< (Emptyrec-subst x x₁) = Emptyrec-subst (Ty≤ f< x) (RedTerm≤ f< x₁)
+RedTerm≤ f< (α-subst x₁) = α-subst (RedTerm≤ f< x₁)
+RedTerm≤ f< (α-red ⊢n inl) = α-red (Term≤ f< ⊢n) (f< _ _ inl)
+
+τRedTerm : ∀ {l : LCon} {lε : ⊢ₗ l} {t u A n b nε}
+             → Γ / lε ⊢ t ⇒ u ∷ A
+             → Γ / (⊢ₗ• l lε n b nε) ⊢ t ⇒ u ∷ A
+τRedTerm d = RedTerm≤ (λ n b inl → InThere _ inl _ _) d          
 
 
 
@@ -765,6 +783,21 @@ data _/_⊢_⇒*_ (Γ : Con Term n) {l : LCon} (lε : ⊢ₗ l) : Term n → Ter
             → Γ / lε ⊢ A ⇒* C
 ⇒*-comp (id x) d' = d'
 ⇒*-comp (x ⇨ d) d' = x ⇨ ⇒*-comp d d'
+
+Red≤* : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {A B}
+             → l ≤ₗ l'
+             → Γ / lε ⊢ A ⇒* B
+             → Γ / lε' ⊢ A ⇒* B
+Red≤* f< (id d) = id (Ty≤ f< d)
+Red≤* f< ((univ d) ⇨ d') = univ (RedTerm≤ f< d) ⇨ Red≤* f< d'
+
+RedTerm≤* : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {t u A}
+             → l ≤ₗ l'
+             → Γ / lε ⊢ t ⇒* u ∷ A
+             → Γ / lε' ⊢ t ⇒* u ∷ A
+RedTerm≤* f< (id d) = id (Term≤ f< d)
+RedTerm≤* f< (d ⇨ d') = (RedTerm≤ f< d) ⇨ RedTerm≤* f< d'                                 
+             
 
 RedPerm* : ∀ {l : LCon} {lε : ⊢ₗ l} {A B n}
              → Γ / lε ⊢ A ⇒* B

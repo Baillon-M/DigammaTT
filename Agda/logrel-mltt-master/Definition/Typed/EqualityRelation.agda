@@ -170,8 +170,8 @@ record EqRelSet : Set₁ where
            → Γ / lε ⊢ F
            → Γ / lε ⊢ f ∷ Π F ▹ G
            → Γ / lε ⊢ g ∷ Π F ▹ G
-           → Function f
-           → Function g
+           → Function {_} {l} {lε} f
+           → Function {_} {l} {lε}g
            → Γ ∙ F / lε ⊢ wk1 f ∘ var x0 ≅ wk1 g ∘ var x0 ∷ G
            → Γ / lε ⊢ f ≅ g ∷ Π F ▹ G
 
@@ -245,7 +245,33 @@ record EqRelSet : Set₁ where
     ~-ϝ : ∀ {n nε t u A}  → Γ / ⊢ₗ• l lε n Btrue nε   ⊢ t ~ u ∷ A
                           → Γ / ⊢ₗ• l lε n Bfalse nε  ⊢ t ~ u ∷ A
                           → Γ / lε                ⊢ t ~ u ∷ A
-
+-- Prefascist congruence on types
+    ≅-τ : ∀ {n b nε A B}    → Γ / lε               ⊢ A ≅ B
+                            → Γ / ⊢ₗ• l lε n b nε  ⊢ A ≅ B
+-- Prefascist congruence on terms
+    ≅ₜ-τ : ∀ {n b nε t u A}   → Γ / lε                ⊢ t ≅ u ∷ A
+                             → Γ / ⊢ₗ• l lε n b nε   ⊢ t ≅ u ∷ A
+-- Prefascist congruence on neutrals
+    ~-τ : ∀ {n b nε t u A}    → Γ / lε               ⊢ t ~ u ∷ A
+                            → Γ / ⊢ₗ• l lε n b nε  ⊢ t ~ u ∷ A
+-- Permutation congruence on types
+    ≅-≤ : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {A B}
+               → l ≤ₗ l'
+               → Γ / lε   ⊢ A ≅ B
+               → Γ / lε'  ⊢ A ≅ B
+               
+-- Permutation congruence on terms
+    ≅ₜ-≤ : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {t u A}
+                → Γ / lε    ⊢ t ≅ u ∷ A
+                → l ≤ₗ l'
+                → Γ / lε'   ⊢ t ≅ u ∷ A
+                             
+-- Permutation congruence on neutrals
+    ~-≤ : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {t u A}
+               → l ≤ₗ l'
+               → Γ / lε   ⊢ t ~ u ∷ A
+               → Γ / lε'  ⊢ t ~ u ∷ A
+  
   -- Star reflexivity
   ≅ₜ-starrefl : ⊢ Γ / lε → Γ / lε ⊢ star ≅ star ∷ Unit
   ≅ₜ-starrefl [Γ] = ≅ₜ-η-unit (starⱼ [Γ]) (starⱼ [Γ])
