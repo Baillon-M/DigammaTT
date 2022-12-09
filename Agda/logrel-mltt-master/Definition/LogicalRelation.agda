@@ -14,6 +14,7 @@ open import Definition.Typed.Weakening
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+import Tools.Sum as TS
 
 private
   variable
@@ -89,22 +90,22 @@ record _/_⊩ne_≡_∷_/_ (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t u 
 -- Reducibility of αNeutrals:
 
 -- αNeutral type
-record _/_⊩αne_ (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A : Term ℓ) : Set where
-  constructor αne
-  field
-    K   : Term ℓ
-    D   : Γ / lε ⊢ A :⇒*: K
-    neK : αNeutral {l} {lε} K
-    K≡K : Γ / lε ⊢ K ≅ K ∷ U
+-- record _/_⊩αne_ (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A : Term ℓ) : Set where
+--  constructor αne
+--  field
+--    K   : Term ℓ
+--    D   : Γ / lε ⊢ A :⇒*: K
+--    neK : αNeutral {l} {lε} K
+--    K≡K : Γ / lε ⊢ K ≅ K ∷ U
 
 -- αNeutral type equality
-record _/_⊩αne_≡_/_ (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A B : Term ℓ) ([A] : Γ / lε ⊩αne A) : Set where
-  constructor αne₌
-  open _/_⊩αne_ [A]
-  field
-    M   : Term ℓ
-    D′  : Γ / lε ⊢ B :⇒*: M
-    K≡M : Γ / lε ⊢ K ≅ M ∷ U
+-- record _/_⊩αne_≡_/_ (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A B : Term ℓ) ([A] : Γ / lε ⊩αne A) : Set where
+--  constructor αne₌
+--  open _/_⊩αne_ [A]
+--  field
+--    M   : Term ℓ
+--    D′  : Γ / lε ⊢ B :⇒*: M
+--    K≡M : Γ / lε ⊢ K ≅ M ∷ U
 
 -- Reducibility of natural numbers:
 
@@ -116,9 +117,11 @@ _/_⊩ℕ_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A : Term ℓ) → 
 data _/_⊩ℕ_≡_ (Γ : Con Term ℓ) : ∀ {l : LCon} (lε : ⊢ₗ l) (A B : Term ℓ) → Set
   where 
     ⊩ℕ≡ : ∀ {l} {lε : ⊢ₗ l} A B → Γ / lε ⊢ B ⇒* ℕ → Γ / lε ⊩ℕ A ≡ B
-    ϝ⊩ℕ≡ : ∀ {l} {lε : ⊢ₗ l} {m mε} A B
-                       → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩ℕ A ≡ B 
-                       → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩ℕ A ≡ B 
+    ϝ⊩ℕ≡ : ∀ {l} {lε : ⊢ₗ l} {m A B B'} mε
+                       (B⇒B' : Γ / lε ⊢ B :⇒*: B')
+                       (αB : αNeutral {l} {lε} {_} m B')
+                       → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩ℕ A ≡ B' 
+                       → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩ℕ A ≡ B' 
                        → Γ / lε ⊩ℕ A ≡ B
 
 mutual
@@ -138,7 +141,7 @@ mutual
     zeroᵣ : Natural-prop Γ lε zero
     ne    : ∀ {n} → Γ / lε ⊩neNf n ∷ ℕ → Natural-prop Γ lε n
     ℕϝ    : ∀ {n m mε} → Γ / lε ⊢ n ∷ ℕ
-                       → αNeutral {l} {lε} n
+                       → αNeutral {l} {lε} m n
                        → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩ℕ n ∷ℕ
                        → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩ℕ n ∷ℕ
                        → Natural-prop Γ lε n
@@ -160,8 +163,8 @@ mutual
     sucᵣ  : ∀ {l : LCon} {lε : ⊢ₗ l} {n n′} → Γ / lε ⊩ℕ n ≡ n′ ∷ℕ → [Natural]-prop Γ lε (suc n) (suc n′)
     zeroᵣ : ∀ {l : LCon} {lε : ⊢ₗ l} → [Natural]-prop Γ lε zero zero
     ne    : ∀ {l : LCon} {lε : ⊢ₗ l} {n n′} → Γ / lε ⊩neNf n ≡ n′ ∷ ℕ → [Natural]-prop Γ lε n n′
-    [ℕ]ϝ  : ∀ {l : LCon} {lε : ⊢ₗ l} {n n' m mε}  → αNeutral {l} {lε} n
-                                                 → αNeutral {l} {lε} n'
+    [ℕ]ϝ  : ∀ {l : LCon} {lε : ⊢ₗ l} {n n' m mε}  → αNeutral {l} {lε} m n
+                                                 → αNeutral {l} {lε} m n'
                                                  → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩ℕ n ≡ n' ∷ℕ
                                                  → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩ℕ n ≡ n' ∷ℕ
                                                  → [Natural]-prop Γ lε n n'
@@ -455,8 +458,8 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
       Bᵣ  : ∀ {A} W → Γ / lε ⊩¹B⟨ W ⟩ A → Γ / lε ⊩¹ A
       emb : ∀ {A j′} (j< : j′ < j) (let open LogRelKit (rec j<))
             ([A] : Γ / lε ⊩ A) → Γ / lε ⊩¹ A
-      ϝᵣ  : ∀ {A B m mε}   → Γ / lε ⊢ A :⇒*: B
-                           → αNeutral {l} {lε} B
+      ϝᵣ  : ∀ {A B m} mε   → Γ / lε ⊢ A :⇒*: B
+                           → αNeutral {l} {lε} m B
                            → Γ / (⊢ₗ• l lε m Btrue mε)     ⊩¹ B
                            → Γ / (⊢ₗ• l lε m Bfalse mε)    ⊩¹ B
                            → Γ / lε ⊩¹ A
@@ -468,7 +471,7 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     Γ / lε ⊩¹ A ≡ B / Unitᵣ D = Γ / lε ⊩Unit A ≡ B
     Γ / lε ⊩¹ A ≡ B / ne neA = Γ / lε ⊩ne A ≡ B / neA
     Γ / lε ⊩¹ A ≡ B / Bᵣ W BA = Γ / lε ⊩¹B⟨ W ⟩ A ≡ B / BA
-    Γ / lε ⊩¹ A ≡ B / ϝᵣ _ _ tB fB = (Γ / _ ⊩¹ _ ≡ B / tB) × (Γ / _ ⊩¹ _ ≡ B / fB)
+    Γ / lε ⊩¹ A ≡ B / ϝᵣ _ _ _ tB fB = (Γ / _ ⊩¹ _ ≡ B / tB) × (Γ / _ ⊩¹ _ ≡ B / fB)
     Γ / lε ⊩¹ A ≡ B / emb j< [A] = Γ / lε ⊩ A ≡ B / [A]
       where open LogRelKit (rec j<)
 
@@ -480,7 +483,7 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     Γ / lε ⊩¹ t ∷ A / ne neA = Γ / lε ⊩ne t ∷ A / neA
     Γ / lε ⊩¹ t ∷ A / Bᵣ BΠ ΠA  = Γ / lε ⊩¹Π t ∷ A / ΠA
     Γ / lε ⊩¹ t ∷ A / Bᵣ BΣ ΣA  = Γ / lε ⊩¹Σ t ∷ A / ΣA
-    Γ / lε ⊩¹ t ∷ A / ϝᵣ _ _ tB fB = (Γ / _ ⊩¹ t ∷ _ / tB) × (Γ / _ ⊩¹ t ∷ _ / fB)
+    Γ / lε ⊩¹ t ∷ A / ϝᵣ _ _ _ tB fB = (Γ / _ ⊩¹ t ∷ _ / tB) × (Γ / _ ⊩¹ t ∷ _ / fB)
     Γ / lε ⊩¹ t ∷ A / emb j< [A] = Γ / lε ⊩ t ∷ A / [A]
       where open LogRelKit (rec j<)
 
@@ -492,7 +495,7 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     Γ / lε ⊩¹ t ≡ u ∷ A / ne neA = Γ / lε ⊩ne t ≡ u ∷ A / neA
     Γ / lε ⊩¹ t ≡ u ∷ A / Bᵣ BΠ ΠA = Γ / lε ⊩¹Π t ≡ u ∷ A / ΠA
     Γ / lε ⊩¹ t ≡ u ∷ A / Bᵣ BΣ ΣA  = Γ / lε ⊩¹Σ t ≡ u ∷ A / ΣA
-    Γ / lε ⊩¹ t ≡ u ∷ A / ϝᵣ _ _ tB fB = (Γ / _ ⊩¹ t ≡ u ∷ _ / tB) × (Γ / _ ⊩¹ t ≡ u ∷ _ / fB)
+    Γ / lε ⊩¹ t ≡ u ∷ A / ϝᵣ _ _ _ tB fB = (Γ / _ ⊩¹ t ≡ u ∷ _ / tB) × (Γ / _ ⊩¹ t ≡ u ∷ _ / fB)
     Γ / lε ⊩¹ t ≡ u ∷ A / emb j< [A] = Γ / lε ⊩ t ≡ u ∷ A / [A]
       where open LogRelKit (rec j<)
 
@@ -505,12 +508,24 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
               → Γ / lε ⊢ A ≅ B
     escapeEqB {W = W} (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (B₌ _ _ _ _ _ _ _ _ _ F' G' D' A≡B [F=F'] [G=G']) = ≅-red (red D) D' ⟦ W ⟧ₙ ⟦ W ⟧ₙ A≡B
     escapeEqB {W = W} (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Bϝ _ [A]t [A]f tA≡B fA≡B) = ≅-ϝ (escapeEqB [A]t tA≡B) (escapeEqB [A]f fA≡B)
-    
+
+
+    eqℕeqℕ : ∀ {A B} → Γ / lε ⊩ℕ A ≡ B
+                     → Γ / lε ⊩ℕ ℕ ≡ B
+    eqℕeqℕ (⊩ℕ≡ A B D') = ⊩ℕ≡ _ _ D'
+    eqℕeqℕ (ϝ⊩ℕ≡ mε B⇒B' αB tA=B fA=B) = ϝ⊩ℕ≡ mε B⇒B' αB (eqℕeqℕ tA=B) (eqℕeqℕ fA=B)
+
+    whescapeEqℕ : ∀ {A} → (⊢Γ : ⊢ Γ / lε)
+              → Γ / lε ⊩ℕ ℕ ≡ A
+              → Γ / lε ⊢ ℕ ≅ A
+    whescapeEqℕ ⊢Γ (⊩ℕ≡ A B D') = ≅-red (id (ℕⱼ ⊢Γ)) D' ℕₙ ℕₙ (≅-ℕrefl ⊢Γ)
+    whescapeEqℕ ⊢Γ (ϝ⊩ℕ≡ mε A⇒B αB tℕ=B fℕ=B) = ≅-red (id (ℕⱼ ⊢Γ)) (red A⇒B) ℕₙ (αₙ αB) (≅-ϝ (whescapeEqℕ (τCon _ _ _ _ ⊢Γ) tℕ=B) (whescapeEqℕ (τCon _ _ _ _ ⊢Γ) fℕ=B))
+              
     escapeEqℕ : ∀ {A B} → ([A] : Γ / lε  ⊩ℕ A)
               → Γ / lε ⊩ℕ A ≡ B
               → Γ / lε ⊢ A ≅ B
-    escapeEqℕ [ ⊢A , ⊢B , D ] (⊩ℕ≡ A B D') = ≅-red D D' ℕₙ ℕₙ (≅-ℕrefl (wf ⊢A))
-    escapeEqℕ D (ϝ⊩ℕ≡ A B tA=B fA=B) = ≅-ϝ (escapeEqℕ (τwfRed* D) tA=B) (escapeEqℕ (τwfRed* D) fA=B)
+    escapeEqℕ A⇒ℕ B⇒ℕ = ≅-trans (≅-red (red A⇒ℕ) (id (⊢B-red A⇒ℕ)) ℕₙ ℕₙ (≅-ℕrefl (wf (⊢B-red A⇒ℕ))))
+                                (whescapeEqℕ (wf (⊢B-red A⇒ℕ)) (eqℕeqℕ B⇒ℕ))
 
     
 open LogRel public using (Uᵣ; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; Bϝ ; emb; Uₜ; Uₜ₌ ; ϝᵣ)
@@ -554,18 +569,6 @@ _/_⊩⟨_⟩_∷_/_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (j : Type
 _/_⊩⟨_⟩_≡_∷_/_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (j : TypeLevel) (t u A : Term ℓ) → Γ / lε ⊩⟨ j ⟩ A → Set
 Γ / lε ⊩⟨ j ⟩ t ≡ u ∷ A / [A] = Γ / lε ⊩ t ≡ u ∷ A / [A] where open LogRelKit (kit j)
 
-
--- TyLog≤ : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} (≤ε : l ≤ₗ l') {k A}
---            → ([A] :  Γ / lε ⊩⟨ k ⟩ A) → Γ / lε' ⊩⟨ k ⟩ A
--- TyLog≤ f< (Uᵣ′ k′ k< ⊢Γ) = Uᵣ′ k′ k<  (Con≤ f< ⊢Γ)
--- TyLog≤ f< (ℕᵣ [ ⊢A , ⊢ℕ , D ]) = ℕᵣ ([ Ty≤ f< ⊢A , Ty≤ f< ⊢ℕ , Red≤* f< D ])
--- TyLog≤ f< (Emptyᵣ [ ⊢A , ⊢Empty , D ]) = Emptyᵣ ([ Ty≤ f< ⊢A , Ty≤ f< ⊢Empty , Red≤* f< D ])
--- TyLog≤ f< (Unitᵣ [ ⊢A , ⊢Unit , D ]) = Unitᵣ ([ Ty≤ f< ⊢A , Ty≤ f< ⊢Unit , Red≤* f< D ])
--- TyLog≤ f< (ne (ne K [ ⊢A , ⊢K , D ] neK K≡K)) = ne (ne K ([ Ty≤ f< ⊢A , Ty≤ f< ⊢K , Red≤* f< D ]) neK (~-≤ f< K≡K))
--- TyLog≤ {l = l} {l' = l'} f< (Bᵣ W (Bᵣ F G [ ⊢A , ⊢Π , D ] ⊢F ⊢G A≡A [F] [G] G-ext)) =
---   Bᵣ W (Bᵣ F G ([ Ty≤ f< ⊢A , Ty≤ f< ⊢Π , Red≤* f< D ]) (Ty≤ f< ⊢F) (Ty≤ f< ⊢G) (≅-≤ f< A≡A) [F] (λ {m} {ρ} {Δ} {a} {l'} {≤ε} → [G] {_} {_} {_} {_} {_} {λ n b inl → ≤ε n b (f< n b inl)}) G-ext)
--- TyLog≤ f< (emb {l} {lε} {A}  0<1 [A]) = emb 0<1 (TyLog≤ f< [A]) 
--- TyLog≤ f< (ϝᵣ {m = m} {mε = mε} [ ⊢A , ⊢B , D ] αB  tB fB) = ϝᵣ {!!} {!!} {!!} {!!}
 
 
 -- TyPermLog : ∀ {k A n} ([A] :  Γ / lε ⊩⟨ k ⟩ A) → Γ / (permutε n lε) ⊩⟨ k ⟩ A

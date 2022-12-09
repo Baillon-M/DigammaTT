@@ -191,7 +191,7 @@ mutual
 --Neutrals do not weak head reduce
 
 mutual
-  αneRedTerm : ∀ {l : LCon} {lε : ⊢ₗ l} → (d : Γ / lε ⊢ t ⇒ u ∷ A) (n : αNeutral {l} {lε} t) → ⊥
+  αneRedTerm : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → (d : Γ / lε ⊢ t ⇒ u ∷ A) (n : αNeutral {l} {lε} m t) → ⊥
   αneRedTerm (conv d x) n = αneRedTerm d n
   αneRedTerm (app-subst d x) (∘ₙ n) = αneRedTerm d n
   αneRedTerm (β-red x x₁ x₂) (∘ₙ ())
@@ -206,11 +206,12 @@ mutual
   αneRedTerm (boolrec-subst x x₁ x₂ d) (boolrecₙ b₁) = αneRedTerm d b₁
   αneRedTerm (boolrec-true x x₁ x₂) (boolrecₙ ())
   αneRedTerm (boolrec-false x x₁ x₂) (boolrecₙ ())
-  αneRedTerm (α-subst d) (αₙ-base Truezero tε) = whnfRedTerm d zeroₙ
-  αneRedTerm (α-subst d) (αₙ-base (Truesuc k) tε) = whnfRedTerm d sucₙ
+  αneRedTerm (α-subst d) (αₙ-base 0 e tε) rewrite e = whnfRedTerm d zeroₙ
+  αneRedTerm (α-subst d) (αₙ-base (1+ k) e tε) rewrite e = whnfRedTerm d sucₙ
   αneRedTerm (α-subst d) (αₙ-rec d') = αneRedTerm d d'
-  αneRedTerm (α-red ⊢n inl) (αₙ-rec n) = NotTrueNatαNe _ (InLConTrueNat _ _ _ inl) n -- NotTrueNatαNe _ (TrueNatToTerm _ _) n
-  αneRedTerm {lε =  ⊢ₗ• l lε n b nε} (α-red ⊢n inl) (αₙ-base t (NotInThere l notinl n b notn)) = NotInLConNotInLCon _ _ (addₗ n b l) (NotInThere _ notinl _ _ notn) inl
+  αneRedTerm (α-red ⊢n inl) (αₙ-rec n) = NoTrueNatαNe _ (InLConTrueNat _ _ _ inl) n
+  αneRedTerm {lε =  ⊢ₗ• l lε n b nε} (α-red ⊢n inl) (αₙ-base m e (NotInThereNat l notinl n b notn)) =
+    NotInLConNotInLCon _ _ (addₗ n b l) (NotInLConNatNotInLCon _ _ _ (NotInThereNat _ notinl _ _ notn) e) inl 
   
   neRedTerm : (d : Γ / lε ⊢ t ⇒ u ∷ A) (n : Neutral t) → ⊥
   neRedTerm (conv d x) n = neRedTerm d n
@@ -344,6 +345,14 @@ whrDet*Term (x ⇨ proj₁ , proj₂) (id x₁ , proj₄) = ⊥-elim (whnfRedTer
 whrDet*Term (x ⇨ proj₁ , proj₂) (x₁ ⇨ proj₃ , proj₄) =
   whrDet*Term (proj₁ , proj₂) (PE.subst (λ x₂ → _ / _ ⊢ x₂ ↘ _ ∷ _)
                                     (whrDetTerm x₁ x) (proj₃ , proj₄))
+
+
+whrDet↘ : (d : Γ / lε ⊢ A ↘ B) (d′ : Γ / lε ⊢ A ⇒* A′) → Γ / lε ⊢ A′ ⇒* B
+whrDet↘ (proj₁ , proj₂) (id x) = proj₁
+whrDet↘ (id x , proj₂) (x₁ ⇨ d′) = ⊥-elim (whnfRed x₁ proj₂)
+whrDet↘ (x ⇨ proj₁ , proj₂) (x₁ ⇨ d′) =
+  whrDet↘ (PE.subst (λ x₂ → _ / _ ⊢ x₂ ↘ _) (whrDet x x₁) (proj₁ , proj₂)) d′
+
 
 whrDet* : (d : Γ / lε ⊢ A ↘ B) (d′ : Γ / lε ⊢ A ↘ B′) → B PE.≡ B′
 whrDet* (id x , proj₂) (id x₁ , proj₄) = PE.refl
