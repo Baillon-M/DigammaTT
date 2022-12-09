@@ -506,18 +506,18 @@ mutual
     Scontn    : ContainsNeutral t → ContainsNeutral (suc t)
 
 
-data αNeutral {l : LCon} {lε : ⊢ₗ l} : Term n → Set where
-  αₙ-base   : TrueNat t → NotInLCon t l → αNeutral (α t)
-  ∘ₙ        : αNeutral {l} {lε} t   → αNeutral (t ∘ u)
-  fstₙ      : αNeutral {l} {lε} t   → αNeutral (fst t)
-  sndₙ      : αNeutral {l} {lε} t   → αNeutral (snd t)
-  natrecₙ   : αNeutral {l} {lε} v   → αNeutral (natrec G t u v)
-  boolrecₙ  : αNeutral {l} {lε} v   → αNeutral (boolrec G t u v)
-  Emptyrecₙ : αNeutral {l} {lε} t   → αNeutral (Emptyrec A t)
-  αₙ-rec    : αNeutral {l} {lε} t   → αNeutral (α t)
+data αNeutral {l : LCon} {lε : ⊢ₗ l} : ∀ (m : Nat) → Term n → Set where
+  αₙ-base   : ∀ (m : Nat) {t : Term n} → t PE.≡ natToTerm _ m → NotInLConNat m l → αNeutral m (α t)
+  ∘ₙ        : ∀ {m} → αNeutral {l} {lε} m t   → αNeutral m (t ∘ u)
+  fstₙ      : ∀ {m} → αNeutral {l} {lε} m t   → αNeutral m (fst t)
+  sndₙ      : ∀ {m} → αNeutral {l} {lε} m t   → αNeutral m (snd t)
+  natrecₙ   : ∀ {m} → αNeutral {l} {lε} m v   → αNeutral m (natrec G t u v)
+  boolrecₙ  : ∀ {m} → αNeutral {l} {lε} m v   → αNeutral m (boolrec G t u v)
+  Emptyrecₙ : ∀ {m} → αNeutral {l} {lε} m t   → αNeutral m (Emptyrec A t)
+  αₙ-rec    : ∀ {m} → αNeutral {l} {lε} m t   → αNeutral m (α t)
 
-BackταNeutral : ∀ {l : LCon} {lε : ⊢ₗ l} {n b nbε} → αNeutral {_} {⊢ₗ• l lε n b nbε} t → αNeutral {l} {lε} t
-BackταNeutral (αₙ-base tε (NotInThere l notinl n b t≠n)) = αₙ-base tε notinl
+BackταNeutral : ∀ {l : LCon} {lε : ⊢ₗ l} {m n b nbε} → αNeutral {_} {⊢ₗ• l lε n b nbε} m t → αNeutral {l} {lε} m t
+BackταNeutral (αₙ-base m tε (NotInThereNat l notinl n b t≠n)) = αₙ-base m tε notinl
 BackταNeutral (αₙ-rec tε) = αₙ-rec (BackταNeutral tε)
 BackταNeutral (∘ₙ d) = ∘ₙ (BackταNeutral d)
 BackταNeutral (fstₙ d) = fstₙ (BackταNeutral d)
@@ -526,8 +526,25 @@ BackταNeutral (natrecₙ d) = natrecₙ (BackταNeutral d)
 BackταNeutral (boolrecₙ d) = boolrecₙ (BackταNeutral d)
 BackταNeutral (Emptyrecₙ d) = Emptyrecₙ (BackταNeutral d)
 
-NotTrueNatαNe : ∀ {l : LCon} {lε : ⊢ₗ l} → (t : Term n) → TrueNat t → αNeutral {l} {lε} t → PE.⊥
-NotTrueNatαNe _ (Truesuc tε) () -- = {!!}
+αNeNotIn : ∀ {l l' lε lε' m} {t : Term n} → NotInLConNat m l' → αNeutral {l} {lε} m t → αNeutral {l'} {lε'} m t
+αNeNotIn notl' (αₙ-base m e notl) = αₙ-base m e notl'
+αNeNotIn notl' (αₙ-rec tε) = αₙ-rec (αNeNotIn notl' tε)
+αNeNotIn notl' (∘ₙ d) = ∘ₙ (αNeNotIn notl' d)
+αNeNotIn notl' (fstₙ d) = fstₙ (αNeNotIn notl' d)
+αNeNotIn notl' (sndₙ d) = sndₙ (αNeNotIn notl' d)
+αNeNotIn notl' (natrecₙ d) = natrecₙ (αNeNotIn notl' d)
+αNeNotIn notl' (boolrecₙ d) = boolrecₙ (αNeNotIn notl' d)
+αNeNotIn notl' (Emptyrecₙ d) = Emptyrecₙ (αNeNotIn notl' d)
+
+NoTrueNatNe : ∀ (t : Term n) → TrueNat t → Neutral t → PE.⊥
+NoTrueNatNe _ (Truesuc tε) ()
+
+NoTrueNatConNe : ∀ (t : Term n) → TrueNat t → ContainsNeutral t → PE.⊥
+NoTrueNatConNe _ (Truesuc tε) (Scontn tcontn) = NoTrueNatConNe _ tε tcontn
+NoTrueNatConNe _ tε (ncontn net) = NoTrueNatNe _ tε net
+
+NoTrueNatαNe : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → (t : Term n) → TrueNat t → αNeutral {l} {lε} m t → PE.⊥
+NoTrueNatαNe _ (Truesuc tε) () -- = {!!}
 
 
 -- Weak head normal forms (whnfs).
@@ -558,7 +575,7 @@ data Whnf {l : LCon} {lε : ⊢ₗ l} {n : Nat} : Term n → Set where
   ne    : Neutral t → Whnf t
 
   -- α's are whnfs if their argument is not in the list l. Otherwise it will reduce.
-  αₙ : αNeutral {l} {lε} t → Whnf t
+  αₙ : ∀ {m} → αNeutral {l} {lε} m t → Whnf t
 
 
 -- Whnf inequalities.
@@ -569,21 +586,55 @@ data Whnf {l : LCon} {lε : ⊢ₗ l} {n : Nat} : Term n → Set where
 U≢ne : Neutral A → U PE.≢ A
 U≢ne () PE.refl
 
+U≢αne : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → αNeutral {l} {lε} m A → U PE.≢ A
+U≢αne () PE.refl
+
 ℕ≢ne : Neutral A → ℕ PE.≢ A
 ℕ≢ne () PE.refl
+
+ℕ≢αne : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → αNeutral {l} {lε} m A → ℕ PE.≢ A
+ℕ≢αne () PE.refl
 
 𝔹≢ne : Neutral A → 𝔹 PE.≢ A
 𝔹≢ne () PE.refl
 
+𝔹≢αne : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → αNeutral {l} {lε} m A → 𝔹 PE.≢ A
+𝔹≢αne () PE.refl
+
 Empty≢ne : Neutral A → Empty PE.≢ A
 Empty≢ne () PE.refl
+
+Empty≢αne : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → αNeutral {l} {lε} m A → Empty PE.≢ A
+Empty≢αne () PE.refl
 
 Unit≢ne : Neutral A → Unit PE.≢ A
 Unit≢ne () PE.refl
 
+Unit≢αne : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → αNeutral {l} {lε} m A → Unit PE.≢ A
+Unit≢αne () PE.refl
+
+mutual 
+  ne≢αne : ∀ {n m : Nat} {A B : Term n} {l : LCon} {lε : ⊢ₗ l} → Neutral A → αNeutral {l} {lε} m B → A PE.≢ B
+  ne≢αne (αₙ contn) (αₙ-base m e tε) PE.refl rewrite e = NoTrueNatConNe _ (TrueNatToTerm _ m) contn
+  ne≢αne (αₙ contn) (αₙ-rec tε) PE.refl = conne≢αne contn tε PE.refl
+  ne≢αne (∘ₙ net) (∘ₙ αnet) PE.refl = ne≢αne net αnet PE.refl
+  ne≢αne (fstₙ net) (fstₙ αnet) PE.refl = ne≢αne net αnet PE.refl
+  ne≢αne (sndₙ net) (sndₙ αnet) PE.refl = ne≢αne net αnet PE.refl
+  ne≢αne (natrecₙ net) (natrecₙ αnet) PE.refl = ne≢αne net αnet PE.refl
+  ne≢αne (boolrecₙ net) (boolrecₙ αnet) PE.refl = ne≢αne net αnet PE.refl
+  ne≢αne (Emptyrecₙ net) (Emptyrecₙ αnet) PE.refl = ne≢αne net αnet PE.refl
+  
+  conne≢αne : ∀ {n m} {A B : Term n} {l : LCon} {lε : ⊢ₗ l} → ContainsNeutral A → αNeutral {l} {lε} m B → A PE.≢ B
+  conne≢αne (ncontn net) αt = ne≢αne net αt
+  conne≢αne (Scontn contn) () PE.refl
+
 B≢ne : ∀ W → Neutral A → ⟦ W ⟧ F ▹ G PE.≢ A
 B≢ne BΠ () PE.refl
 B≢ne BΣ () PE.refl
+
+B≢αne : ∀ {l lε m} W → αNeutral {l} {lε} m A → ⟦ W ⟧ F ▹ G PE.≢ A
+B≢αne BΠ () PE.refl
+B≢αne BΣ () PE.refl
 
 U≢B : ∀ W → U PE.≢ ⟦ W ⟧ F ▹ G
 U≢B BΠ ()
@@ -635,7 +686,7 @@ data Natural {n : Nat} {l} {lε} : Term n → Set where
   zeroₙ :             Natural zero
   sucₙ  :             Natural (suc t)
   ne    : Neutral t → Natural t
-  neα   : αNeutral {l} {lε} t → Natural t
+  neα   : ∀ {m} → αNeutral {l} {lε} m t → Natural t
 
 
 -- A whnf of type 𝔹 is either true, false, or neutral.
@@ -644,7 +695,7 @@ data Boolean {n : Nat} {l} {lε} : Term n → Set where
   trueₙ :             Boolean true
   falseₙ  :           Boolean false
   ne    : Neutral t → Boolean t
-  neα   : αNeutral {l} {lε} t → Boolean t
+  neα   : ∀ {m} → αNeutral {l} {lε} m t → Boolean t
 
 -- A (small) type in whnf is either Π A B, Σ A B, ℕ, Empty, Unit or neutral.
 -- Large types could also be U.
@@ -657,7 +708,7 @@ data Type {n : Nat} {l : LCon} {lε : ⊢ₗ l} : Term n → Set where
   Emptyₙ :             Type Empty
   Unitₙ  :             Type Unit
   ne     : Neutral t → Type t
-  αne   : αNeutral {l} {lε} t → Type t
+  αne   : ∀ {m} → αNeutral {l} {lε} m t → Type t
 
 ⟦_⟧-type : ∀ {l lε} (W : BindingType) → Type {_} {l} {lε} (⟦ W ⟧ F ▹ G)
 ⟦ BΠ ⟧-type = Πₙ
@@ -668,7 +719,7 @@ data Type {n : Nat} {l : LCon} {lε : ⊢ₗ l} : Term n → Set where
 data Function {n : Nat} {l} {lε} : Term n → Set where
   lamₙ : Function (lam t)
   ne   : Neutral t → Function t
-  neα : αNeutral {l} {lε} t → Function t
+  neα : ∀ {m} → αNeutral {l} {lε} m t → Function t
 
 -- A whnf of type Σ A ▹ B is either prod t u or neutral.
 
@@ -816,8 +867,8 @@ wkNotInLCon : ∀ l ρ → NotInLCon t l → NotInLCon {n} (wk ρ t) l
 wkNotInLCon _ ρ (NotInε tε) = NotInε (wkTrueNat _ tε)
 wkNotInLCon (addₗ m b γ) ρ (NotInThere .γ γε .m .b e) = NotInThere γ (wkNotInLCon _ _ γε) m b (PE.subst (λ h → DifferentTrueNat _ h) ((wkNatToTerm ρ m)) (wkDifferentTrueNat ρ _ _ e))
 
-αwkNeutral : ∀ {l lε} ρ → αNeutral {l} {lε} t → αNeutral {l} {lε} {n} (wk ρ t)
-αwkNeutral ρ (αₙ-base nε notn)       = αₙ-base (wkTrueNat _ nε) (wkNotInLCon _ _ notn)
+αwkNeutral : ∀ {l lε m} ρ → αNeutral {l} {lε} m t → αNeutral {l} {lε} {n} m (wk ρ t)
+αwkNeutral ρ (αₙ-base m e notn) rewrite e = αₙ-base m (wkNatToTerm ρ m) notn
 αwkNeutral ρ (αₙ-rec n)       = αₙ-rec (αwkNeutral _ n)
 αwkNeutral  ρ (∘ₙ n)        = ∘ₙ (αwkNeutral ρ n)
 αwkNeutral ρ (fstₙ n)      = fstₙ (αwkNeutral ρ n)
