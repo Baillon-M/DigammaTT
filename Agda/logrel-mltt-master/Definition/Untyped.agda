@@ -877,6 +877,18 @@ wkNotInLCon (addₗ m b γ) ρ (NotInThere .γ γε .m .b e) = NotInThere γ (wk
 αwkNeutral ρ (boolrecₙ n)   = boolrecₙ (αwkNeutral ρ n)
 αwkNeutral ρ (Emptyrecₙ e) = Emptyrecₙ (αwkNeutral ρ e)
 
+αNeutralHProp : ∀ {l lε m m'} → αNeutral {l} {lε} m t → αNeutral {l} {lε} m' t → m PE.≡ m'
+αNeutralHProp (αₙ-base m e notn) (αₙ-base m' e' notn') rewrite e rewrite e' = EqNatToTermEqNat _ _ e'
+αNeutralHProp (αₙ-rec n) (αₙ-rec m)       = αNeutralHProp n m
+αNeutralHProp (∘ₙ n) (∘ₙ m)        = αNeutralHProp n m
+αNeutralHProp (fstₙ n) (fstₙ m)      = αNeutralHProp n m
+αNeutralHProp (sndₙ n) (sndₙ m)      = αNeutralHProp n m
+αNeutralHProp (natrecₙ n) (natrecₙ m)   = αNeutralHProp n m
+αNeutralHProp (boolrecₙ n) (boolrecₙ m)   = αNeutralHProp n m
+αNeutralHProp (Emptyrecₙ n) (Emptyrecₙ m) = αNeutralHProp n m
+αNeutralHProp (αₙ-base n e notn) (αₙ-rec m) rewrite e = PE.⊥-elim (NoTrueNatαNe _ (TrueNatToTerm _ n) m)
+αNeutralHProp (αₙ-rec m) (αₙ-base n e notn) rewrite e = PE.⊥-elim (NoTrueNatαNe _ (TrueNatToTerm _ n) m)
+
 -- Weakening can be applied to our whnf views.
 
 wkNatural : ∀ ρ {l} {lε} → Natural  {_} {l} {lε} t → Natural {n} {l} {lε} (wk ρ t)
