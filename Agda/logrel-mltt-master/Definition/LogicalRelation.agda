@@ -459,8 +459,8 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
       Unitᵣ : ∀ {A} → Γ / lε ⊩Unit A → Γ / lε ⊩¹ A
       ne  : ∀ {A} → Γ / lε ⊩ne A → Γ / lε ⊩¹ A
       Bᵣ  : ∀ {A} W → Γ / lε ⊩¹B⟨ W ⟩ A → Γ / lε ⊩¹ A
-      emb : ∀ {A j′} (j< : j′ < j) (let open LogRelKit (rec j<))
-            ([A] : Γ / lε ⊩ A) → Γ / lε ⊩¹ A
+--      emb : ∀ {A j′} (j< : j′ < j) (let open LogRelKit (rec j<))
+--            ([A] : Γ / lε ⊩ A) → Γ / lε ⊩¹ A
       ϝᵣ  : ∀ {A B m} mε   → Γ / lε ⊢ A :⇒*: B
                            → αNeutral {l} {lε} m B
                            → Γ / (⊢ₗ• l lε m Btrue mε)     ⊩¹ B
@@ -475,8 +475,8 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     Γ / lε ⊩¹ A ≡ B / ne neA = Γ / lε ⊩ne A ≡ B / neA
     Γ / lε ⊩¹ A ≡ B / Bᵣ W BA = Γ / lε ⊩¹B⟨ W ⟩ A ≡ B / BA
     Γ / lε ⊩¹ A ≡ B / ϝᵣ _ _ _ tB fB = (Γ / _ ⊩¹ _ ≡ B / tB) × (Γ / _ ⊩¹ _ ≡ B / fB)
-    Γ / lε ⊩¹ A ≡ B / emb j< [A] = Γ / lε ⊩ A ≡ B / [A]
-      where open LogRelKit (rec j<)
+--    Γ / lε ⊩¹ A ≡ B / emb j< [A] = Γ / lε ⊩ A ≡ B / [A]
+--      where open LogRelKit (rec j<)
 
     _/_⊩¹_∷_/_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t A : Term ℓ) → Γ / lε ⊩¹ A → Set
     Γ / lε ⊩¹ t ∷ .U / Uᵣ (Uᵣ j′ j< ⊢Γ) = Γ / lε ⊩¹U t ∷U/ j<
@@ -487,8 +487,8 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     Γ / lε ⊩¹ t ∷ A / Bᵣ BΠ ΠA  = Γ / lε ⊩¹Π t ∷ A / ΠA
     Γ / lε ⊩¹ t ∷ A / Bᵣ BΣ ΣA  = Γ / lε ⊩¹Σ t ∷ A / ΣA
     Γ / lε ⊩¹ t ∷ A / ϝᵣ _ _ _ tB fB = (Γ / _ ⊩¹ t ∷ _ / tB) × (Γ / _ ⊩¹ t ∷ _ / fB)
-    Γ / lε ⊩¹ t ∷ A / emb j< [A] = Γ / lε ⊩ t ∷ A / [A]
-      where open LogRelKit (rec j<)
+--    Γ / lε ⊩¹ t ∷ A / emb j< [A] = Γ / lε ⊩ t ∷ A / [A]
+--      where open LogRelKit (rec j<)
 
     _/_⊩¹_≡_∷_/_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t u A : Term ℓ) → Γ / lε ⊩¹ A → Set
     Γ / lε ⊩¹ t ≡ u ∷ .U / Uᵣ (Uᵣ j′ j< ⊢Γ) = Γ / lε ⊩¹U t ≡ u ∷U/ j<
@@ -499,12 +499,15 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     Γ / lε ⊩¹ t ≡ u ∷ A / Bᵣ BΠ ΠA = Γ / lε ⊩¹Π t ≡ u ∷ A / ΠA
     Γ / lε ⊩¹ t ≡ u ∷ A / Bᵣ BΣ ΣA  = Γ / lε ⊩¹Σ t ≡ u ∷ A / ΣA
     Γ / lε ⊩¹ t ≡ u ∷ A / ϝᵣ _ _ _ tB fB = (Γ / _ ⊩¹ t ≡ u ∷ _ / tB) × (Γ / _ ⊩¹ t ≡ u ∷ _ / fB)
-    Γ / lε ⊩¹ t ≡ u ∷ A / emb j< [A] = Γ / lε ⊩ t ≡ u ∷ A / [A]
-      where open LogRelKit (rec j<)
+--    Γ / lε ⊩¹ t ≡ u ∷ A / emb j< [A] = Γ / lε ⊩ t ≡ u ∷ A / [A]
+--      where open LogRelKit (rec j<)
+
+        
 
     kit : LogRelKit
     kit = Kit _/_⊩¹U _/_⊩¹B⟨_⟩_
               _/_⊩¹_ _/_⊩¹_≡_/_ _/_⊩¹_∷_/_ _/_⊩¹_≡_∷_/_
+
 
     AntiRedConvW : ∀ {A B C} W ([C] : Γ / lε ⊩¹B⟨ W ⟩ C) (C≡B :  Γ / lε ⊩¹B⟨ W ⟩ C ≡ B / [C]) →  Γ / lε ⊢ A :⇒*: B
                  →  Γ / lε  ⊩¹B⟨ W ⟩ C ≡ A / [C]
@@ -581,7 +584,7 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
                                 (whescapeEqℕ (wf (⊢B-red A⇒ℕ)) (eqℕeqℕ B⇒ℕ))
 
     
-open LogRel public using (Uᵣ; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; Bϝ ; emb; Uₜ; Uₜ₌ ; ϝᵣ)
+open LogRel public using (Uᵣ; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; Bϝ ; Uₜ; Uₜ₌ ; ϝᵣ)
 
 -- Patterns for the non-records of Π
 pattern Πₜ f d funcF f≡f [f] [f]₁ = f , d , funcF , f≡f , [f] , [f]₁
@@ -622,7 +625,56 @@ _/_⊩⟨_⟩_∷_/_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (j : Type
 _/_⊩⟨_⟩_≡_∷_/_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (j : TypeLevel) (t u A : Term ℓ) → Γ / lε ⊩⟨ j ⟩ A → Set
 Γ / lε ⊩⟨ j ⟩ t ≡ u ∷ A / [A] = Γ / lε ⊩ t ≡ u ∷ A / [A] where open LogRelKit (kit j)
 
+mutual 
+  emb : ∀ {A j j'} (j< : j < j')
+             ([A] : Γ / lε ⊩⟨ j ⟩ A) → Γ / lε ⊩⟨ j' ⟩ A
+  emb () (Uᵣ (Uᵣ ⁰ 0<1 ⊢Γ))
+  emb j< (ℕᵣ D) = ℕᵣ D
+  emb j< (Emptyᵣ D) = Emptyᵣ D
+  emb j< (Unitᵣ D) = Unitᵣ D
+  emb j< (ne (ne K D neK K≡K)) = ne (ne K D neK K≡K)
+  emb j< (Bᵣ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) = Bᵣ W (Bᵣ F G D ⊢F ⊢G A≡A (λ {m} {ρ} {l'} {≤ε} [ρ] ⊢Δ → emb j< ([F] {m} {ρ} {l'} {≤ε} [ρ] ⊢Δ)) (λ [ρ] ⊢Δ ⊢F → emb _ ([G] [ρ] ⊢Δ (AntiembTerm j< _ ⊢F))) (λ [ρ] ⊢Δ [a] [b] a≡b → Convemb j< _ (G-ext [ρ] ⊢Δ (AntiembTerm j< _ [a]) (AntiembTerm j< _ [b]) (AntiConvembTerm j< _ a≡b))))
+  emb j< (ϝᵣ nε A⇒B αB [B]t [B]f) = ϝᵣ nε A⇒B αB (emb j< [B]t) (emb j< [B]f)
 
+  Convemb : ∀ {A B j j'} (j< : j < j')
+             ([A] : Γ / lε ⊩⟨ j ⟩ A)
+             → Γ / lε ⊩⟨ j ⟩ A ≡ B / [A]
+             → Γ / lε ⊩⟨ j' ⟩ A ≡ B / (emb j< [A])
+  Convemb j< (ℕᵣ D) A≡B = A≡B
+
+  embTerm : ∀ {A t j j'} (j< : j < j') ([A] : Γ / lε ⊩⟨ j ⟩ A)
+                     → Γ / lε ⊩⟨ j ⟩ t ∷ A / [A]
+                     → Γ / lε ⊩⟨ j' ⟩ t ∷ A / (emb j< [A])
+  embTerm j< (ℕᵣ D) ⊢t = ⊢t
+  embTerm () (Uᵣ (Uᵣ ⁰ 0<1 ⊢Γ)) x
+  embTerm j< (Emptyᵣ D) ⊢t = ⊢t
+  embTerm j< (Unitᵣ D) ⊢t = ⊢t
+  embTerm j< (ne (ne K D neK K≡K)) ⊢t = ⊢t
+  embTerm j< (Bᵣ BΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) ( f , ( t⇒f , funf , f=f , propf1 , propf2 ) ) = f , (t⇒f , (funf , (f=f , ((λ [ρ] ⊢Δ [a] [b] a≡b → ConvembTerm j< _ (propf1 [ρ] ⊢Δ (AntiembTerm j< _ [a]) (AntiembTerm j< _ [b]) (AntiConvembTerm j< _ a≡b))) , λ [ρ] ⊢Δ [a] → embTerm j< _ (propf2 _ _ (AntiembTerm j< _ [a]))))))
+  embTerm j< (Bᵣ BΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) ( f , ( t⇒f , funf , f=f , propf1 , propf2 ) ) = f , (t⇒f , (funf , (f=f , (embTerm j< _ propf1 , {!!}))))
+  embTerm j< (ϝᵣ nε A⇒B αB [B]t [B]f) ( t⊢t , f⊢t ) = embTerm j< _ t⊢t , embTerm j< _ f⊢t
+ 
+
+  AntiembTerm : ∀ {A t j j'} (j< : j < j') ([A] : Γ / lε ⊩⟨ j ⟩ A)
+                     → Γ / lε ⊩⟨ j' ⟩ t ∷ A / (emb j< [A])
+                     → Γ / lε ⊩⟨ j ⟩ t ∷ A / [A]
+  AntiembTerm j< (ℕᵣ D) ⊢t = ⊢t
+  AntiembTerm () (Uᵣ (Uᵣ ⁰ 0<1 ⊢Γ)) x
+  AntiembTerm j< (Emptyᵣ D) ⊢t = ⊢t
+  AntiembTerm j< (Unitᵣ D) ⊢t = ⊢t
+  AntiembTerm j< (ne (ne K D neK K≡K)) ⊢t = ⊢t
+  AntiembTerm j< (Bᵣ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) ⊢f = {!!}
+  AntiembTerm j< (ϝᵣ nε A⇒B αB [B]t [B]f) ( t⊢t , f⊢t ) = AntiembTerm j< _ t⊢t , AntiembTerm j< _ f⊢t
+                   
+  AntiConvembTerm : ∀ {A t u j j'} (j< : j < j') ([A] : Γ / lε ⊩⟨ j ⟩ A)
+                     → Γ / lε ⊩⟨ j' ⟩ t ≡ u ∷ A / (emb j< [A])
+                     → Γ / lε ⊩⟨ j ⟩ t ≡ u ∷ A / [A]
+  AntiConvembTerm j< (ℕᵣ D) t≡u = t≡u
+
+  ConvembTerm : ∀ {A t u j j'} (j< : j < j') ([A] : Γ / lε ⊩⟨ j ⟩ A)
+                     → Γ / lε ⊩⟨ j ⟩ t ≡ u ∷ A / [A]
+                     → Γ / lε ⊩⟨ j' ⟩ t ≡ u ∷ A / (emb j< [A])
+  ConvembTerm j< (ℕᵣ D) t≡u = t≡u
 
 -- TyPermLog : ∀ {k A n} ([A] :  Γ / lε ⊩⟨ k ⟩ A) → Γ / (permutε n lε) ⊩⟨ k ⟩ A
 -- TyPermLog (Uᵣ′ k′ k< ⊢Γ) = Uᵣ′ k′ k< (ConPerm _ _ ⊢Γ) --  Uᵣ′ k′ k< (τCon _ _ _ _ ⊢Γ)
