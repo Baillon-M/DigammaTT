@@ -25,16 +25,16 @@ private
 
 
 
-escapeAux : ∀ {k A B} ([B] :  Γ / lε ⊩⟨ k ⟩ B) →  Γ / lε ⊢ A :⇒*: B →  Γ / lε ⊩⟨ k ⟩ A
-escapeAux (Uᵣ′ k′ k< ⊢Γ) [ ⊢A , ⊢B' , D' ] rewrite redU* D' = Uᵣ′ k′ k< ⊢Γ
-escapeAux (ℕᵣ [ ⊢B , ⊢ℕ , D ]) [ ⊢A , ⊢B' , D' ] = ℕᵣ ([ ⊢A , ⊢ℕ , ⇒*-comp D' D ])
-escapeAux (Emptyᵣ [ ⊢B , ⊢Empty , D ]) [ ⊢A , ⊢B' , D' ] = Emptyᵣ ([ ⊢A , ⊢Empty , ⇒*-comp D' D ])
-escapeAux (Unitᵣ [ ⊢B , ⊢Unit , D ]) [ ⊢A , ⊢B' , D' ] = Unitᵣ ([ ⊢A , ⊢Unit , ⇒*-comp D' D ])
-escapeAux (ne (ne K [ ⊢B , ⊢K , D ] neK K≡K)) [ ⊢A , ⊢B' , D' ] = ne (ne K ([ ⊢A , ⊢K , ⇒*-comp D' D ]) neK K≡K)
-escapeAux (Bᵣ W (Bᵣ F G [ ⊢B , ⊢Π , D ] ⊢F ⊢G A≡A [F] [G] G-ext)) ([ ⊢A , ⊢B' , D' ]) =
+AntiRedLog : ∀ {k A B} ([B] :  Γ / lε ⊩⟨ k ⟩ B) →  Γ / lε ⊢ A :⇒*: B →  Γ / lε ⊩⟨ k ⟩ A
+AntiRedLog (Uᵣ′ k′ k< ⊢Γ) [ ⊢A , ⊢B' , D' ] rewrite redU* D' = Uᵣ′ k′ k< ⊢Γ
+AntiRedLog (ℕᵣ [ ⊢B , ⊢ℕ , D ]) [ ⊢A , ⊢B' , D' ] = ℕᵣ ([ ⊢A , ⊢ℕ , ⇒*-comp D' D ])
+AntiRedLog (Emptyᵣ [ ⊢B , ⊢Empty , D ]) [ ⊢A , ⊢B' , D' ] = Emptyᵣ ([ ⊢A , ⊢Empty , ⇒*-comp D' D ])
+AntiRedLog (Unitᵣ [ ⊢B , ⊢Unit , D ]) [ ⊢A , ⊢B' , D' ] = Unitᵣ ([ ⊢A , ⊢Unit , ⇒*-comp D' D ])
+AntiRedLog (ne (ne K [ ⊢B , ⊢K , D ] neK K≡K)) [ ⊢A , ⊢B' , D' ] = ne (ne K ([ ⊢A , ⊢K , ⇒*-comp D' D ]) neK K≡K)
+AntiRedLog (Bᵣ W (Bᵣ F G [ ⊢B , ⊢Π , D ] ⊢F ⊢G A≡A [F] [G] G-ext)) ([ ⊢A , ⊢B' , D' ]) =
   Bᵣ W (Bᵣ F G ([ ⊢A , ⊢Π , ⇒*-comp D' D ]) ⊢F ⊢G A≡A (λ {m} {l'} {≤ε} → [F] {m} {l'} {≤ε}) [G] G-ext)
-escapeAux (emb {l} {lε} {A}  0<1 [A]) D = emb 0<1 (escapeAux [A] D)  
-escapeAux (ϝᵣ mε [ ⊢B , ⊢C , D ] αB  tB fB) [ ⊢A , ⊢B' , D' ] = ϝᵣ mε ([ ⊢A , ⊢C , ⇒*-comp D' D ]) αB tB fB 
+AntiRedLog (emb {l} {lε} {A}  0<1 [A]) D = emb 0<1 (AntiRedLog [A] D)  
+AntiRedLog (ϝᵣ mε [ ⊢B , ⊢C , D ] αB  tB fB) [ ⊢A , ⊢B' , D' ] = ϝᵣ mε ([ ⊢A , ⊢C , ⇒*-comp D' D ]) αB tB fB
 
 
 RedLog : ∀ {k A B} ([A] :  Γ / lε ⊩⟨ k ⟩ A) →  Γ / lε ⊢ A :⇒*: B →  Γ / lε ⊩⟨ k ⟩ B
@@ -87,15 +87,38 @@ TyLog≤ {l = l} {l' = l'} f< (Bᵣ W (Bᵣ F G [ ⊢A , ⊢Π , D ] ⊢F ⊢G A
 TyLog≤ f< (emb {l} {lε} {A}  0<1 [A]) = emb 0<1 (TyLog≤ f< [A]) 
 TyLog≤ {l' = l'} f< (ϝᵣ {m = m} mε [ ⊢A , ⊢B , D ] αB tB fB) with decidInLConNat l' m  
 TyLog≤ f< (ϝᵣ {m = m} mε [ ⊢A , ⊢B , D ] αB tB fB)  | TS.inj₁ (TS.inj₁ inl) =
-  escapeAux (TyLog≤ (≤ₗ-add _ _ _ f< inl) tB) ([ Ty≤ f< ⊢A , Ty≤ f< ⊢B , Red≤* f< D ])
+  AntiRedLog (TyLog≤ (≤ₗ-add _ _ _ f< inl) tB) ([ Ty≤ f< ⊢A , Ty≤ f< ⊢B , Red≤* f< D ])
 TyLog≤ f< (ϝᵣ {m = m} mε [ ⊢A , ⊢B , D ] αB tB fB)  | TS.inj₁ (TS.inj₂ inl) =
-  escapeAux (TyLog≤ (≤ₗ-add _ _ _ f< inl) fB) ([ Ty≤ f< ⊢A , Ty≤ f< ⊢B , Red≤* f< D ])
+  AntiRedLog (TyLog≤ (≤ₗ-add _ _ _ f< inl) fB) ([ Ty≤ f< ⊢A , Ty≤ f< ⊢B , Red≤* f< D ])
 TyLog≤ f< (ϝᵣ {m = m} mε [ ⊢A , ⊢B , D ] αB tB fB)  | TS.inj₂ notinl'  =
   (ϝᵣ notinl' ([ Ty≤ f< ⊢A , Ty≤ f< ⊢B , Red≤* f< D ]) (αNeNotIn notinl' αB)
     (TyLog≤ (≤ₗ-add _ _ _ (λ n b inl → InThere _ (f< n b inl) _ _) (InHereNat _)) tB)
     (TyLog≤ (≤ₗ-add _ _ _ (λ n b inl → InThere _ (f< n b inl) _ _) (InHereNat _)) fB)) 
 
+τTyLog : ∀ {l : LCon} {lε : ⊢ₗ l} {n b nε k A}
+           → ([A] :  Γ / lε ⊩⟨ k ⟩ A)
+           → Γ / ⊢ₗ• l lε n b nε ⊩⟨ k ⟩ A
+τTyLog [A] = TyLog≤ (λ m b' mε → InThere _ mε _ _) [A]
 
+
+TyLogU : ∀ {l : LCon} {lε : ⊢ₗ l} {k}
+           → ([A] :  Γ / lε ⊩⟨ k ⟩ U)
+           → ∃ (λ K → [A] PE.≡ Uᵣ K)
+TyLogU (Uᵣ K) = K , PE.refl
+TyLogU (ℕᵣ D) with whnfRed* (red D) Uₙ
+... | ()
+TyLogU (Emptyᵣ D) with whnfRed* (red D) Uₙ
+... | ()
+TyLogU (Unitᵣ D) with whnfRed* (red D) Uₙ
+... | ()
+TyLogU (ne′ K D neK K≡K) =
+  PE.⊥-elim (U≢ne neK (whnfRed* (red D) Uₙ))
+TyLogU (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
+  PE.⊥-elim (U≢B W (whnfRed* (red D) Uₙ))
+TyLogU (emb 0<1 x) with TyLogU x
+TyLogU (emb 0<1 x) | (Uᵣ _ () _) , e
+TyLogU (ϝᵣ mε A⇒B αB tA fA) = PE.⊥-elim (U≢αne αB (whnfRed* (red A⇒B) Uₙ))
+ 
 
 -- Reducible types are well-formed.
 escape : ∀ {k A} → Γ / lε ⊩⟨ k ⟩ A → Γ / lε ⊢ A
@@ -105,7 +128,7 @@ escape (Emptyᵣ [ ⊢A , ⊢B , D ]) = ⊢A
 escape (Unitᵣ [ ⊢A , ⊢B , D ]) = ⊢A
 escape (ne′ K [ ⊢A , ⊢B , D ] neK K≡K) = ⊢A
 escape (Bᵣ′ W F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext) = ⊢A
-escape (ϝᵣ mε [ ⊢A , ⊢B , D ] αB  tB fB) = ⊢A -- ϝⱼ (escape (escapeAux {!!} {!!})) (escape {!!})
+escape (ϝᵣ mε [ ⊢A , ⊢B , D ] αB  tB fB) = ⊢A -- ϝⱼ (escape (AntiRedLog {!!} {!!})) (escape {!!})
 escape (emb 0<1 A) = escape A
       
 -- Reducible type equality respect the equality relation.

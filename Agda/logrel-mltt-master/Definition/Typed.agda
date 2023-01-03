@@ -841,12 +841,26 @@ record _/_⊢_:⇒*:_ (Γ : Con Term n) {l : LCon} (lε : ⊢ₗ l) (A B : Term 
     ⊢B : Γ / lε ⊢ B
     D  : Γ / lε ⊢ A ⇒* B
 
+wfRed≤* : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {A B}
+             → l ≤ₗ l'
+             → Γ / lε ⊢ A :⇒*: B
+             → Γ / lε' ⊢ A :⇒*: B
+wfRed≤* f< [ ⊢A , ⊢B , A⇨B ] = [ Ty≤ f< ⊢A , Ty≤ f< ⊢B , Red≤* f< A⇨B ]
+
 τwfRed* : ∀ {l : LCon} {lε : ⊢ₗ l} {A B n b nε}
              → Γ / lε ⊢ A :⇒*: B
              → Γ / (⊢ₗ• l lε n b nε) ⊢ A :⇒*: B
 τwfRed* [ ⊢A , ⊢B , A⇨B ] = [ τTy _ _ _ _ ⊢A , τTy _ _ _ _ ⊢B , τRed* A⇨B ]
 
+          
+
 open _/_⊢_:⇒*:_ using () renaming (D to red; ⊢A to ⊢A-red; ⊢B to ⊢B-red) public
+
+:⇒:*-comp : ∀ {l : LCon} {lε : ⊢ₗ l} {A B C}
+             → Γ / lε ⊢ A :⇒*: B
+             → Γ / lε ⊢ B :⇒*: C
+             → Γ / lε ⊢ A :⇒*: C
+:⇒:*-comp A⇒B B⇒C = [ ⊢A-red A⇒B , ⊢B-red B⇒C , ⇒*-comp (red A⇒B) (red B⇒C) ]
 
 -- Term reduction closure with well-formed terms
 record _/_⊢_:⇒*:_∷_ (Γ : Con Term n) {l : LCon} (lε : ⊢ₗ l) (t u A : Term n) : Set where
