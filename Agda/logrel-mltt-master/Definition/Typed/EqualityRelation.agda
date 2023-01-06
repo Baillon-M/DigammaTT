@@ -109,18 +109,22 @@ record EqRelSet : Set₁ where
     ≅-ℕrefl   : ⊢ Γ / lε → Γ / lε ⊢ ℕ ≅ ℕ
     ≅ₜ-ℕrefl  : ⊢ Γ / lε → Γ / lε ⊢ ℕ ≅ ℕ ∷ U
 
+    -- Boolean type reflexivity
+    ≅-𝔹refl   : ⊢ Γ / lε → Γ / lε ⊢ 𝔹 ≅ 𝔹
+    ≅ₜ-𝔹refl  : ⊢ Γ / lε → Γ / lε ⊢ 𝔹 ≅ 𝔹 ∷ U
+
     -- Empty type reflexivity
-    ≅-Emptyrefl   : ⊢ Γ / lε → Γ / lε ⊢ Empty ≅ Empty
-    ≅ₜ-Emptyrefl  : ⊢ Γ / lε → Γ / lε ⊢ Empty ≅ Empty ∷ U
+--    ≅-Emptyrefl   : ⊢ Γ / lε → Γ / lε ⊢ Empty ≅ Empty
+--    ≅ₜ-Emptyrefl  : ⊢ Γ / lε → Γ / lε ⊢ Empty ≅ Empty ∷ U
 
     -- Unit type reflexivity
-    ≅-Unitrefl   : ⊢ Γ / lε → Γ / lε ⊢ Unit ≅ Unit
-    ≅ₜ-Unitrefl  : ⊢ Γ / lε → Γ / lε ⊢ Unit ≅ Unit ∷ U
+--    ≅-Unitrefl   : ⊢ Γ / lε → Γ / lε ⊢ Unit ≅ Unit
+--    ≅ₜ-Unitrefl  : ⊢ Γ / lε → Γ / lε ⊢ Unit ≅ Unit ∷ U
 
     -- Unit η-equality
-    ≅ₜ-η-unit : Γ / lε ⊢ e ∷ Unit
-              → Γ / lε ⊢ e′ ∷ Unit
-              → Γ / lε ⊢ e ≅ e′ ∷ Unit
+--    ≅ₜ-η-unit : Γ / lε ⊢ e ∷ Unit
+--              → Γ / lε ⊢ e′ ∷ Unit
+--              → Γ / lε ⊢ e ≅ e′ ∷ Unit
 
     -- Π-congruence
 
@@ -226,10 +230,10 @@ record EqRelSet : Set₁ where
              → Γ / lε     ⊢ boolrec F t f b ~ boolrec F′ t′ f′ b′ ∷ F [ b ]
 
     -- Empty recursion congruence
-    ~-Emptyrec : ∀ {n n′ F F′}
-               → Γ / lε ⊢ F ≅ F′
-               → Γ / lε ⊢ n ~ n′ ∷ Empty
-               → Γ / lε ⊢ Emptyrec F n ~ Emptyrec F′ n′ ∷ F
+--    ~-Emptyrec : ∀ {n n′ F F′}
+--               → Γ / lε ⊢ F ≅ F′
+--               → Γ / lε ⊢ n ~ n′ ∷ Empty
+--               → Γ / lε ⊢ Emptyrec F n ~ Emptyrec F′ n′ ∷ F
 
     -- Fascist congruence on types
     ≅-ϝ : ∀ {n nε A B}    → Γ / ⊢ₗ• l lε n Btrue nε  ⊢ A ≅ B
@@ -273,8 +277,8 @@ record EqRelSet : Set₁ where
                → Γ / lε'  ⊢ t ~ u ∷ A
   
   -- Star reflexivity
-  ≅ₜ-starrefl : ⊢ Γ / lε → Γ / lε ⊢ star ≅ star ∷ Unit
-  ≅ₜ-starrefl [Γ] = ≅ₜ-η-unit (starⱼ [Γ]) (starⱼ [Γ])
+--  ≅ₜ-starrefl : ⊢ Γ / lε → Γ / lε ⊢ star ≅ star ∷ Unit
+--  ≅ₜ-starrefl [Γ] = ≅ₜ-η-unit (starⱼ [Γ]) (starⱼ [Γ])
 
   -- Composition of universe and generic equality compatibility
   ~-to-≅ : ∀ {k j} → Γ / lε ⊢ k ~ j ∷ U → Γ / lε ⊢ k ≅ j

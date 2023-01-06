@@ -67,11 +67,11 @@ data Kind : (ns : List Nat) → Set where
   αkind       : Kind (0 ∷ [])
   Boolreckind : Kind (1 ∷ 0 ∷ 0 ∷ 0 ∷ [])
 
-  Unitkind : Kind []
-  Starkind : Kind []
+--  Unitkind : Kind []
+--  Starkind : Kind []
 
-  Emptykind    : Kind []
-  Emptyreckind : Kind (0 ∷ 0 ∷ [])
+--  Emptykind    : Kind []
+--  Emptyreckind : Kind (0 ∷ 0 ∷ [])
 
 -- Terms are indexed by its number of unbound variables and are either:
 -- de Bruijn style variables or
@@ -108,11 +108,11 @@ U = gen Ukind []
 𝔹      : Term n                      -- Type of Booleans.
 𝔹 = gen Boolkind []
 
-Empty : Term n                       -- Empty type
-Empty = gen Emptykind []
+-- Empty : Term n                       -- Empty type
+-- Empty = gen Emptykind []
 
-Unit  : Term n                       -- Unit type
-Unit = gen Unitkind []
+-- Unit  : Term n                       -- Unit type
+-- Unit = gen Unitkind []
 
 lam    : (t : Term (1+ n)) → Term n  -- Function abstraction (binder).
 lam t = gen Lamkind (t ∷ [])
@@ -153,11 +153,11 @@ false = gen Falsekind []
 boolrec : (A : Term (1+ n)) (t u v : Term n) → Term n  -- Boolean recursor (A is a binder).
 boolrec A t u v = gen Boolreckind (A ∷ t ∷ u ∷ v ∷ [])
 
-star : Term n                        -- Unit element
-star = gen Starkind []
+-- star : Term n                        -- Unit element
+-- star = gen Starkind []
 
-Emptyrec : (A e : Term n) → Term n   -- Empty type recursor
-Emptyrec A e = gen Emptyreckind (A ∷ e ∷ [])
+-- Emptyrec : (A e : Term n) → Term n   -- Empty type recursor
+-- Emptyrec A e = gen Emptyreckind (A ∷ e ∷ [])
 
 -- Binding types
 
@@ -497,7 +497,7 @@ mutual
     sndₙ      : Neutral t   → Neutral (snd t)
     natrecₙ   : Neutral v   → Neutral (natrec G t u v)
     boolrecₙ   : Neutral v   → Neutral (boolrec G t u v)
-    Emptyrecₙ : Neutral t   → Neutral (Emptyrec A t)
+--    Emptyrecₙ : Neutral t   → Neutral (Emptyrec A t)
     -- α t is a neutral if t is recursively a neutral (i.e. Suc (Suc (Suc x)) is a neutral)
     αₙ        : ContainsNeutral t → Neutral (α t)
 
@@ -513,7 +513,7 @@ data αNeutral {l : LCon} {lε : ⊢ₗ l} : ∀ (m : Nat) → Term n → Set wh
   sndₙ      : ∀ {m} → αNeutral {l} {lε} m t   → αNeutral m (snd t)
   natrecₙ   : ∀ {m} → αNeutral {l} {lε} m v   → αNeutral m (natrec G t u v)
   boolrecₙ  : ∀ {m} → αNeutral {l} {lε} m v   → αNeutral m (boolrec G t u v)
-  Emptyrecₙ : ∀ {m} → αNeutral {l} {lε} m t   → αNeutral m (Emptyrec A t)
+--  Emptyrecₙ : ∀ {m} → αNeutral {l} {lε} m t   → αNeutral m (Emptyrec A t)
   αₙ-rec    : ∀ {m} → αNeutral {l} {lε} m t   → αNeutral m (α t)
 
 BackταNeutral : ∀ {l : LCon} {lε : ⊢ₗ l} {m n b nbε} → αNeutral {_} {⊢ₗ• l lε n b nbε} m t → αNeutral {l} {lε} m t
@@ -524,7 +524,7 @@ BackταNeutral (fstₙ d) = fstₙ (BackταNeutral d)
 BackταNeutral (sndₙ d) = sndₙ (BackταNeutral d)
 BackταNeutral (natrecₙ d) = natrecₙ (BackταNeutral d)
 BackταNeutral (boolrecₙ d) = boolrecₙ (BackταNeutral d)
-BackταNeutral (Emptyrecₙ d) = Emptyrecₙ (BackταNeutral d)
+-- BackταNeutral (Emptyrecₙ d) = Emptyrecₙ (BackταNeutral d)
 
 αNeNotIn : ∀ {l l' lε lε' m} {t : Term n} → NotInLConNat m l' → αNeutral {l} {lε} m t → αNeutral {l'} {lε'} m t
 αNeNotIn notl' (αₙ-base m e notl) = αₙ-base m e notl'
@@ -534,7 +534,7 @@ BackταNeutral (Emptyrecₙ d) = Emptyrecₙ (BackταNeutral d)
 αNeNotIn notl' (sndₙ d) = sndₙ (αNeNotIn notl' d)
 αNeNotIn notl' (natrecₙ d) = natrecₙ (αNeNotIn notl' d)
 αNeNotIn notl' (boolrecₙ d) = boolrecₙ (αNeNotIn notl' d)
-αNeNotIn notl' (Emptyrecₙ d) = Emptyrecₙ (αNeNotIn notl' d)
+-- αNeNotIn notl' (Emptyrecₙ d) = Emptyrecₙ (αNeNotIn notl' d)
 
 NoTrueNatNe : ∀ (t : Term n) → TrueNat t → Neutral t → PE.⊥
 NoTrueNatNe _ (Truesuc tε) ()
@@ -559,14 +559,14 @@ data Whnf {l : LCon} {lε : ⊢ₗ l} {n : Nat} : Term n → Set where
   Σₙ     : Whnf (Σ A ▹ B)
   ℕₙ     : Whnf ℕ
   𝔹ₙ     : Whnf 𝔹
-  Unitₙ  : Whnf Unit
-  Emptyₙ : Whnf Empty
+--   Unitₙ  : Whnf Unit
+--   Emptyₙ : Whnf Empty
 
   -- Introductions are whnfs.
   lamₙ  : Whnf (lam t)
   zeroₙ : Whnf zero
   sucₙ  : Whnf (suc t)
-  starₙ : Whnf star
+--   starₙ : Whnf star
   trueₙ : Whnf true
   falseₙ : Whnf false
   prodₙ : Whnf (prod t u)
@@ -601,17 +601,17 @@ U≢αne () PE.refl
 𝔹≢αne : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → αNeutral {l} {lε} m A → 𝔹 PE.≢ A
 𝔹≢αne () PE.refl
 
-Empty≢ne : Neutral A → Empty PE.≢ A
-Empty≢ne () PE.refl
+-- Empty≢ne : Neutral A → Empty PE.≢ A
+-- Empty≢ne () PE.refl
 
-Empty≢αne : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → αNeutral {l} {lε} m A → Empty PE.≢ A
-Empty≢αne () PE.refl
+-- Empty≢αne : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → αNeutral {l} {lε} m A → Empty PE.≢ A
+-- Empty≢αne () PE.refl
 
-Unit≢ne : Neutral A → Unit PE.≢ A
-Unit≢ne () PE.refl
-
-Unit≢αne : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → αNeutral {l} {lε} m A → Unit PE.≢ A
-Unit≢αne () PE.refl
+-- Unit≢ne : Neutral A → Unit PE.≢ A
+-- Unit≢ne () PE.refl
+ 
+-- Unit≢αne : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → αNeutral {l} {lε} m A → Unit PE.≢ A
+-- Unit≢αne () PE.refl
 
 mutual 
   ne≢αne : ∀ {n m : Nat} {A B : Term n} {l : LCon} {lε : ⊢ₗ l} → Neutral A → αNeutral {l} {lε} m B → A PE.≢ B
@@ -622,7 +622,7 @@ mutual
   ne≢αne (sndₙ net) (sndₙ αnet) PE.refl = ne≢αne net αnet PE.refl
   ne≢αne (natrecₙ net) (natrecₙ αnet) PE.refl = ne≢αne net αnet PE.refl
   ne≢αne (boolrecₙ net) (boolrecₙ αnet) PE.refl = ne≢αne net αnet PE.refl
-  ne≢αne (Emptyrecₙ net) (Emptyrecₙ αnet) PE.refl = ne≢αne net αnet PE.refl
+--  ne≢αne (Emptyrecₙ net) (Emptyrecₙ αnet) PE.refl = ne≢αne net αnet PE.refl
   
   conne≢αne : ∀ {n m} {A B : Term n} {l : LCon} {lε : ⊢ₗ l} → ContainsNeutral A → αNeutral {l} {lε} m B → A PE.≢ B
   conne≢αne (ncontn net) αt = ne≢αne net αt
@@ -648,13 +648,13 @@ U≢B BΣ ()
 𝔹≢B BΠ ()
 𝔹≢B BΣ ()
 
-Empty≢B : ∀ W → Empty PE.≢ ⟦ W ⟧ F ▹ G
-Empty≢B BΠ ()
-Empty≢B BΣ ()
+-- Empty≢B : ∀ W → Empty PE.≢ ⟦ W ⟧ F ▹ G
+-- Empty≢B BΠ ()
+-- Empty≢B BΣ ()
 
-Unit≢B : ∀ W → Unit PE.≢ ⟦ W ⟧ F ▹ G
-Unit≢B BΠ ()
-Unit≢B BΣ ()
+-- Unit≢B : ∀ W → Unit PE.≢ ⟦ W ⟧ F ▹ G
+-- Unit≢B BΠ ()
+-- Unit≢B BΣ ()
 
 zero≢ne : Neutral t → zero PE.≢ t
 zero≢ne () PE.refl
@@ -705,8 +705,8 @@ data Type {n : Nat} {l : LCon} {lε : ⊢ₗ l} : Term n → Set where
   Σₙ     :             Type (Σ A ▹ B)
   ℕₙ     :             Type ℕ
   𝔹ₙ     :             Type 𝔹
-  Emptyₙ :             Type Empty
-  Unitₙ  :             Type Unit
+--  Emptyₙ :             Type Empty
+--  Unitₙ  :             Type Unit
   ne     : Neutral t → Type t
   αne   : ∀ {m} → αNeutral {l} {lε} m t → Type t
 
@@ -751,8 +751,8 @@ typeWhnf Πₙ     = Πₙ
 typeWhnf Σₙ     = Σₙ
 typeWhnf ℕₙ     = ℕₙ
 typeWhnf 𝔹ₙ     = 𝔹ₙ
-typeWhnf Emptyₙ = Emptyₙ
-typeWhnf Unitₙ  = Unitₙ
+-- typeWhnf Emptyₙ = Emptyₙ
+-- typeWhnf Unitₙ  = Unitₙ
 typeWhnf (ne x) = ne x
 typeWhnf (αne x) = αₙ x
 
@@ -842,7 +842,7 @@ mutual
   wkNeutral ρ (sndₙ n)      = sndₙ (wkNeutral ρ n)
   wkNeutral ρ (natrecₙ n)   = natrecₙ (wkNeutral ρ n)
   wkNeutral ρ (boolrecₙ n)   = boolrecₙ (wkNeutral ρ n)
-  wkNeutral ρ (Emptyrecₙ e) = Emptyrecₙ (wkNeutral ρ e)
+--  wkNeutral ρ (Emptyrecₙ e) = Emptyrecₙ (wkNeutral ρ e)
   wkNeutral ρ (αₙ e) = αₙ (wkContainsNeutral ρ e)
 
   wkContainsNeutral : ∀ ρ → ContainsNeutral t → ContainsNeutral {n} (wk ρ t)
@@ -875,7 +875,7 @@ wkNotInLCon (addₗ m b γ) ρ (NotInThere .γ γε .m .b e) = NotInThere γ (wk
 αwkNeutral ρ (sndₙ n)      = sndₙ (αwkNeutral ρ n)
 αwkNeutral ρ (natrecₙ n)   = natrecₙ (αwkNeutral ρ n)
 αwkNeutral ρ (boolrecₙ n)   = boolrecₙ (αwkNeutral ρ n)
-αwkNeutral ρ (Emptyrecₙ e) = Emptyrecₙ (αwkNeutral ρ e)
+-- αwkNeutral ρ (Emptyrecₙ e) = Emptyrecₙ (αwkNeutral ρ e)
 
 αNeutralHProp : ∀ {l lε m m'} → αNeutral {l} {lε} m t → αNeutral {l} {lε} m' t → m PE.≡ m'
 αNeutralHProp (αₙ-base m e notn) (αₙ-base m' e' notn') rewrite e rewrite e' = EqNatToTermEqNat _ _ e'
@@ -885,7 +885,7 @@ wkNotInLCon (addₗ m b γ) ρ (NotInThere .γ γε .m .b e) = NotInThere γ (wk
 αNeutralHProp (sndₙ n) (sndₙ m)      = αNeutralHProp n m
 αNeutralHProp (natrecₙ n) (natrecₙ m)   = αNeutralHProp n m
 αNeutralHProp (boolrecₙ n) (boolrecₙ m)   = αNeutralHProp n m
-αNeutralHProp (Emptyrecₙ n) (Emptyrecₙ m) = αNeutralHProp n m
+-- αNeutralHProp (Emptyrecₙ n) (Emptyrecₙ m) = αNeutralHProp n m
 αNeutralHProp (αₙ-base n e notn) (αₙ-rec m) rewrite e = PE.⊥-elim (NoTrueNatαNe _ (TrueNatToTerm _ n) m)
 αNeutralHProp (αₙ-rec m) (αₙ-base n e notn) rewrite e = PE.⊥-elim (NoTrueNatαNe _ (TrueNatToTerm _ n) m)
 
@@ -908,8 +908,8 @@ wkType ρ Πₙ     = Πₙ
 wkType ρ Σₙ     = Σₙ
 wkType ρ ℕₙ     = ℕₙ
 wkType ρ 𝔹ₙ     = 𝔹ₙ
-wkType ρ Emptyₙ = Emptyₙ
-wkType ρ Unitₙ  = Unitₙ
+-- wkType ρ Emptyₙ = Emptyₙ
+-- wkType ρ Unitₙ  = Unitₙ
 wkType ρ (ne x) = ne (wkNeutral ρ x)
 wkType ρ (αne x) = αne (αwkNeutral ρ x)
 
@@ -939,15 +939,15 @@ wkWhnf ρ Πₙ      = Πₙ
 wkWhnf ρ Σₙ      = Σₙ
 wkWhnf ρ ℕₙ      = ℕₙ
 wkWhnf ρ 𝔹ₙ      = 𝔹ₙ
-wkWhnf ρ Emptyₙ  = Emptyₙ
-wkWhnf ρ Unitₙ   = Unitₙ
+-- wkWhnf ρ Emptyₙ  = Emptyₙ
+-- wkWhnf ρ Unitₙ   = Unitₙ
 wkWhnf ρ lamₙ    = lamₙ
 wkWhnf ρ prodₙ   = prodₙ
 wkWhnf ρ zeroₙ   = zeroₙ
 wkWhnf ρ sucₙ    = sucₙ
 wkWhnf ρ trueₙ   = trueₙ
 wkWhnf ρ falseₙ   = falseₙ
-wkWhnf ρ starₙ   = starₙ
+-- wkWhnf ρ starₙ   = starₙ
 wkWhnf ρ (ne x)  = ne (wkNeutral ρ x)
 wkWhnf ρ (αₙ tε) = αₙ (αwkNeutral ρ tε)
 

@@ -53,8 +53,8 @@ mutual
     Uⱼ     : ∀ {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ U
     ℕⱼ     : ∀ {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ ℕ
     𝔹ⱼ     : ∀ {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ 𝔹
-    Emptyⱼ : ∀ {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ Empty
-    Unitⱼ  : ∀ {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ Unit
+--    Emptyⱼ : ∀ {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ Empty
+--    Unitⱼ  : ∀ {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ Unit
     Πⱼ_▹_  : ∀ {l : LCon} {lε : ⊢ₗ l} → Γ / lε     ⊢ F
            → Γ ∙ F / lε ⊢ G
            → Γ / lε     ⊢ Π F ▹ G
@@ -87,8 +87,8 @@ mutual
               → Γ / lε     ⊢ Σ F ▹ G ∷ U
     ℕⱼ        : ∀ {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ ℕ ∷ U
     𝔹ⱼ        : ∀ {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ 𝔹 ∷ U
-    Emptyⱼ    : ∀ {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ Empty ∷ U
-    Unitⱼ     : ∀ {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ Unit ∷ U
+--    Emptyⱼ    : ∀ {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ Empty ∷ U
+--    Unitⱼ     : ∀ {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ Unit ∷ U
 
     var       : ∀ {l : LCon} {lε : ⊢ₗ l} {A x}
               → ⊢ Γ / lε
@@ -143,10 +143,10 @@ mutual
               → Γ / lε       ⊢ f ∷ G [ false ]
               → Γ / lε       ⊢ b ∷ 𝔹
               → Γ / lε       ⊢ boolrec G t f b ∷ G [ b ]              
-    Emptyrecⱼ : ∀ {l : LCon} {lε : ⊢ₗ l} {A e}
-              → Γ / lε ⊢ A → Γ / lε ⊢ e ∷ Empty → Γ / lε ⊢ Emptyrec A e ∷ A
+--    Emptyrecⱼ : ∀ {l : LCon} {lε : ⊢ₗ l} {A e}
+--              → Γ / lε ⊢ A → Γ / lε ⊢ e ∷ Empty → Γ / lε ⊢ Emptyrec A e ∷ A
 
-    starⱼ     : ∀ {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ star ∷ Unit
+--    starⱼ     : ∀ {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ star ∷ Unit
 
     conv      : ∀ {l : LCon} {lε : ⊢ₗ l} {t A B}
               → Γ / lε ⊢ t ∷ A
@@ -310,14 +310,14 @@ mutual
                   → Γ / lε     ⊢ t ∷ F [ true ]
                   → Γ / lε     ⊢ f ∷ F [ false ]
                   → Γ / lε     ⊢ boolrec F t f false ≡ f ∷ F [ false ]
-    Emptyrec-cong : ∀ {l : LCon} {lε : ⊢ₗ l} {A A' e e'}
-                  → Γ / lε ⊢ A ≡ A'
-                  → Γ / lε ⊢ e ≡ e' ∷ Empty
-                  → Γ / lε ⊢ Emptyrec A e ≡ Emptyrec A' e' ∷ A
-    η-unit        : ∀ {l : LCon} {lε : ⊢ₗ l} {e e'}
-                  → Γ / lε ⊢ e ∷ Unit
-                  → Γ / lε ⊢ e' ∷ Unit
-                  → Γ / lε ⊢ e ≡ e' ∷ Unit
+--    Emptyrec-cong : ∀ {l : LCon} {lε : ⊢ₗ l} {A A' e e'}
+--                  → Γ / lε ⊢ A ≡ A'
+--                  → Γ / lε ⊢ e ≡ e' ∷ Empty
+--                  → Γ / lε ⊢ Emptyrec A e ≡ Emptyrec A' e' ∷ A
+--    η-unit        : ∀ {l : LCon} {lε : ⊢ₗ l} {e e'}
+--                  → Γ / lε ⊢ e ∷ Unit
+--                  → Γ / lε ⊢ e' ∷ Unit
+--                  → Γ / lε ⊢ e ≡ e' ∷ Unit
     α-cong      : ∀ {l : LCon} {lε : ⊢ₗ l} {m n}
                   → Γ / lε ⊢ m ≡ n ∷ ℕ
                   → Γ / lε ⊢ α m ≡ α n ∷ 𝔹
@@ -356,8 +356,8 @@ mutual
   TyPerm lε n (Uⱼ ⊢Γ) = Uⱼ (ConPerm lε n ⊢Γ) 
   TyPerm lε n (ℕⱼ ⊢Γ) = ℕⱼ (ConPerm lε n ⊢Γ)
   TyPerm lε n (𝔹ⱼ ⊢Γ) = 𝔹ⱼ (ConPerm lε n ⊢Γ)
-  TyPerm lε n (Emptyⱼ ⊢Γ) = Emptyⱼ (ConPerm lε n ⊢Γ)
-  TyPerm lε n (Unitⱼ ⊢Γ) = Unitⱼ (ConPerm lε n ⊢Γ)
+--  TyPerm lε n (Emptyⱼ ⊢Γ) = Emptyⱼ (ConPerm lε n ⊢Γ)
+--  TyPerm lε n (Unitⱼ ⊢Γ) = Unitⱼ (ConPerm lε n ⊢Γ)
   TyPerm lε n (Πⱼ A ▹ B) = Πⱼ TyPerm lε n A ▹ TyPerm lε n B
   TyPerm lε n (Σⱼ A ▹ B) = Σⱼ TyPerm lε n A ▹ TyPerm lε n B
   TyPerm lε n (univ u) = univ (TermPerm lε n u)
@@ -368,8 +368,8 @@ mutual
            → Γ / (permutε n lε) ⊢ t ∷ A
   TermPerm lε n (ℕⱼ ⊢Γ) = ℕⱼ (ConPerm lε n ⊢Γ)
   TermPerm lε n (𝔹ⱼ ⊢Γ) = 𝔹ⱼ (ConPerm lε n ⊢Γ)
-  TermPerm lε n (Emptyⱼ ⊢Γ) = Emptyⱼ (ConPerm lε n ⊢Γ)
-  TermPerm lε n (Unitⱼ ⊢Γ) = Unitⱼ (ConPerm lε n ⊢Γ)
+--  TermPerm lε n (Emptyⱼ ⊢Γ) = Emptyⱼ (ConPerm lε n ⊢Γ)
+--  TermPerm lε n (Unitⱼ ⊢Γ) = Unitⱼ (ConPerm lε n ⊢Γ)
   TermPerm lε n (Πⱼ A ▹ B) = Πⱼ TermPerm lε n A ▹ TermPerm lε n B
   TermPerm lε n (Σⱼ A ▹ B) = Σⱼ TermPerm lε n A ▹ TermPerm lε n B
   TermPerm lε n (var ⊢Γ x) = var (ConPerm lε n ⊢Γ) x
@@ -384,8 +384,8 @@ mutual
   TermPerm lε n (trueⱼ ⊢Γ) = trueⱼ (ConPerm lε n ⊢Γ)
   TermPerm lε n (falseⱼ ⊢Γ) = falseⱼ (ConPerm lε n ⊢Γ)
   TermPerm lε n (boolrecⱼ x x₁ x₂ x₃) = boolrecⱼ (TyPerm lε n x) (TermPerm lε n x₁) (TermPerm lε n x₂) (TermPerm lε n x₃)
-  TermPerm lε n (Emptyrecⱼ x x₁) = Emptyrecⱼ (TyPerm lε n x) (TermPerm lε n x₁)
-  TermPerm lε n (starⱼ ⊢Γ) = starⱼ (ConPerm lε n ⊢Γ)
+--  TermPerm lε n (Emptyrecⱼ x x₁) = Emptyrecⱼ (TyPerm lε n x) (TermPerm lε n x₁)
+--  TermPerm lε n (starⱼ ⊢Γ) = starⱼ (ConPerm lε n ⊢Γ)
   TermPerm lε n (conv x x₁) = conv (TermPerm lε n x) (ConvTyPerm lε n x₁)
   TermPerm lε n (αⱼ x) = αⱼ (TermPerm lε n x)
   TermPerm lε n (ϝⱼ g d) = ϝⱼ (TermPerm _ (1+ n) g) (TermPerm _ (1+ n) d)
@@ -425,8 +425,8 @@ mutual
   ConvTermPerm lε n (boolrec-cong x x₁ x₂ x₃) = boolrec-cong (ConvTyPerm lε n x) (ConvTermPerm lε n x₁) (ConvTermPerm lε n x₂) (ConvTermPerm lε n x₃)
   ConvTermPerm lε n (boolrec-true x x₁ x₂) = boolrec-true (TyPerm lε n x) (TermPerm lε n x₁) (TermPerm lε n x₂)
   ConvTermPerm lε n (boolrec-false x x₁ x₂) = boolrec-false (TyPerm lε n x) (TermPerm lε n x₁) (TermPerm lε n x₂)
-  ConvTermPerm lε n (Emptyrec-cong x x₁) = Emptyrec-cong (ConvTyPerm lε n x) (ConvTermPerm lε n x₁)
-  ConvTermPerm lε n (η-unit x x₁) = η-unit (TermPerm lε n x) (TermPerm lε n x₁)
+--  ConvTermPerm lε n (Emptyrec-cong x x₁) = Emptyrec-cong (ConvTyPerm lε n x) (ConvTermPerm lε n x₁)
+--  ConvTermPerm lε n (η-unit x x₁) = η-unit (TermPerm lε n x) (TermPerm lε n x₁)
   ConvTermPerm lε n (α-cong x) = α-cong (ConvTermPerm lε n x)
   ConvTermPerm lε n (ϝ-cong g d) = ϝ-cong (ConvTermPerm _ (1+ n) g) (ConvTermPerm _ (1+ n) d)
   ConvTermPerm (⊢ₗ• l lε m b mbε) 0 (α-conv x (InHere t b t=m u=b εₗ)) = α-conv (TermPerm _ 0 x) (InHere _ b t=m u=b εₗ)  
@@ -462,8 +462,8 @@ mutual
   Ty≤ f< (Uⱼ ⊢Γ) = Uⱼ (Con≤ f< ⊢Γ)
   Ty≤ f< (ℕⱼ ⊢Γ) = ℕⱼ (Con≤ f< ⊢Γ)
   Ty≤ f< (𝔹ⱼ ⊢Γ) = 𝔹ⱼ (Con≤ f< ⊢Γ)
-  Ty≤ f< (Emptyⱼ ⊢Γ) = Emptyⱼ (Con≤ f< ⊢Γ)
-  Ty≤ f< (Unitⱼ ⊢Γ) = Unitⱼ (Con≤ f< ⊢Γ)
+--  Ty≤ f< (Emptyⱼ ⊢Γ) = Emptyⱼ (Con≤ f< ⊢Γ)
+--  Ty≤ f< (Unitⱼ ⊢Γ) = Unitⱼ (Con≤ f< ⊢Γ)
   Ty≤ f< (Πⱼ A ▹ B) = Πⱼ Ty≤ f< A ▹ Ty≤ f< B 
   Ty≤ f< (Σⱼ A ▹ B) = Σⱼ Ty≤ f< A ▹ Ty≤ f< B 
   Ty≤ f< (univ u) = univ (Term≤ f< u)
@@ -480,8 +480,8 @@ mutual
           → Γ / lε' ⊢ t ∷ A
   Term≤ f< (ℕⱼ ⊢Γ) = ℕⱼ (Con≤ f< ⊢Γ)
   Term≤ f< (𝔹ⱼ ⊢Γ) = 𝔹ⱼ (Con≤ f< ⊢Γ)
-  Term≤ f< (Emptyⱼ ⊢Γ) = Emptyⱼ (Con≤ f< ⊢Γ)
-  Term≤ f< (Unitⱼ ⊢Γ) = Unitⱼ (Con≤ f< ⊢Γ)
+--  Term≤ f< (Emptyⱼ ⊢Γ) = Emptyⱼ (Con≤ f< ⊢Γ)
+--  Term≤ f< (Unitⱼ ⊢Γ) = Unitⱼ (Con≤ f< ⊢Γ)
   Term≤ f< (Πⱼ A ▹ B) = Πⱼ Term≤ f< A ▹ Term≤ f< B 
   Term≤ f< (Σⱼ A ▹ B) = Σⱼ Term≤ f< A ▹ Term≤ f< B 
   Term≤ f< (var ⊢Γ x) = var (Con≤ f< ⊢Γ) x
@@ -496,8 +496,8 @@ mutual
   Term≤ f< (trueⱼ ⊢Γ) = trueⱼ (Con≤ f< ⊢Γ)
   Term≤ f< (falseⱼ ⊢Γ) = falseⱼ (Con≤ f< ⊢Γ)
   Term≤ f< (boolrecⱼ x x₁ x₂ x₃) = boolrecⱼ (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂) (Term≤ f< x₃)
-  Term≤ f< (Emptyrecⱼ x x₁) = Emptyrecⱼ (Ty≤ f< x) (Term≤ f< x₁)
-  Term≤ f< (starⱼ ⊢Γ) = starⱼ (Con≤ f< ⊢Γ)
+--  Term≤ f< (Emptyrecⱼ x x₁) = Emptyrecⱼ (Ty≤ f< x) (Term≤ f< x₁)
+--  Term≤ f< (starⱼ ⊢Γ) = starⱼ (Con≤ f< ⊢Γ)
   Term≤ f< (conv x x₁) = conv (Term≤ f< x) (ConvTy≤ f< x₁)
   Term≤ f< (αⱼ x) = αⱼ (Term≤ f< x)
   Term≤ {l' = l'} f< (ϝⱼ {n = n} {nε = nε} g d) with decidInLConNat l' n 
@@ -549,8 +549,8 @@ mutual
   ConvTerm≤ f< (boolrec-cong x x₁ x₂ x₃) = boolrec-cong (ConvTy≤ f< x) (ConvTerm≤ f< x₁) (ConvTerm≤ f< x₂) (ConvTerm≤ f< x₃)
   ConvTerm≤ f< (boolrec-true x x₁ x₂) = boolrec-true (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂)
   ConvTerm≤ f< (boolrec-false x x₁ x₂) = boolrec-false (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂)
-  ConvTerm≤ f< (Emptyrec-cong x x₁) = Emptyrec-cong (ConvTy≤ f< x) (ConvTerm≤ f< x₁)
-  ConvTerm≤ f< (η-unit x x₁) = η-unit (Term≤ f< x) (Term≤ f< x₁) -- η-unit (Term≤ lε n b nbε x) (Term≤ lε n b nbε x₁)
+--  ConvTerm≤ f< (Emptyrec-cong x x₁) = Emptyrec-cong (ConvTy≤ f< x) (ConvTerm≤ f< x₁)
+--  ConvTerm≤ f< (η-unit x x₁) = η-unit (Term≤ f< x) (Term≤ f< x₁) -- η-unit (Term≤ lε n b nbε x) (Term≤ lε n b nbε x₁)
   ConvTerm≤ f< (α-cong x) = α-cong (ConvTerm≤ f< x) -- α-cong (ConvTerm≤ lε n b nbε x)
   ConvTerm≤ {l' = l'} f< (ϝ-cong {n = n} {nε = nε} g d) with decidInLConNat l' n 
   ConvTerm≤ f< (ϝ-cong {n = n} {nε = nε} g d) | TS.inj₁ (TS.inj₁ inl' ) = ConvTerm≤ (≤ₗ-add _ _ _ f< inl') g
@@ -690,10 +690,10 @@ data _/_⊢_⇒_∷_ (Γ : Con Term n) : ∀ {l : LCon} (lε : ⊢ₗ l) → Ter
                  → Γ / lε     ⊢ t ∷ F [ true ]
                  → Γ / lε     ⊢ f ∷ F [ false ]
                  → Γ / lε     ⊢ boolrec F t f false ⇒ f ∷ F [ false ]
-  Emptyrec-subst : ∀ {l : LCon} {lε : ⊢ₗ l} {  n n′ A}
-                 → Γ / lε     ⊢ A
-                 → Γ / lε     ⊢ n ⇒ n′ ∷ Empty
-                 → Γ / lε     ⊢ Emptyrec A n ⇒ Emptyrec A n′ ∷ A
+--  Emptyrec-subst : ∀ {l : LCon} {lε : ⊢ₗ l} {  n n′ A}
+--                 → Γ / lε     ⊢ A
+--                 → Γ / lε     ⊢ n ⇒ n′ ∷ Empty
+--                 → Γ / lε     ⊢ Emptyrec A n ⇒ Emptyrec A n′ ∷ A
   α-subst        : ∀ {l : LCon} {lε : ⊢ₗ l} {  n n'}
                  → Γ / lε     ⊢ n ⇒ n' ∷ ℕ
                  → Γ / lε     ⊢ α n ⇒ α n' ∷ 𝔹
@@ -718,7 +718,7 @@ RedTermPerm (natrec-suc x x₁ x₂ x₃) = natrec-suc (TermPerm _ _ x) (TyPerm 
 RedTermPerm (boolrec-subst x x₁ x₂ x₃) = boolrec-subst (TyPerm _ _ x) (TermPerm _ _ x₁) (TermPerm _ _ x₂) (RedTermPerm x₃)
 RedTermPerm (boolrec-true x x₁ x₂) = boolrec-true (TyPerm _ _ x) (TermPerm _ _ x₁) (TermPerm _ _ x₂)
 RedTermPerm (boolrec-false x x₁ x₂) = boolrec-false (TyPerm _ _ x) (TermPerm _ _ x₁) (TermPerm _ _ x₂)
-RedTermPerm (Emptyrec-subst x x₁) = Emptyrec-subst (TyPerm _ _ x) (RedTermPerm x₁)
+-- RedTermPerm (Emptyrec-subst x x₁) = Emptyrec-subst (TyPerm _ _ x) (RedTermPerm x₁)
 RedTermPerm (α-subst x₁) = α-subst (RedTermPerm x₁)
 RedTermPerm (α-red ⊢n inl) = α-red (TermPerm _ _ ⊢n) (permutInLCon _ _ _ _ inl)
 
@@ -740,7 +740,7 @@ RedTerm≤ f< (natrec-suc x x₁ x₂ x₃) = natrec-suc (Term≤ f< x) (Ty≤ f
 RedTerm≤ f< (boolrec-subst x x₁ x₂ x₃) = boolrec-subst (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂) (RedTerm≤ f< x₃)
 RedTerm≤ f< (boolrec-true x x₁ x₂) = boolrec-true (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂)
 RedTerm≤ f< (boolrec-false x x₁ x₂) = boolrec-false (Ty≤ f< x) (Term≤ f< x₁) (Term≤ f< x₂)
-RedTerm≤ f< (Emptyrec-subst x x₁) = Emptyrec-subst (Ty≤ f< x) (RedTerm≤ f< x₁)
+-- RedTerm≤ f< (Emptyrec-subst x x₁) = Emptyrec-subst (Ty≤ f< x) (RedTerm≤ f< x₁)
 RedTerm≤ f< (α-subst x₁) = α-subst (RedTerm≤ f< x₁)
 RedTerm≤ f< (α-red ⊢n inl) = α-red (Term≤ f< ⊢n) (f< _ _ inl)
 

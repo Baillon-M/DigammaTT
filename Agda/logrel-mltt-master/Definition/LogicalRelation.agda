@@ -163,11 +163,16 @@ mutual
     sucᵣ  : ∀ {l : LCon} {lε : ⊢ₗ l} {n n′} → Γ / lε ⊩ℕ n ≡ n′ ∷ℕ → [Natural]-prop Γ lε (suc n) (suc n′)
     zeroᵣ : ∀ {l : LCon} {lε : ⊢ₗ l} → [Natural]-prop Γ lε zero zero
     ne    : ∀ {l : LCon} {lε : ⊢ₗ l} {n n′} → Γ / lε ⊩neNf n ≡ n′ ∷ ℕ → [Natural]-prop Γ lε n n′
-    [ℕ]ϝ  : ∀ {l : LCon} {lε : ⊢ₗ l} {n n' m mε}  → αNeutral {l} {lε} m n
-                                                 → αNeutral {l} {lε} m n'
-                                                 → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩ℕ n ≡ n' ∷ℕ
-                                                 → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩ℕ n ≡ n' ∷ℕ
-                                                 → [Natural]-prop Γ lε n n'
+    [ℕ]ϝ-l  : ∀ {l : LCon} {lε : ⊢ₗ l} {n n' m mε}  → αNeutral {l} {lε} m n
+                                                    → Natural-prop Γ lε n'
+                                                   → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩ℕ n ≡ n' ∷ℕ
+                                                   → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩ℕ n ≡ n' ∷ℕ
+                                                   → [Natural]-prop Γ lε n n'
+    [ℕ]ϝ-r  : ∀ {l : LCon} {lε : ⊢ₗ l} {n n' m mε} → Natural-prop Γ lε n
+                                                   → αNeutral {l} {lε} m n'
+                                                   → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩ℕ n ≡ n' ∷ℕ
+                                                   → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩ℕ n ≡ n' ∷ℕ
+                                                   → [Natural]-prop Γ lε n n'
 
 -- Natural extraction from term WHNF property
 natural : ∀ {l : LCon} {lε : ⊢ₗ l} {n} → Natural-prop Γ lε n → Natural {_} {l} {lε} n
@@ -181,78 +186,159 @@ split : ∀ {l : LCon} {lε : ⊢ₗ l} {a b} → [Natural]-prop Γ lε a b → 
 split (sucᵣ x) = sucₙ , sucₙ
 split zeroᵣ = zeroₙ , zeroₙ
 split (ne (neNfₜ₌ neK neM k≡m)) = ne neK , ne neM
-split ([ℕ]ϝ αn αn' tn=n' fn=n') = neα αn , neα αn'
+split ([ℕ]ϝ-l αn [n'] tn=n' fn=n') = neα αn , natural [n']
+split ([ℕ]ϝ-r [n] αn' tn=n' fn=n') = natural [n] , neα αn'
 
--- Reducibility of Empty
+-- Boolean type
+_/_⊩𝔹_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A : Term ℓ) → Set
+Γ / lε ⊩𝔹 A = Γ / lε ⊢ A :⇒*: 𝔹
+-- Boolean type equality
+data _/_⊩𝔹_≡_ (Γ : Con Term ℓ) : ∀ {l : LCon} (lε : ⊢ₗ l) (A B : Term ℓ) → Set
+  where 
+    ⊩𝔹≡ : ∀ {l} {lε : ⊢ₗ l} A B → Γ / lε ⊢ B ⇒* 𝔹 → Γ / lε ⊩𝔹 A ≡ B
+    ϝ⊩𝔹≡ : ∀ {l} {lε : ⊢ₗ l} {m A B B'} mε
+                       (B⇒B' : Γ / lε ⊢ B :⇒*: B')
+                       (αB : αNeutral {l} {lε} {_} m B')
+                       → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩𝔹 A ≡ B' 
+                       → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩𝔹 A ≡ B' 
+                       → Γ / lε ⊩𝔹 A ≡ B
 
--- Empty type
-_/_⊩Empty_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A : Term ℓ) → Set
-Γ / lε ⊩Empty A = Γ / lε ⊢ A :⇒*: Empty
+mutual
+  -- Boolean term
+  record _/_⊩𝔹_∷𝔹 (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t : Term ℓ) : Set where
+    inductive
+    constructor 𝔹ₜ
+    field
+      b : Term ℓ
+      d : Γ / lε ⊢ t :⇒*: b ∷ 𝔹
+      n≡n : Γ / lε ⊢ b ≅ b ∷ 𝔹
+      prop : Boolean-prop Γ lε b
 
--- Empty type equality
-_/_⊩Empty_≡_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A B : Term ℓ) → Set
-Γ / lε ⊩Empty A ≡ B = Γ / lε ⊢ B ⇒* Empty
+  -- WHNF property of boolean terms
+  data Boolean-prop (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) : (b : Term ℓ) → Set where
+    trueᵣ : Boolean-prop Γ lε true
+    falseᵣ : Boolean-prop Γ lε false
+    ne    : ∀ {b} → Γ / lε ⊩neNf b ∷ 𝔹 → Boolean-prop Γ lε b
+    𝔹ϝ    : ∀ {b m mε} → Γ / lε ⊢ b ∷ 𝔹
+                       → αNeutral {l} {lε} m b
+                       → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩𝔹 b ∷𝔹
+                       → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩𝔹 b ∷𝔹
+                       → Boolean-prop Γ lε b
 
--- WHNF property of absurd terms
-data Empty-prop (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) : (n : Term ℓ) → Set where
-  ne    : ∀ {n} → Γ / lε ⊩neNf n ∷ Empty → Empty-prop Γ lε n
+mutual
+  -- Natural number term equality
+  record _/_⊩𝔹_≡_∷𝔹 (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t u : Term ℓ) : Set where
+    inductive
+    constructor 𝔹ₜ₌
+    field
+      b b′ : Term ℓ
+      d : Γ / lε ⊢ t :⇒*: b ∷ 𝔹
+      d′ : Γ / lε ⊢ u :⇒*: b′ ∷ 𝔹
+      b≡b′ : Γ / lε ⊢ b ≅ b′ ∷ 𝔹
+      prop : [Boolean]-prop Γ lε b b′
 
--- Empty term
-record _/_⊩Empty_∷Empty (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t : Term ℓ) : Set where
-  inductive
-  constructor Emptyₜ
-  field
-    n : Term ℓ
-    d : Γ / lε ⊢ t :⇒*: n ∷ Empty
-    n≡n : Γ / lε ⊢ n ≅ n ∷ Empty
-    prop : Empty-prop Γ lε n
+  -- WHNF property of Natural number term equality
+  data [Boolean]-prop (Γ : Con Term ℓ) : ∀ {l : LCon} (lε : ⊢ₗ l) (n n′ : Term ℓ) → Set where
+    trueᵣ : ∀ {l : LCon} {lε : ⊢ₗ l} → [Boolean]-prop Γ lε true true
+    falseᵣ : ∀ {l : LCon} {lε : ⊢ₗ l} → [Boolean]-prop Γ lε false false
+    ne    : ∀ {l : LCon} {lε : ⊢ₗ l} {n n′} → Γ / lε ⊩neNf n ≡ n′ ∷ 𝔹 → [Boolean]-prop Γ lε n n′
+    [𝔹]ϝ-l  : ∀ {l : LCon} {lε : ⊢ₗ l} {n n' m mε}   → αNeutral {l} {lε} m n
+                                                    → Boolean-prop Γ lε n'
+                                                    → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩𝔹 n ≡ n' ∷𝔹
+                                                    → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩𝔹 n ≡ n' ∷𝔹
+                                                    → [Boolean]-prop Γ lε n n'
+    [𝔹]ϝ-r  : ∀ {l : LCon} {lε : ⊢ₗ l} {n n' m mε}  → Boolean-prop Γ lε n
+                                                   → αNeutral {l} {lε} m n'
+                                                   → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩𝔹 n ≡ n' ∷𝔹
+                                                   → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩𝔹 n ≡ n' ∷𝔹
+                                                   → [Boolean]-prop Γ lε n n'
 
-data [Empty]-prop (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) : (n n′ : Term ℓ) → Set where
-  ne    : ∀ {n n′} → Γ / lε ⊩neNf n ≡ n′ ∷ Empty → [Empty]-prop Γ lε n n′
+-- Boolean extraction from term WHNF property
+boolean : ∀ {l : LCon} {lε : ⊢ₗ l} {n} → Boolean-prop Γ lε n → Boolean {_} {l} {lε} n
+boolean trueᵣ = trueₙ
+boolean falseᵣ = falseₙ
+boolean (ne (neNfₜ neK ⊢k k≡k)) = ne neK
+boolean (𝔹ϝ ⊢n αn nt nf) = neα αn
 
--- Empty term equality
-record _/_⊩Empty_≡_∷Empty (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t u : Term ℓ) : Set where
-  inductive
-  constructor Emptyₜ₌
-  field
-    k k′ : Term ℓ
-    d : Γ / lε ⊢ t :⇒*: k  ∷ Empty
-    d′ : Γ / lε ⊢ u :⇒*: k′ ∷ Empty
-    k≡k′ : Γ / lε ⊢ k ≅ k′ ∷ Empty
-    prop : [Empty]-prop Γ lε k k′
+-- Boolean from term equality WHNF property
+bsplit : ∀ {l : LCon} {lε : ⊢ₗ l} {a b} → [Boolean]-prop Γ lε a b → Boolean {_} {l} {lε} a × Boolean {_} {l} {lε} b
+bsplit trueᵣ = trueₙ , trueₙ
+bsplit falseᵣ = falseₙ , falseₙ
+bsplit (ne (neNfₜ₌ neK neM k≡m)) = ne neK , ne neM
+bsplit ([𝔹]ϝ-l αn [n'] tn=n' fn=n') = neα αn , boolean [n']
+bsplit ([𝔹]ϝ-r [n] αn' tn=n' fn=n') = boolean [n] , neα αn'
 
-empty : ∀ {l : LCon} {lε : ⊢ₗ l} {n} → Empty-prop Γ lε n → Neutral n
-empty (ne (neNfₜ neK _ _)) = neK
 
-esplit : ∀ {l : LCon} {lε : ⊢ₗ l} {a b} → [Empty]-prop Γ lε a b → Neutral a × Neutral b
-esplit (ne (neNfₜ₌ neK neM k≡m)) = neK , neM
+-- -- Reducibility of Empty
 
--- Reducibility of Unit
+-- -- Empty type
+-- _/_⊩Empty_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A : Term ℓ) → Set
+-- Γ / lε ⊩Empty A = Γ / lε ⊢ A :⇒*: Empty
 
--- Unit type
-_/_⊩Unit_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A : Term ℓ) → Set
-Γ / lε ⊩Unit A = Γ / lε ⊢ A :⇒*: Unit
+-- -- Empty type equality
+-- _/_⊩Empty_≡_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A B : Term ℓ) → Set
+-- Γ / lε ⊩Empty A ≡ B = Γ / lε ⊢ B ⇒* Empty
 
--- Unit type equality
-_/_⊩Unit_≡_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A B : Term ℓ) → Set
-Γ / lε ⊩Unit A ≡ B = Γ / lε ⊢ B ⇒* Unit
+-- -- WHNF property of absurd terms
+-- data Empty-prop (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) : (n : Term ℓ) → Set where
+--   ne    : ∀ {n} → Γ / lε ⊩neNf n ∷ Empty → Empty-prop Γ lε n
 
-record _/_⊩Unit_∷Unit (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t : Term ℓ) : Set where
-  inductive
-  constructor Unitₜ
-  field
-    n : Term ℓ
-    d : Γ / lε ⊢ t :⇒*: n ∷ Unit
-    prop : Whnf {l} {lε} n
+-- -- Empty term
+-- record _/_⊩Empty_∷Empty (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t : Term ℓ) : Set where
+--   inductive
+--   constructor Emptyₜ
+--   field
+--     n : Term ℓ
+--     d : Γ / lε ⊢ t :⇒*: n ∷ Empty
+--     n≡n : Γ / lε ⊢ n ≅ n ∷ Empty
+--     prop : Empty-prop Γ lε n
 
--- Unit term equality
-record _/_⊩Unit_≡_∷Unit (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t u : Term ℓ) : Set where
-  constructor Unitₜ₌
-  field
-    ⊢t : Γ / lε ⊢ t ∷ Unit
-    ⊢u : Γ / lε ⊢ u ∷ Unit
+-- data [Empty]-prop (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) : (n n′ : Term ℓ) → Set where
+--   ne    : ∀ {n n′} → Γ / lε ⊩neNf n ≡ n′ ∷ Empty → [Empty]-prop Γ lε n n′
 
--- Type levels
+-- -- Empty term equality
+-- record _/_⊩Empty_≡_∷Empty (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t u : Term ℓ) : Set where
+--   inductive
+--   constructor Emptyₜ₌
+--   field
+--     k k′ : Term ℓ
+--     d : Γ / lε ⊢ t :⇒*: k  ∷ Empty
+--     d′ : Γ / lε ⊢ u :⇒*: k′ ∷ Empty
+--     k≡k′ : Γ / lε ⊢ k ≅ k′ ∷ Empty
+--     prop : [Empty]-prop Γ lε k k′
+
+-- empty : ∀ {l : LCon} {lε : ⊢ₗ l} {n} → Empty-prop Γ lε n → Neutral n
+-- empty (ne (neNfₜ neK _ _)) = neK
+
+-- esplit : ∀ {l : LCon} {lε : ⊢ₗ l} {a b} → [Empty]-prop Γ lε a b → Neutral a × Neutral b
+-- esplit (ne (neNfₜ₌ neK neM k≡m)) = neK , neM
+
+-- -- Reducibility of Unit
+
+-- -- Unit type
+-- _/_⊩Unit_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A : Term ℓ) → Set
+-- Γ / lε ⊩Unit A = Γ / lε ⊢ A :⇒*: Unit
+
+-- -- Unit type equality
+-- _/_⊩Unit_≡_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A B : Term ℓ) → Set
+-- Γ / lε ⊩Unit A ≡ B = Γ / lε ⊢ B ⇒* Unit
+
+-- record _/_⊩Unit_∷Unit (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t : Term ℓ) : Set where
+--   inductive
+--   constructor Unitₜ
+--   field
+--     n : Term ℓ
+--     d : Γ / lε ⊢ t :⇒*: n ∷ Unit
+--     prop : Whnf {l} {lε} n
+
+-- -- Unit term equality
+-- record _/_⊩Unit_≡_∷Unit (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t u : Term ℓ) : Set where
+--   constructor Unitₜ₌
+--   field
+--     ⊢t : Γ / lε ⊢ t ∷ Unit
+--     ⊢u : Γ / lε ⊢ u ∷ Unit
+
+-- -- Type levels
 
 data TypeLevel : Set where
   ⁰ : TypeLevel
@@ -452,8 +538,9 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     data _/_⊩¹_ (Γ : Con Term ℓ) : ∀ {l : LCon} (lε : ⊢ₗ l) → Term ℓ → Set where
       Uᵣ  : Γ / lε ⊩¹U → Γ / lε ⊩¹ U
       ℕᵣ  : ∀ {A} → Γ / lε ⊩ℕ A → Γ / lε ⊩¹ A
-      Emptyᵣ : ∀ {A} → Γ / lε ⊩Empty A → Γ / lε ⊩¹ A
-      Unitᵣ : ∀ {A} → Γ / lε ⊩Unit A → Γ / lε ⊩¹ A
+      𝔹ᵣ : ∀ {A} → Γ / lε ⊩𝔹 A → Γ / lε ⊩¹ A
+--      Emptyᵣ : ∀ {A} → Γ / lε ⊩Empty A → Γ / lε ⊩¹ A
+--      Unitᵣ : ∀ {A} → Γ / lε ⊩Unit A → Γ / lε ⊩¹ A
       ne  : ∀ {A} → Γ / lε ⊩ne A → Γ / lε ⊩¹ A
       Bᵣ  : ∀ {A} W → Γ / lε ⊩¹B⟨ W ⟩ A → Γ / lε ⊩¹ A
       emb : ∀ {A j′} (j< : j′ < j) (let open LogRelKit (rec j<))
@@ -467,8 +554,9 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     _/_⊩¹_≡_/_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A B : Term ℓ) → Γ / lε ⊩¹ A → Set
     Γ / lε ⊩¹ A ≡ B / Uᵣ UA = Γ / lε ⊩¹U≡ B
     Γ / lε ⊩¹ A ≡ B / ℕᵣ D = Γ / lε ⊩ℕ A ≡ B
-    Γ / lε ⊩¹ A ≡ B / Emptyᵣ D = Γ / lε ⊩Empty A ≡ B
-    Γ / lε ⊩¹ A ≡ B / Unitᵣ D = Γ / lε ⊩Unit A ≡ B
+    Γ / lε ⊩¹ A ≡ B / 𝔹ᵣ D = Γ / lε ⊩𝔹 A ≡ B
+--    Γ / lε ⊩¹ A ≡ B / Emptyᵣ D = Γ / lε ⊩Empty A ≡ B
+--    Γ / lε ⊩¹ A ≡ B / Unitᵣ D = Γ / lε ⊩Unit A ≡ B
     Γ / lε ⊩¹ A ≡ B / ne neA = Γ / lε ⊩ne A ≡ B / neA
     Γ / lε ⊩¹ A ≡ B / Bᵣ W BA = Γ / lε ⊩¹B⟨ W ⟩ A ≡ B / BA
     Γ / lε ⊩¹ A ≡ B / ϝᵣ _ _ _ tB fB = (Γ / _ ⊩¹ _ ≡ B / tB) × (Γ / _ ⊩¹ _ ≡ B / fB)
@@ -478,8 +566,9 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     _/_⊩¹_∷_/_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t A : Term ℓ) → Γ / lε ⊩¹ A → Set
     Γ / lε ⊩¹ t ∷ .U / Uᵣ (Uᵣ j′ j< ⊢Γ) = Γ / lε ⊩¹U t ∷U/ j<
     Γ / lε ⊩¹ t ∷ A / ℕᵣ D = Γ / lε ⊩ℕ t ∷ℕ
-    Γ / lε ⊩¹ t ∷ A / Emptyᵣ D = Γ / lε ⊩Empty t ∷Empty
-    Γ / lε ⊩¹ t ∷ A / Unitᵣ D = Γ / lε ⊩Unit t ∷Unit
+    Γ / lε ⊩¹ t ∷ A / 𝔹ᵣ D = Γ / lε ⊩𝔹 t ∷𝔹    
+--    Γ / lε ⊩¹ t ∷ A / Emptyᵣ D = Γ / lε ⊩Empty t ∷Empty
+--    Γ / lε ⊩¹ t ∷ A / Unitᵣ D = Γ / lε ⊩Unit t ∷Unit
     Γ / lε ⊩¹ t ∷ A / ne neA = Γ / lε ⊩ne t ∷ A / neA
     Γ / lε ⊩¹ t ∷ A / Bᵣ BΠ ΠA  = Γ / lε ⊩¹Π t ∷ A / ΠA
     Γ / lε ⊩¹ t ∷ A / Bᵣ BΣ ΣA  = Γ / lε ⊩¹Σ t ∷ A / ΣA
@@ -490,8 +579,9 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     _/_⊩¹_≡_∷_/_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t u A : Term ℓ) → Γ / lε ⊩¹ A → Set
     Γ / lε ⊩¹ t ≡ u ∷ .U / Uᵣ (Uᵣ j′ j< ⊢Γ) = Γ / lε ⊩¹U t ≡ u ∷U/ j<
     Γ / lε ⊩¹ t ≡ u ∷ A / ℕᵣ D = Γ / lε ⊩ℕ t ≡ u ∷ℕ
-    Γ / lε ⊩¹ t ≡ u ∷ A / Emptyᵣ D = Γ / lε ⊩Empty t ≡ u ∷Empty
-    Γ / lε ⊩¹ t ≡ u ∷ A / Unitᵣ D = Γ / lε ⊩Unit t ≡ u ∷Unit
+    Γ / lε ⊩¹ t ≡ u ∷ A / 𝔹ᵣ D = Γ / lε ⊩𝔹 t ≡ u ∷𝔹
+--    Γ / lε ⊩¹ t ≡ u ∷ A / Emptyᵣ D = Γ / lε ⊩Empty t ≡ u ∷Empty
+--    Γ / lε ⊩¹ t ≡ u ∷ A / Unitᵣ D = Γ / lε ⊩Unit t ≡ u ∷Unit
     Γ / lε ⊩¹ t ≡ u ∷ A / ne neA = Γ / lε ⊩ne t ≡ u ∷ A / neA
     Γ / lε ⊩¹ t ≡ u ∷ A / Bᵣ BΠ ΠA = Γ / lε ⊩¹Π t ≡ u ∷ A / ΠA
     Γ / lε ⊩¹ t ≡ u ∷ A / Bᵣ BΣ ΣA  = Γ / lε ⊩¹Σ t ≡ u ∷ A / ΣA
@@ -589,8 +679,26 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
   escapeEqℕ A⇒ℕ B⇒ℕ = ≅-trans (≅-red (red A⇒ℕ) (id (⊢B-red A⇒ℕ)) ℕₙ ℕₙ (≅-ℕrefl (wf (⊢B-red A⇒ℕ))))
                               (whescapeEqℕ (wf (⊢B-red A⇒ℕ)) (eqℕeqℕ B⇒ℕ))
 
+  eq𝔹eq𝔹 : ∀ {A B} → Γ / lε ⊩𝔹 A ≡ B
+                   → Γ / lε ⊩𝔹 𝔹 ≡ B
+  eq𝔹eq𝔹 (⊩𝔹≡ A B D') = ⊩𝔹≡ _ _ D'
+  eq𝔹eq𝔹 (ϝ⊩𝔹≡ mε B⇒B' αB tA=B fA=B) = ϝ⊩𝔹≡ mε B⇒B' αB (eq𝔹eq𝔹 tA=B) (eq𝔹eq𝔹 fA=B)
+                                                                             
+  whescapeEq𝔹 : ∀ {A} → (⊢Γ : ⊢ Γ / lε)
+    → Γ / lε ⊩𝔹 𝔹 ≡ A
+             → Γ / lε ⊢ 𝔹 ≅ A
+  whescapeEq𝔹 ⊢Γ (⊩𝔹≡ A B D') = ≅-red (id (𝔹ⱼ ⊢Γ)) D' 𝔹ₙ 𝔹ₙ (≅-𝔹refl ⊢Γ)
+  whescapeEq𝔹 ⊢Γ (ϝ⊩𝔹≡ mε A⇒B αB t𝔹=B f𝔹=B) = ≅-red (id (𝔹ⱼ ⊢Γ)) (red A⇒B) 𝔹ₙ (αₙ αB)
+    (≅-ϝ (whescapeEq𝔹 (τCon _ _ _ _ ⊢Γ) t𝔹=B) (whescapeEq𝔹 (τCon _ _ _ _ ⊢Γ) f𝔹=B))
+              
+  escapeEq𝔹 : ∀ {A B} → ([A] : Γ / lε  ⊩𝔹 A)
+            → Γ / lε ⊩𝔹 A ≡ B
+            → Γ / lε ⊢ A ≅ B
+  escapeEq𝔹 A⇒𝔹 B⇒𝔹 = ≅-trans (≅-red (red A⇒𝔹) (id (⊢B-red A⇒𝔹)) 𝔹ₙ 𝔹ₙ (≅-𝔹refl (wf (⊢B-red A⇒𝔹))))
+                              (whescapeEq𝔹 (wf (⊢B-red A⇒𝔹)) (eq𝔹eq𝔹 B⇒𝔹))
+
     
-open LogRel public using (Uᵣ; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; Bϝ ; emb; Uₜ; Uₜ₌ ; ϝᵣ)
+open LogRel public using (Uᵣ; ℕᵣ; 𝔹ᵣ ; ne; Bᵣ; B₌; Bϝ ; emb; Uₜ; Uₜ₌ ; ϝᵣ)
 
 -- Patterns for the non-records of Π
 pattern Πₜ f d funcF f≡f [f] [f]₁ = f , d , funcF , f≡f , [f] , [f]₁

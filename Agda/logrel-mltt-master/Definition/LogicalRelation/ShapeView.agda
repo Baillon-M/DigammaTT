@@ -39,11 +39,14 @@ _/_⊩⟨_⟩U : (Γ : Con Term n) {l : LCon} (lε : ⊢ₗ l) (k : TypeLevel) �
 _/_⊩⟨_⟩ℕ_ : (Γ : Con Term n) {l : LCon} (lε : ⊢ₗ l) (k : TypeLevel) (A : Term n) → Set
 Γ / lε ⊩⟨ k ⟩ℕ A = MaybeEmb k (λ k′ → Γ / lε ⊩ℕ A)
 
-_/_⊩⟨_⟩Empty_ : (Γ : Con Term n) {l : LCon} (lε : ⊢ₗ l) (k : TypeLevel) (A : Term n) → Set
-Γ / lε ⊩⟨ k ⟩Empty A = MaybeEmb k (λ k′ → Γ / lε ⊩Empty A)
+_/_⊩⟨_⟩𝔹_ : (Γ : Con Term n) {l : LCon} (lε : ⊢ₗ l) (k : TypeLevel) (A : Term n) → Set
+Γ / lε ⊩⟨ k ⟩𝔹 A = MaybeEmb k (λ k′ → Γ / lε ⊩𝔹 A)
 
-_/_⊩⟨_⟩Unit_ : (Γ : Con Term n) {l : LCon} (lε : ⊢ₗ l) (k : TypeLevel) (A : Term n) → Set
-Γ / lε ⊩⟨ k ⟩Unit A = MaybeEmb k (λ k′ → Γ / lε ⊩Unit A)
+-- _/_⊩⟨_⟩Empty_ : (Γ : Con Term n) {l : LCon} (lε : ⊢ₗ l) (k : TypeLevel) (A : Term n) → Set
+-- Γ / lε ⊩⟨ k ⟩Empty A = MaybeEmb k (λ k′ → Γ / lε ⊩Empty A)
+
+-- _/_⊩⟨_⟩Unit_ : (Γ : Con Term n) {l : LCon} (lε : ⊢ₗ l) (k : TypeLevel) (A : Term n) → Set
+-- Γ / lε ⊩⟨ k ⟩Unit A = MaybeEmb k (λ k′ → Γ / lε ⊩Unit A)
 
 _/_⊩⟨_⟩ne_ : (Γ : Con Term n) {l : LCon} (lε : ⊢ₗ l) (k : TypeLevel) (A : Term n) → Set
 Γ / lε ⊩⟨ k ⟩ne A = MaybeEmb k (λ k′ → Γ / lε ⊩ne A)
@@ -61,13 +64,18 @@ U-intr (emb 0<1 x) = emb 0<1 (U-intr x)
 ℕ-intr (noemb x) = ℕᵣ x
 ℕ-intr (emb 0<1 x) = emb 0<1 (ℕ-intr x)
 
-Empty-intr : ∀ {A k} → Γ / lε ⊩⟨ k ⟩Empty A → Γ / lε ⊩⟨ k ⟩ A
-Empty-intr (noemb x) = Emptyᵣ x
-Empty-intr (emb 0<1 x) = emb 0<1 (Empty-intr x)
+𝔹-intr : ∀ {A k} → Γ / lε ⊩⟨ k ⟩𝔹 A → Γ / lε ⊩⟨ k ⟩ A
+𝔹-intr (noemb x) = 𝔹ᵣ x
+𝔹-intr (emb 0<1 x) = emb 0<1 (𝔹-intr x)
 
-Unit-intr : ∀ {A k} → Γ / lε ⊩⟨ k ⟩Unit A → Γ / lε ⊩⟨ k ⟩ A
-Unit-intr (noemb x) = Unitᵣ x
-Unit-intr (emb 0<1 x) = emb 0<1 (Unit-intr x)
+
+-- Empty-intr : ∀ {A k} → Γ / lε ⊩⟨ k ⟩Empty A → Γ / lε ⊩⟨ k ⟩ A
+-- Empty-intr (noemb x) = Emptyᵣ x
+-- Empty-intr (emb 0<1 x) = emb 0<1 (Empty-intr x)
+
+-- Unit-intr : ∀ {A k} → Γ / lε ⊩⟨ k ⟩Unit A → Γ / lε ⊩⟨ k ⟩ A
+-- Unit-intr (noemb x) = Unitᵣ x
+-- Unit-intr (emb 0<1 x) = emb 0<1 (Unit-intr x)
 
 ne-intr : ∀ {A k} → Γ / lε ⊩⟨ k ⟩ne A → Γ / lε ⊩⟨ k ⟩ A
 ne-intr (noemb x) = ne x
@@ -83,10 +91,12 @@ U-elim : ∀ {k} → Γ / lε ⊩⟨ k ⟩ U → Γ / lε ⊩⟨ k ⟩U
 U-elim (Uᵣ′ k′ k< ⊢Γ) = noemb (Uᵣ k′ k< ⊢Γ)
 U-elim (ℕᵣ D) with whnfRed* (red D) Uₙ
 ... | ()
-U-elim (Emptyᵣ D) with whnfRed* (red D) Uₙ
+U-elim (𝔹ᵣ D) with whnfRed* (red D) Uₙ
 ... | ()
-U-elim (Unitᵣ D) with whnfRed* (red D) Uₙ
-... | ()
+-- U-elim (Emptyᵣ D) with whnfRed* (red D) Uₙ
+-- ... | ()
+-- U-elim (Unitᵣ D) with whnfRed* (red D) Uₙ
+-- ... | ()
 U-elim (ne′ K D neK K≡K) =
   ⊥-elim (U≢ne neK (whnfRed* (red D) Uₙ))
 U-elim (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
@@ -99,15 +109,17 @@ U-elim (ϝᵣ mε A⇒B αB tA fA) = ⊥-elim (U≢αne αB (whnfRed* (red A⇒B
 ℕ-elim′ : ∀ {A k} → Γ / lε ⊢ A ⇒* ℕ → Γ / lε ⊩⟨ k ⟩ A → Γ / lε ⊩⟨ k ⟩ℕ A
 ℕ-elim′ D (Uᵣ′ k′ k< ⊢Γ) with whrDet* (id (Uⱼ ⊢Γ) , Uₙ) (D , ℕₙ)
 ... | ()
+ℕ-elim′ D (𝔹ᵣ D') with whrDet* (red D' , 𝔹ₙ) (D , ℕₙ)
+... | ()
 ℕ-elim′ D (ℕᵣ D′) = noemb D′
 ℕ-elim′ D (ne′ K D′ neK K≡K) =
   ⊥-elim (ℕ≢ne neK (whrDet* (D , ℕₙ) (red D′ , ne neK)))
 ℕ-elim′ D (Bᵣ′ W F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) =
   ⊥-elim (ℕ≢B W (whrDet* (D , ℕₙ) (red D′ , ⟦ W ⟧ₙ)))
-ℕ-elim′ D (Emptyᵣ D′) with whrDet* (D , ℕₙ) (red D′ , Emptyₙ)
-... | ()
-ℕ-elim′ D (Unitᵣ D′) with whrDet* (D , ℕₙ) (red D′ , Unitₙ)
-... | ()
+-- ℕ-elim′ D (Emptyᵣ D′) with whrDet* (D , ℕₙ) (red D′ , Emptyₙ)
+-- ... | ()
+-- ℕ-elim′ D (Unitᵣ D′) with whrDet* (D , ℕₙ) (red D′ , Unitₙ)
+-- ... | ()
 ℕ-elim′ D (emb 0<1 x) with ℕ-elim′ D x
 ℕ-elim′ D (emb 0<1 x) | noemb x₁ = emb 0<1 (noemb x₁)
 ℕ-elim′ D (emb 0<1 x) | emb () x₂
@@ -116,52 +128,75 @@ U-elim (ϝᵣ mε A⇒B αB tA fA) = ⊥-elim (U≢αne αB (whnfRed* (red A⇒B
 ℕ-elim : ∀ {k} → Γ / lε ⊩⟨ k ⟩ ℕ → Γ / lε ⊩⟨ k ⟩ℕ ℕ
 ℕ-elim [ℕ] = ℕ-elim′ (id (escape [ℕ])) [ℕ]
 
-Empty-elim′ : ∀ {A k} → Γ / lε ⊢ A ⇒* Empty → Γ / lε ⊩⟨ k ⟩ A → Γ / lε ⊩⟨ k ⟩Empty A
-Empty-elim′ D (Uᵣ′ k′ k< ⊢Γ) with whrDet* (id (Uⱼ ⊢Γ) , Uₙ) (D , Emptyₙ)
+𝔹-elim′ : ∀ {A k} → Γ / lε ⊢ A ⇒* 𝔹 → Γ / lε ⊩⟨ k ⟩ A → Γ / lε ⊩⟨ k ⟩𝔹 A
+𝔹-elim′ D (Uᵣ′ k′ k< ⊢Γ) with whrDet* (id (Uⱼ ⊢Γ) , Uₙ) (D , 𝔹ₙ)
 ... | ()
-Empty-elim′ D (Emptyᵣ D′) = noemb D′
-Empty-elim′ D (Unitᵣ D′) with whrDet* (D , Emptyₙ) (red D′ , Unitₙ)
+𝔹-elim′ D (ℕᵣ D') with whrDet* (D , 𝔹ₙ) (red D' , ℕₙ)
 ... | ()
-Empty-elim′ D (ne′ K D′ neK K≡K) =
-  ⊥-elim (Empty≢ne neK (whrDet* (D , Emptyₙ) (red D′ , ne neK)))
-Empty-elim′ D (Bᵣ′ W F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) =
-  ⊥-elim (Empty≢B W (whrDet* (D , Emptyₙ) (red D′ , ⟦ W ⟧ₙ)))
-Empty-elim′ D (ℕᵣ D′) with whrDet* (D , Emptyₙ) (red D′ , ℕₙ)
-... | ()
-Empty-elim′ D (emb 0<1 x) with Empty-elim′ D x
-Empty-elim′ D (emb 0<1 x) | noemb x₁ = emb 0<1 (noemb x₁)
-Empty-elim′ D (emb 0<1 x) | emb () x₂
-Empty-elim′ D (ϝᵣ mε A⇒B αB tA fA) = ⊥-elim (Empty≢αne αB (whrDet* (D , Emptyₙ) (red A⇒B , αₙ αB)))
+𝔹-elim′ D (𝔹ᵣ D′) = noemb D′
+𝔹-elim′ D (ne′ K D′ neK K≡K) =
+  ⊥-elim (𝔹≢ne neK (whrDet* (D , 𝔹ₙ) (red D′ , ne neK)))
+𝔹-elim′ D (Bᵣ′ W F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) =
+  ⊥-elim (𝔹≢B W (whrDet* (D , 𝔹ₙ) (red D′ , ⟦ W ⟧ₙ)))
+-- ℕ-elim′ D (Emptyᵣ D′) with whrDet* (D , ℕₙ) (red D′ , Emptyₙ)
+-- ... | ()
+-- ℕ-elim′ D (Unitᵣ D′) with whrDet* (D , ℕₙ) (red D′ , Unitₙ)
+-- ... | ()
+𝔹-elim′ D (emb 0<1 x) with 𝔹-elim′ D x
+𝔹-elim′ D (emb 0<1 x) | noemb x₁ = emb 0<1 (noemb x₁)
+𝔹-elim′ D (emb 0<1 x) | emb () x₂
+𝔹-elim′ D (ϝᵣ mε A⇒B αB tA fA) = ⊥-elim (𝔹≢αne αB (whrDet* (D , 𝔹ₙ) (red A⇒B , αₙ αB)))
 
-Empty-elim : ∀ {k} → Γ / lε ⊩⟨ k ⟩ Empty → Γ / lε ⊩⟨ k ⟩Empty Empty
-Empty-elim [Empty] = Empty-elim′ (id (escape [Empty])) [Empty]
+𝔹-elim : ∀ {k} → Γ / lε ⊩⟨ k ⟩ 𝔹 → Γ / lε ⊩⟨ k ⟩𝔹 𝔹
+𝔹-elim [𝔹] = 𝔹-elim′ (id (escape [𝔹])) [𝔹]
 
-Unit-elim′ : ∀ {A k} → Γ / lε ⊢ A ⇒* Unit → Γ / lε ⊩⟨ k ⟩ A → Γ / lε ⊩⟨ k ⟩Unit A
-Unit-elim′ D (Uᵣ′ k′ k< ⊢Γ) with whrDet* (id (Uⱼ ⊢Γ) , Uₙ) (D , Unitₙ)
-... | ()
-Unit-elim′ D (Unitᵣ D′) = noemb D′
-Unit-elim′ D (Emptyᵣ D′) with whrDet* (D , Unitₙ) (red D′ , Emptyₙ)
-... | ()
-Unit-elim′ D (ne′ K D′ neK K≡K) =
-  ⊥-elim (Unit≢ne neK (whrDet* (D , Unitₙ) (red D′ , ne neK)))
-Unit-elim′ D (Bᵣ′ W F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) =
-  ⊥-elim (Unit≢B W (whrDet* (D , Unitₙ) (red D′ , ⟦ W ⟧ₙ)))
-Unit-elim′ D (ℕᵣ D′) with whrDet* (D , Unitₙ) (red D′ , ℕₙ)
-... | ()
-Unit-elim′ D (emb 0<1 x) with Unit-elim′ D x
-Unit-elim′ D (emb 0<1 x) | noemb x₁ = emb 0<1 (noemb x₁)
-Unit-elim′ D (emb 0<1 x) | emb () x₂
-Unit-elim′ D (ϝᵣ mε A⇒B αB tA fA) = ⊥-elim (Unit≢αne αB (whrDet* (D , Unitₙ) (red A⇒B , αₙ αB)))
+-- Empty-elim′ : ∀ {A k} → Γ / lε ⊢ A ⇒* Empty → Γ / lε ⊩⟨ k ⟩ A → Γ / lε ⊩⟨ k ⟩Empty A
+-- Empty-elim′ D (Uᵣ′ k′ k< ⊢Γ) with whrDet* (id (Uⱼ ⊢Γ) , Uₙ) (D , Emptyₙ)
+-- ... | ()
+-- Empty-elim′ D (Emptyᵣ D′) = noemb D′
+-- Empty-elim′ D (Unitᵣ D′) with whrDet* (D , Emptyₙ) (red D′ , Unitₙ)
+-- ... | ()
+-- Empty-elim′ D (ne′ K D′ neK K≡K) =
+--   ⊥-elim (Empty≢ne neK (whrDet* (D , Emptyₙ) (red D′ , ne neK)))
+-- Empty-elim′ D (Bᵣ′ W F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) =
+--   ⊥-elim (Empty≢B W (whrDet* (D , Emptyₙ) (red D′ , ⟦ W ⟧ₙ)))
+-- Empty-elim′ D (ℕᵣ D′) with whrDet* (D , Emptyₙ) (red D′ , ℕₙ)
+-- ... | ()
+-- Empty-elim′ D (emb 0<1 x) with Empty-elim′ D x
+-- Empty-elim′ D (emb 0<1 x) | noemb x₁ = emb 0<1 (noemb x₁)
+-- Empty-elim′ D (emb 0<1 x) | emb () x₂
+-- Empty-elim′ D (ϝᵣ mε A⇒B αB tA fA) = ⊥-elim (Empty≢αne αB (whrDet* (D , Emptyₙ) (red A⇒B , αₙ αB)))
 
-Unit-elim : ∀ {k} → Γ / lε ⊩⟨ k ⟩ Unit → Γ / lε ⊩⟨ k ⟩Unit Unit
-Unit-elim [Unit] = Unit-elim′ (id (escape [Unit])) [Unit]
+-- Empty-elim : ∀ {k} → Γ / lε ⊩⟨ k ⟩ Empty → Γ / lε ⊩⟨ k ⟩Empty Empty
+-- Empty-elim [Empty] = Empty-elim′ (id (escape [Empty])) [Empty]
+
+-- Unit-elim′ : ∀ {A k} → Γ / lε ⊢ A ⇒* Unit → Γ / lε ⊩⟨ k ⟩ A → Γ / lε ⊩⟨ k ⟩Unit A
+-- Unit-elim′ D (Uᵣ′ k′ k< ⊢Γ) with whrDet* (id (Uⱼ ⊢Γ) , Uₙ) (D , Unitₙ)
+-- ... | ()
+-- Unit-elim′ D (Unitᵣ D′) = noemb D′
+-- Unit-elim′ D (Emptyᵣ D′) with whrDet* (D , Unitₙ) (red D′ , Emptyₙ)
+-- ... | ()
+-- Unit-elim′ D (ne′ K D′ neK K≡K) =
+--   ⊥-elim (Unit≢ne neK (whrDet* (D , Unitₙ) (red D′ , ne neK)))
+-- Unit-elim′ D (Bᵣ′ W F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) =
+--   ⊥-elim (Unit≢B W (whrDet* (D , Unitₙ) (red D′ , ⟦ W ⟧ₙ)))
+-- Unit-elim′ D (ℕᵣ D′) with whrDet* (D , Unitₙ) (red D′ , ℕₙ)
+-- ... | ()
+-- Unit-elim′ D (emb 0<1 x) with Unit-elim′ D x
+-- Unit-elim′ D (emb 0<1 x) | noemb x₁ = emb 0<1 (noemb x₁)
+-- Unit-elim′ D (emb 0<1 x) | emb () x₂
+-- Unit-elim′ D (ϝᵣ mε A⇒B αB tA fA) = ⊥-elim (Unit≢αne αB (whrDet* (D , Unitₙ) (red A⇒B , αₙ αB)))
+
+-- Unit-elim : ∀ {k} → Γ / lε ⊩⟨ k ⟩ Unit → Γ / lε ⊩⟨ k ⟩Unit Unit
+-- Unit-elim [Unit] = Unit-elim′ (id (escape [Unit])) [Unit]
 
 ne-elim′ : ∀ {A k K} → Γ / lε ⊢ A ⇒* K → Neutral K → Γ / lε ⊩⟨ k ⟩ A → Γ / lε ⊩⟨ k ⟩ne A
 ne-elim′ D neK (Uᵣ′ k′ k< ⊢Γ) =
   ⊥-elim (U≢ne neK (whrDet* (id (Uⱼ ⊢Γ) , Uₙ) (D , ne neK)))
 ne-elim′ D neK (ℕᵣ D′) = ⊥-elim (ℕ≢ne neK (whrDet* (red D′ , ℕₙ) (D , ne neK)))
-ne-elim′ D neK (Emptyᵣ D′) = ⊥-elim (Empty≢ne neK (whrDet* (red D′ , Emptyₙ) (D , ne neK)))
-ne-elim′ D neK (Unitᵣ D′) = ⊥-elim (Unit≢ne neK (whrDet* (red D′ , Unitₙ) (D , ne neK)))
+ne-elim′ D neK (𝔹ᵣ D′) = ⊥-elim (𝔹≢ne neK (whrDet* (red D′ , 𝔹ₙ) (D , ne neK)))
+-- ne-elim′ D neK (Emptyᵣ D′) = ⊥-elim (Empty≢ne neK (whrDet* (red D′ , Emptyₙ) (D , ne neK)))
+-- ne-elim′ D neK (Unitᵣ D′) = ⊥-elim (Unit≢ne neK (whrDet* (red D′ , Unitₙ) (D , ne neK)))
 ne-elim′ D neK (ne′ K D′ neK′ K≡K) = noemb (ne K D′ neK′ K≡K)
 ne-elim′ D neK (Bᵣ′ W F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) =
   ⊥-elim (B≢ne W neK (whrDet* (red D′ , ⟦ W ⟧ₙ) (D , ne neK)))
@@ -178,10 +213,12 @@ B-elim′ W D (Uᵣ′ k′ k< ⊢Γ) =
   ⊥-elim (U≢B W (whrDet* (id (Uⱼ ⊢Γ) , Uₙ) (D , ⟦ W ⟧ₙ)))
 B-elim′ W D (ℕᵣ D′) =
   ⊥-elim (ℕ≢B W (whrDet* (red D′ , ℕₙ) (D , ⟦ W ⟧ₙ)))
-B-elim′ W D (Emptyᵣ D′) =
-  ⊥-elim (Empty≢B W (whrDet* (red D′ , Emptyₙ) (D , ⟦ W ⟧ₙ)))
-B-elim′ W D (Unitᵣ D′) =
-  ⊥-elim (Unit≢B W (whrDet* (red D′ , Unitₙ) (D , ⟦ W ⟧ₙ)))
+B-elim′ W D (𝔹ᵣ D′) =
+   ⊥-elim (𝔹≢B W (whrDet* (red D′ , 𝔹ₙ) (D , ⟦ W ⟧ₙ)))
+-- B-elim′ W D (Emptyᵣ D′) =
+--   ⊥-elim (Empty≢B W (whrDet* (red D′ , Emptyₙ) (D , ⟦ W ⟧ₙ)))
+-- B-elim′ W D (Unitᵣ D′) =
+--   ⊥-elim (Unit≢B W (whrDet* (red D′ , Unitₙ) (D , ⟦ W ⟧ₙ)))
 B-elim′ W D (ne′ K D′ neK K≡K) =
   ⊥-elim (B≢ne W neK (whrDet* (D , ⟦ W ⟧ₙ) (red D′ , ne neK)))
 B-elim′ BΠ D (Bᵣ′ BΣ F G D′ ⊢F ⊢G A≡A [F] [G] G-ext) with whrDet* (D , Πₙ) (red D′ , Σₙ)
@@ -213,17 +250,37 @@ B-elim W [Π] = B-elim′ W (id (escape [Π])) [Π]
 ... | ()
 ℕ≠U {k = k} {k' = k'} [A] [B] (ϝ⊩ℕ≡ mε A⇒B αB tA fA) = U≢αne αB (whrDet* (id (⊢A-red A⇒B) , Uₙ) (red A⇒B , αₙ αB))
 
-ℕ≠Unit : ∀ {k} ([A] : Γ / lε ⊩ℕ A) ([B] : Γ / lε ⊩Unit B)
+ℕ≠𝔹 : ∀ {k} ([A] : Γ / lε ⊩ℕ A) ([B] : Γ / lε ⊩𝔹 B)
           → (Γ / lε ⊩⟨ k ⟩ A ≡ B / ℕᵣ [A]) → ⊥
-ℕ≠Unit [A] [B] (⊩ℕ≡ _ _ A⇒N) with whrDet* ( red [B] , Unitₙ ) ( A⇒N , ℕₙ )
+ℕ≠𝔹 [A] [B] (⊩ℕ≡ _ _ A⇒N) with whrDet* ( red [B] , 𝔹ₙ ) ( A⇒N , ℕₙ )
 ... | ()
-ℕ≠Unit {k = k} [A] [B] (ϝ⊩ℕ≡ mε A⇒B αB tA fA) = Unit≢αne αB (whrDet* (red [B] , Unitₙ) (red A⇒B , αₙ αB))
+ℕ≠𝔹 {k = k} [A] [B] (ϝ⊩ℕ≡ mε A⇒B αB tA fA) = 𝔹≢αne αB (whrDet* (red [B] , 𝔹ₙ) (red A⇒B , αₙ αB))
 
-ℕ≠Empty : ∀ {k} ([A] : Γ / lε ⊩ℕ A) ([B] : Γ / lε ⊩Empty B)
-          → (Γ / lε ⊩⟨ k ⟩ A ≡ B / ℕᵣ [A]) → ⊥
-ℕ≠Empty [A] [B] (⊩ℕ≡ _ _ A⇒N) with whrDet* ( red [B] , Emptyₙ ) ( A⇒N , ℕₙ )
+
+𝔹≠U : ∀ {k k'} ([A] : Γ / lε ⊩𝔹 A) ([B] : Γ / lε ⊩′⟨ k' ⟩U)
+          → (Γ / lε ⊩⟨ k ⟩ A ≡ U / 𝔹ᵣ [A]) → ⊥
+𝔹≠U [A] [B] (⊩𝔹≡ _ _ A⇒N) with whnfRed* (A⇒N) Uₙ
 ... | ()
-ℕ≠Empty {k = k} [A] [B] (ϝ⊩ℕ≡ mε A⇒B αB tA fA) = Empty≢αne αB (whrDet* (red [B] , Emptyₙ) (red A⇒B , αₙ αB))
+𝔹≠U {k = k} {k' = k'} [A] [B] (ϝ⊩𝔹≡ mε A⇒B αB tA fA) = U≢αne αB (whrDet* (id (⊢A-red A⇒B) , Uₙ) (red A⇒B , αₙ αB))
+
+𝔹≠ℕ : ∀ {k} ([A] : Γ / lε ⊩𝔹 A) ([B] : Γ / lε ⊩ℕ B)
+          → (Γ / lε ⊩⟨ k ⟩ A ≡ B / 𝔹ᵣ [A]) → ⊥
+𝔹≠ℕ [A] [B] (⊩𝔹≡ _ _ A⇒N) with whrDet* ( red [B] , ℕₙ ) ( A⇒N , 𝔹ₙ )
+... | ()
+𝔹≠ℕ {k = k} [A] [B] (ϝ⊩𝔹≡ mε A⇒B αB tA fA) = ℕ≢αne αB (whrDet* (red [B] , ℕₙ) (red A⇒B , αₙ αB))
+
+
+-- ℕ≠Unit : ∀ {k} ([A] : Γ / lε ⊩ℕ A) ([B] : Γ / lε ⊩Unit B)
+--           → (Γ / lε ⊩⟨ k ⟩ A ≡ B / ℕᵣ [A]) → ⊥
+-- ℕ≠Unit [A] [B] (⊩ℕ≡ _ _ A⇒N) with whrDet* ( red [B] , Unitₙ ) ( A⇒N , ℕₙ )
+-- ... | ()
+-- ℕ≠Unit {k = k} [A] [B] (ϝ⊩ℕ≡ mε A⇒B αB tA fA) = Unit≢αne αB (whrDet* (red [B] , Unitₙ) (red A⇒B , αₙ αB))
+
+-- ℕ≠Empty : ∀ {k} ([A] : Γ / lε ⊩ℕ A) ([B] : Γ / lε ⊩Empty B)
+--           → (Γ / lε ⊩⟨ k ⟩ A ≡ B / ℕᵣ [A]) → ⊥
+-- ℕ≠Empty [A] [B] (⊩ℕ≡ _ _ A⇒N) with whrDet* ( red [B] , Emptyₙ ) ( A⇒N , ℕₙ )
+-- ... | ()
+-- ℕ≠Empty {k = k} [A] [B] (ϝ⊩ℕ≡ mε A⇒B αB tA fA) = Empty≢αne αB (whrDet* (red [B] , Emptyₙ) (red A⇒B , αₙ αB))
 
 -- Extract a type and a level from a maybe embedding
 extractMaybeEmb : ∀ {k ⊩⟨_⟩} → MaybeEmb k ⊩⟨_⟩ → ∃ λ k′ → ⊩⟨ k′ ⟩
@@ -234,8 +291,9 @@ extractMaybeEmb (emb 0<1 x) = extractMaybeEmb x
 data ShapeView (Γ : Con Term n) : ∀ {l : LCon} {lε : ⊢ₗ l} k k′ A B (p : Γ / lε ⊩⟨ k ⟩ A) (q : Γ / lε ⊩⟨ k′ ⟩ B) → Set where
   Uᵥ : ∀ {l lε k k′} UA UB → ShapeView Γ {l} {lε} k k′ U U (Uᵣ UA) (Uᵣ UB)
   ℕᵥ : ∀ {l} {lε} {A B k k′} ℕA ℕB → ShapeView Γ {l} {lε} k k′ A B (ℕᵣ ℕA) (ℕᵣ ℕB)
-  Emptyᵥ : ∀ {l} {lε} {A B k k′} EmptyA EmptyB → ShapeView Γ {l} {lε} k k′ A B (Emptyᵣ EmptyA) (Emptyᵣ EmptyB)
-  Unitᵥ : ∀ {l} {lε} {A B k k′} UnitA UnitB → ShapeView Γ {l} {lε} k k′ A B (Unitᵣ UnitA) (Unitᵣ UnitB)
+  𝔹ᵥ : ∀ {l} {lε} {A B k k′} 𝔹A 𝔹B → ShapeView Γ {l} {lε} k k′ A B (𝔹ᵣ 𝔹A) (𝔹ᵣ 𝔹B)
+--  Emptyᵥ : ∀ {l} {lε} {A B k k′} EmptyA EmptyB → ShapeView Γ {l} {lε} k k′ A B (Emptyᵣ EmptyA) (Emptyᵣ EmptyB)
+--  Unitᵥ : ∀ {l} {lε} {A B k k′} UnitA UnitB → ShapeView Γ {l} {lε} k k′ A B (Unitᵣ UnitA) (Unitᵣ UnitB)
   ne  : ∀ {l} {lε} {A B k k′} neA neB
       → ShapeView Γ {l} {lε} k k′ A B (ne neA) (ne neB)
   Bᵥ : ∀ {l} {lε} {A B k k′} W BA BB
@@ -271,8 +329,9 @@ RedShapeView (Uᵥ UA UB) [A]' [B]' A⇒U B⇒U
 
 -- Diagonal cases
 RedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (ℕᵣ ℕB) A⇒A'' B⇒B'' = ℕᵥ ℕA ℕB
-RedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Emptyᵣ EmptyB) A⇒A'' B⇒B'' = Emptyᵥ EmptyA EmptyB
-RedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Unitᵣ UnitB) A⇒A'' B⇒B'' = Unitᵥ UnitA UnitB
+RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (𝔹ᵣ 𝔹B) A⇒A'' B⇒B'' = 𝔹ᵥ 𝔹A 𝔹B
+-- RedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Emptyᵣ EmptyB) A⇒A'' B⇒B'' = Emptyᵥ EmptyA EmptyB
+-- RedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Unitᵣ UnitB) A⇒A'' B⇒B'' = Unitᵥ UnitA UnitB
 RedShapeView (Bᵥ BΠ BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext))
              (Bᵣ′ BΠ F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext')
              (Bᵣ′ BΠ F'' G'' D'' ⊢F'' ⊢G'' A≡A'' [F''] [G''] G-ext'') A⇒A'' B⇒B'' =
@@ -317,12 +376,15 @@ RedShapeView (ℕᵥ ℕA' ℕB') (Uᵣ UA) [B'] A⇒A'' B⇒B''
   with whrDet* (red A⇒A'' , Uₙ) (red ℕA' , ℕₙ)
 RedShapeView (ℕᵥ ℕA' ℕB') (Uᵣ UA) [B'] A⇒A'' B⇒B''
   | ()
-RedShapeView (ℕᵥ ℕA' ℕB') (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B'' 
-  with whrDet* (⇒*-comp (red A⇒A'') (red EmptyA) , Emptyₙ) (red ℕA' , ℕₙ)
+RedShapeView (ℕᵥ ℕA' ℕB') (𝔹ᵣ 𝔹A) [B'] A⇒A'' B⇒B'' 
+  with whrDet* (⇒*-comp (red A⇒A'') (red 𝔹A) , 𝔹ₙ) (red ℕA' , ℕₙ)
 ... | ()
-RedShapeView (ℕᵥ ℕA' ℕB') (Unitᵣ UnitA) [B'] A⇒A'' B⇒B''
-  with whrDet* (⇒*-comp (red A⇒A'') (red UnitA) , Unitₙ) (red ℕA' , ℕₙ)
-... | ()
+-- RedShapeView (ℕᵥ ℕA' ℕB') (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B'' 
+--   with whrDet* (⇒*-comp (red A⇒A'') (red EmptyA) , Emptyₙ) (red ℕA' , ℕₙ)
+-- ... | ()
+-- RedShapeView (ℕᵥ ℕA' ℕB') (Unitᵣ UnitA) [B'] A⇒A'' B⇒B''
+--   with whrDet* (⇒*-comp (red A⇒A'') (red UnitA) , Unitₙ) (red ℕA' , ℕₙ)
+-- ... | ()
 RedShapeView (ℕᵥ ℕA' ℕB') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] A⇒A'' B⇒B'' =
   ⊥-elim (ℕ≢B W (whrDet* (red ℕA' , ℕₙ) (⇒*-comp (red A⇒A'') (red D') , ⟦ W ⟧ₙ)))
 RedShapeView (ℕᵥ ℕA' ℕB') (ne′ K D neK K≡K) [B'] A⇒A'' B⇒B'' = 
@@ -334,85 +396,129 @@ RedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Uᵣ UB) A⇒A'' B⇒B''
   with whrDet* (red B⇒B'' , Uₙ) (red ℕB' , ℕₙ)
 RedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Uᵣ UB) A⇒A'' B⇒B''
   | ()
-RedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Emptyᵣ D) A⇒A'' B⇒B''
-  with whrDet* (⇒*-comp (red B⇒B'') (red D) , Emptyₙ) (red ℕB' , ℕₙ)
+RedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (𝔹ᵣ D) A⇒A'' B⇒B''
+  with whrDet* (⇒*-comp (red B⇒B'') (red D) , 𝔹ₙ) (red ℕB' , ℕₙ)
 ... | ()
-RedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Unitᵣ D) A⇒A'' B⇒B''
-  with whrDet* (⇒*-comp (red B⇒B'') (red D) , Unitₙ) (red ℕB' , ℕₙ)
-... | ()
+-- RedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Emptyᵣ D) A⇒A'' B⇒B''
+--   with whrDet* (⇒*-comp (red B⇒B'') (red D) , Emptyₙ) (red ℕB' , ℕₙ)
+-- ... | ()
+-- RedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Unitᵣ D) A⇒A'' B⇒B''
+--   with whrDet* (⇒*-comp (red B⇒B'') (red D) , Unitₙ) (red ℕB' , ℕₙ)
+-- ... | ()
 RedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) A⇒A'' B⇒B'' = 
   ⊥-elim (ℕ≢B W (whrDet* (red ℕB' , ℕₙ) (⇒*-comp (red B⇒B'') (red D) , ⟦ W ⟧ₙ)))
 RedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (ne′ K D neK K≡K) A⇒A'' B⇒B'' = 
   ⊥-elim (ℕ≢ne neK (whrDet* ((red ℕB') , ℕₙ) (⇒*-comp (red B⇒B'') (red D) , ne neK)))
 RedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (ϝᵣ mε A⇒A' αA' tA fA) A⇒A'' B⇒B'' = 
   ⊥-elim (ℕ≢αne αA' (whrDet* (red ℕB' , ℕₙ) ( ⇒*-comp (red B⇒B'') (red A⇒A') , αₙ αA')))
+  
+-- 𝔹
+RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (Uᵣ UA) [B'] A⇒A'' B⇒B''
+  with whrDet* (red A⇒A'' , Uₙ) (red 𝔹A' , 𝔹ₙ)
+RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (Uᵣ UA) [B'] A⇒A'' B⇒B''
+  | ()
+RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (ℕᵣ ℕA) [B'] A⇒A'' B⇒B'' 
+  with whrDet* (⇒*-comp (red A⇒A'') (red ℕA) , ℕₙ) (red 𝔹A' , 𝔹ₙ)
+... | ()
+-- RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B'' 
+--   with whrDet* (⇒*-comp (red A⇒A'') (red EmptyA) , Emptyₙ) (red 𝔹A' , 𝔹ₙ)
+-- ... | ()
+-- RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (Unitᵣ UnitA) [B'] A⇒A'' B⇒B''
+--   with whrDet* (⇒*-comp (red A⇒A'') (red UnitA) , Unitₙ) (red 𝔹A' , 𝔹ₙ)
+-- ... | ()
+RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] A⇒A'' B⇒B'' =
+  ⊥-elim (𝔹≢B W (whrDet* (red 𝔹A' , 𝔹ₙ) (⇒*-comp (red A⇒A'') (red D') , ⟦ W ⟧ₙ)))
+RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (ne′ K D neK K≡K) [B'] A⇒A'' B⇒B'' = 
+  ⊥-elim (𝔹≢ne neK (whrDet* ((red 𝔹A') , 𝔹ₙ) (⇒*-comp (red A⇒A'') (red D) , ne neK)))
+RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (ϝᵣ mε A⇒A' αA' tA fA) [B'] A⇒A'' B⇒B'' =
+  ⊥-elim (𝔹≢αne αA' (whrDet* (red 𝔹A' , 𝔹ₙ) ( ⇒*-comp (red A⇒A'') (red A⇒A') , αₙ αA')))
 
--- Empty
-RedShapeView (Emptyᵥ EmptyA' EmptyB') (Uᵣ UA) [B'] A⇒A'' B⇒B''
-  with whrDet* (red A⇒A'' , Uₙ) (red EmptyA' , Emptyₙ)
+RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (Uᵣ UB) A⇒A'' B⇒B''
+  with whrDet* (red B⇒B'' , Uₙ) (red 𝔹B' , 𝔹ₙ)
+RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (Uᵣ UB) A⇒A'' B⇒B''
+  | ()
+RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (ℕᵣ D) A⇒A'' B⇒B''
+  with whrDet* (⇒*-comp (red B⇒B'') (red D) , ℕₙ) (red 𝔹B' , 𝔹ₙ)
 ... | ()
-RedShapeView (Emptyᵥ EmptyA' EmptyB') (ℕᵣ ℕA) [B'] A⇒A'' B⇒B'' 
-  with whrDet* (⇒*-comp (red A⇒A'') (red ℕA) , ℕₙ) (red EmptyA' , Emptyₙ)
-... | ()
-RedShapeView (Emptyᵥ EmptyA' EmptyB') (Unitᵣ UnitA) [B'] A⇒A'' B⇒B''
-  with whrDet* (⇒*-comp (red A⇒A'') (red UnitA) , Unitₙ) (red EmptyA' , Emptyₙ)
-... | ()
-RedShapeView (Emptyᵥ EmptyA' EmptyB') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] A⇒A'' B⇒B'' =
- ⊥-elim (Empty≢B W (whrDet* (red EmptyA' , Emptyₙ) (⇒*-comp (red A⇒A'') (red D') , ⟦ W ⟧ₙ)))
-RedShapeView (Emptyᵥ EmptyA' EmptyB') (ne′ K D neK K≡K) [B'] A⇒A'' B⇒B'' =
-  ⊥-elim (Empty≢ne neK (whrDet* ((red EmptyA') , Emptyₙ) (⇒*-comp (red A⇒A'') (red D) , ne neK)))
-RedShapeView (Emptyᵥ EmptyA' EmptyB') (ϝᵣ mε A⇒A' αA' tA fA) [B'] A⇒A'' B⇒B'' = 
-  ⊥-elim (Empty≢αne αA' (whrDet* (red EmptyA' , Emptyₙ) ( ⇒*-comp (red A⇒A'') (red A⇒A') , αₙ αA')))
+-- RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (Emptyᵣ D) A⇒A'' B⇒B''
+--   with whrDet* (⇒*-comp (red B⇒B'') (red D) , Emptyₙ) (red 𝔹B' , 𝔹ₙ)
+-- ... | ()
+-- RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (Unitᵣ D) A⇒A'' B⇒B''
+--   with whrDet* (⇒*-comp (red B⇒B'') (red D) , Unitₙ) (red 𝔹B' , 𝔹ₙ)
+-- ... | ()
+RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) A⇒A'' B⇒B'' = 
+  ⊥-elim (𝔹≢B W (whrDet* (red 𝔹B' , 𝔹ₙ) (⇒*-comp (red B⇒B'') (red D) , ⟦ W ⟧ₙ)))
+RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (ne′ K D neK K≡K) A⇒A'' B⇒B'' = 
+  ⊥-elim (𝔹≢ne neK (whrDet* ((red 𝔹B') , 𝔹ₙ) (⇒*-comp (red B⇒B'') (red D) , ne neK)))
+RedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (ϝᵣ mε A⇒A' αA' tA fA) A⇒A'' B⇒B'' = 
+  ⊥-elim (𝔹≢αne αA' (whrDet* (red 𝔹B' , 𝔹ₙ) ( ⇒*-comp (red B⇒B'') (red A⇒A') , αₙ αA')))
 
-RedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Uᵣ UB) A⇒A'' B⇒B''
-  with whrDet* (red B⇒B'' , Uₙ) (red EmptyB' , Emptyₙ)
-... | ()
-RedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ℕᵣ ℕB) A⇒A'' B⇒B''
-  with whrDet* (⇒*-comp (red B⇒B'') (red ℕB) , ℕₙ) (red EmptyB' , Emptyₙ)
-... | ()
-RedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Unitᵣ UnitB) A⇒A'' B⇒B''
-  with whrDet* (⇒*-comp (red B⇒B'') (red UnitB) , Unitₙ) (red EmptyB' , Emptyₙ)
-... | ()
-RedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) A⇒A'' B⇒B'' =
-  ⊥-elim (Empty≢B W (whrDet* (red EmptyB' , Emptyₙ) (⇒*-comp (red B⇒B'') (red D) , ⟦ W ⟧ₙ)))
-RedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ne′ K D neK K≡K) A⇒A'' B⇒B'' =
-  ⊥-elim (Empty≢ne neK (whrDet* ((red EmptyB') , Emptyₙ) (⇒*-comp (red B⇒B'') (red D) , ne neK)))
-RedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ϝᵣ mε A⇒A' αA' tA fA) A⇒A'' B⇒B'' =
-  ⊥-elim (Empty≢αne αA' (whrDet* (red EmptyB' , Emptyₙ) ( ⇒*-comp (red B⇒B'') (red A⇒A') , αₙ αA')))
+-- -- Empty
+-- RedShapeView (Emptyᵥ EmptyA' EmptyB') (Uᵣ UA) [B'] A⇒A'' B⇒B''
+--   with whrDet* (red A⇒A'' , Uₙ) (red EmptyA' , Emptyₙ)
+-- ... | ()
+-- RedShapeView (Emptyᵥ EmptyA' EmptyB') (ℕᵣ ℕA) [B'] A⇒A'' B⇒B'' 
+--   with whrDet* (⇒*-comp (red A⇒A'') (red ℕA) , ℕₙ) (red EmptyA' , Emptyₙ)
+-- ... | ()
+-- RedShapeView (Emptyᵥ EmptyA' EmptyB') (Unitᵣ UnitA) [B'] A⇒A'' B⇒B''
+--   with whrDet* (⇒*-comp (red A⇒A'') (red UnitA) , Unitₙ) (red EmptyA' , Emptyₙ)
+-- ... | ()
+-- RedShapeView (Emptyᵥ EmptyA' EmptyB') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] A⇒A'' B⇒B'' =
+--  ⊥-elim (Empty≢B W (whrDet* (red EmptyA' , Emptyₙ) (⇒*-comp (red A⇒A'') (red D') , ⟦ W ⟧ₙ)))
+-- RedShapeView (Emptyᵥ EmptyA' EmptyB') (ne′ K D neK K≡K) [B'] A⇒A'' B⇒B'' =
+--   ⊥-elim (Empty≢ne neK (whrDet* ((red EmptyA') , Emptyₙ) (⇒*-comp (red A⇒A'') (red D) , ne neK)))
+-- RedShapeView (Emptyᵥ EmptyA' EmptyB') (ϝᵣ mε A⇒A' αA' tA fA) [B'] A⇒A'' B⇒B'' = 
+--   ⊥-elim (Empty≢αne αA' (whrDet* (red EmptyA' , Emptyₙ) ( ⇒*-comp (red A⇒A'') (red A⇒A') , αₙ αA')))
+
+-- RedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Uᵣ UB) A⇒A'' B⇒B''
+--   with whrDet* (red B⇒B'' , Uₙ) (red EmptyB' , Emptyₙ)
+-- ... | ()
+-- RedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ℕᵣ ℕB) A⇒A'' B⇒B''
+--   with whrDet* (⇒*-comp (red B⇒B'') (red ℕB) , ℕₙ) (red EmptyB' , Emptyₙ)
+-- ... | ()
+-- RedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Unitᵣ UnitB) A⇒A'' B⇒B''
+--   with whrDet* (⇒*-comp (red B⇒B'') (red UnitB) , Unitₙ) (red EmptyB' , Emptyₙ)
+-- ... | ()
+-- RedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) A⇒A'' B⇒B'' =
+--   ⊥-elim (Empty≢B W (whrDet* (red EmptyB' , Emptyₙ) (⇒*-comp (red B⇒B'') (red D) , ⟦ W ⟧ₙ)))
+-- RedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ne′ K D neK K≡K) A⇒A'' B⇒B'' =
+--   ⊥-elim (Empty≢ne neK (whrDet* ((red EmptyB') , Emptyₙ) (⇒*-comp (red B⇒B'') (red D) , ne neK)))
+-- RedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ϝᵣ mε A⇒A' αA' tA fA) A⇒A'' B⇒B'' =
+--   ⊥-elim (Empty≢αne αA' (whrDet* (red EmptyB' , Emptyₙ) ( ⇒*-comp (red B⇒B'') (red A⇒A') , αₙ αA')))
 
 
--- Unit
-RedShapeView (Unitᵥ UnitA' UnitB')  (Uᵣ UA) [B'] A⇒A'' B⇒B''
-  with whrDet* (red A⇒A'' , Uₙ) (red UnitA' , Unitₙ)
-... | ()
-RedShapeView (Unitᵥ UnitA' UnitB') (ℕᵣ ℕA) [B'] A⇒A'' B⇒B''
-  with whrDet* (red UnitA' , Unitₙ) (⇒*-comp (red A⇒A'') (red ℕA) , ℕₙ) 
-... | ()
-RedShapeView (Unitᵥ UnitA' UnitB') (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B''
-  with whrDet* (red UnitA' , Unitₙ) (⇒*-comp (red A⇒A'') (red EmptyA) , Emptyₙ) 
-... | ()
-RedShapeView (Unitᵥ UnitA' UnitB') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] A⇒A'' B⇒B'' = 
- ⊥-elim (Unit≢B W (whrDet* (red UnitA' , Unitₙ) (⇒*-comp (red A⇒A'') (red D') , ⟦ W ⟧ₙ)))
-RedShapeView (Unitᵥ UnitA' UnitB') (ne′ K D neK K≡K) [B'] A⇒A'' B⇒B'' =
-  ⊥-elim (Unit≢ne neK (whrDet* ((red UnitA') , Unitₙ) (⇒*-comp (red A⇒A'') (red D) , ne neK)))
-RedShapeView (Unitᵥ UnitA' UnitB') (ϝᵣ mε A⇒A' αA' tA fA) [B'] A⇒A'' B⇒B'' =
-  ⊥-elim (Unit≢αne αA' (whrDet* (red UnitA' , Unitₙ) ( ⇒*-comp (red A⇒A'') (red A⇒A') , αₙ αA')))
+-- -- Unit
+-- RedShapeView (Unitᵥ UnitA' UnitB')  (Uᵣ UA) [B'] A⇒A'' B⇒B''
+--   with whrDet* (red A⇒A'' , Uₙ) (red UnitA' , Unitₙ)
+-- ... | ()
+-- RedShapeView (Unitᵥ UnitA' UnitB') (ℕᵣ ℕA) [B'] A⇒A'' B⇒B''
+--   with whrDet* (red UnitA' , Unitₙ) (⇒*-comp (red A⇒A'') (red ℕA) , ℕₙ) 
+-- ... | ()
+-- RedShapeView (Unitᵥ UnitA' UnitB') (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B''
+--   with whrDet* (red UnitA' , Unitₙ) (⇒*-comp (red A⇒A'') (red EmptyA) , Emptyₙ) 
+-- ... | ()
+-- RedShapeView (Unitᵥ UnitA' UnitB') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] A⇒A'' B⇒B'' = 
+--  ⊥-elim (Unit≢B W (whrDet* (red UnitA' , Unitₙ) (⇒*-comp (red A⇒A'') (red D') , ⟦ W ⟧ₙ)))
+-- RedShapeView (Unitᵥ UnitA' UnitB') (ne′ K D neK K≡K) [B'] A⇒A'' B⇒B'' =
+--   ⊥-elim (Unit≢ne neK (whrDet* ((red UnitA') , Unitₙ) (⇒*-comp (red A⇒A'') (red D) , ne neK)))
+-- RedShapeView (Unitᵥ UnitA' UnitB') (ϝᵣ mε A⇒A' αA' tA fA) [B'] A⇒A'' B⇒B'' =
+--   ⊥-elim (Unit≢αne αA' (whrDet* (red UnitA' , Unitₙ) ( ⇒*-comp (red A⇒A'') (red A⇒A') , αₙ αA')))
 
-RedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Uᵣ UB) A⇒A'' B⇒B''
-  with whrDet* (red B⇒B'' , Uₙ) (red UnitB' , Unitₙ)
-... | ()
-RedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ℕᵣ ℕB) A⇒A'' B⇒B''
-  with whrDet* (red UnitB' , Unitₙ) (⇒*-comp (red B⇒B'') (red ℕB) , ℕₙ) 
-... | ()
-RedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Emptyᵣ D) A⇒A'' B⇒B'' 
-  with whrDet* (red UnitB' , Unitₙ) (⇒*-comp (red B⇒B'') (red D) , Emptyₙ) 
-... | ()
-RedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) A⇒A'' B⇒B'' =
- ⊥-elim (Unit≢B W (whrDet* (red UnitB' , Unitₙ) (⇒*-comp (red B⇒B'') (red D) , ⟦ W ⟧ₙ)))
-RedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ne′ K D neK K≡K) A⇒A'' B⇒B'' =
-  ⊥-elim (Unit≢ne neK (whrDet* ((red UnitB') , Unitₙ) (⇒*-comp (red B⇒B'') (red D) , ne neK)))
-RedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ϝᵣ mε A⇒A' αA' tA fA) A⇒A'' B⇒B'' =
-  ⊥-elim (Unit≢αne αA' (whrDet* (red UnitB' , Unitₙ) ( ⇒*-comp (red B⇒B'') (red A⇒A') , αₙ αA')))
+-- RedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Uᵣ UB) A⇒A'' B⇒B''
+--   with whrDet* (red B⇒B'' , Uₙ) (red UnitB' , Unitₙ)
+-- ... | ()
+-- RedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ℕᵣ ℕB) A⇒A'' B⇒B''
+--   with whrDet* (red UnitB' , Unitₙ) (⇒*-comp (red B⇒B'') (red ℕB) , ℕₙ) 
+-- ... | ()
+-- RedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Emptyᵣ D) A⇒A'' B⇒B'' 
+--   with whrDet* (red UnitB' , Unitₙ) (⇒*-comp (red B⇒B'') (red D) , Emptyₙ) 
+-- ... | ()
+-- RedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) A⇒A'' B⇒B'' =
+--  ⊥-elim (Unit≢B W (whrDet* (red UnitB' , Unitₙ) (⇒*-comp (red B⇒B'') (red D) , ⟦ W ⟧ₙ)))
+-- RedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ne′ K D neK K≡K) A⇒A'' B⇒B'' =
+--   ⊥-elim (Unit≢ne neK (whrDet* ((red UnitB') , Unitₙ) (⇒*-comp (red B⇒B'') (red D) , ne neK)))
+-- RedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ϝᵣ mε A⇒A' αA' tA fA) A⇒A'' B⇒B'' =
+--   ⊥-elim (Unit≢αne αA' (whrDet* (red UnitB' , Unitₙ) ( ⇒*-comp (red B⇒B'') (red A⇒A') , αₙ αA')))
 
 
 -- Σ and Π-types
@@ -422,10 +528,12 @@ RedShapeView (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) [A] (Uᵣ UB
   ⊥-elim (U≢B W (whrDet* (red B⇒B'' , Uₙ) (red D , ⟦ W ⟧ₙ)))
 RedShapeView (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (ℕᵣ ℕA) [B'] A⇒A'' B⇒B'' = 
  ⊥-elim (ℕ≢B W (whrDet* (⇒*-comp (red A⇒A'') (red ℕA) , ℕₙ) (red D , ⟦ W ⟧ₙ)))
-RedShapeView (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B'' =
- ⊥-elim (Empty≢B W (whrDet* (⇒*-comp (red A⇒A'') (red EmptyA) , Emptyₙ) (red D , ⟦ W ⟧ₙ)))
-RedShapeView (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (Unitᵣ UnitA) [B'] A⇒A'' B⇒B'' =
- ⊥-elim (Unit≢B W (whrDet* (⇒*-comp (red A⇒A'') (red UnitA) , Unitₙ) (red D , ⟦ W ⟧ₙ)))
+RedShapeView (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (𝔹ᵣ 𝔹A) [B'] A⇒A'' B⇒B'' = 
+ ⊥-elim (𝔹≢B W (whrDet* (⇒*-comp (red A⇒A'') (red 𝔹A) , 𝔹ₙ) (red D , ⟦ W ⟧ₙ)))
+-- RedShapeView (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B'' =
+--  ⊥-elim (Empty≢B W (whrDet* (⇒*-comp (red A⇒A'') (red EmptyA) , Emptyₙ) (red D , ⟦ W ⟧ₙ)))
+-- RedShapeView (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (Unitᵣ UnitA) [B'] A⇒A'' B⇒B'' =
+--  ⊥-elim (Unit≢B W (whrDet* (⇒*-comp (red A⇒A'') (red UnitA) , Unitₙ) (red D , ⟦ W ⟧ₙ)))
 RedShapeView (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (ne′ K' D' neK' K≡K') [B'] A⇒A'' B⇒B'' =
   ⊥-elim (B≢ne W neK' (whrDet* ((red D) , ⟦ W ⟧ₙ) (⇒*-comp (red A⇒A'') (red D') , ne neK')))
 RedShapeView (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (ϝᵣ mε A⇒A' αA' tA fA) [B'] A⇒A'' B⇒B'' =
@@ -446,10 +554,12 @@ RedShapeView (Bᵥ BΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB)
 
 RedShapeView (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (ℕᵣ ℕB) A⇒A'' B⇒B'' =
  ⊥-elim (ℕ≢B W (whrDet* (⇒*-comp (red B⇒B'') (red ℕB) , ℕₙ) (red D , ⟦ W ⟧ₙ)))
-RedShapeView (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (Emptyᵣ EmptyB) A⇒A'' B⇒B'' =
- ⊥-elim (Empty≢B W (whrDet* (⇒*-comp (red B⇒B'') (red EmptyB) , Emptyₙ) (red D , ⟦ W ⟧ₙ)))
-RedShapeView (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (Unitᵣ UnitB) A⇒A'' B⇒B'' =
- ⊥-elim (Unit≢B W (whrDet* (⇒*-comp (red B⇒B'') (red UnitB) , Unitₙ) (red D , ⟦ W ⟧ₙ)))
+RedShapeView (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (𝔹ᵣ 𝔹B) A⇒A'' B⇒B'' =
+ ⊥-elim (𝔹≢B W (whrDet* (⇒*-comp (red B⇒B'') (red 𝔹B) , 𝔹ₙ) (red D , ⟦ W ⟧ₙ)))
+-- RedShapeView (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (Emptyᵣ EmptyB) A⇒A'' B⇒B'' =
+-- ⊥-elim (Empty≢B W (whrDet* (⇒*-comp (red B⇒B'') (red EmptyB) , Emptyₙ) (red D , ⟦ W ⟧ₙ)))
+-- RedShapeView (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (Unitᵣ UnitB) A⇒A'' B⇒B'' =
+--  ⊥-elim (Unit≢B W (whrDet* (⇒*-comp (red B⇒B'') (red UnitB) , Unitₙ) (red D , ⟦ W ⟧ₙ)))
 RedShapeView (Bᵥ BΣ BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ BΣ BA')
              (Bᵣ′ BΠ F'' G'' D'' ⊢F'' ⊢G''w A≡A'' [F''] [G''] G-ext'') A⇒A'' B⇒B''
              with whrDet* (red D , ⟦ BΣ ⟧ₙ) (⇒*-comp (red B⇒B'') (red D'') , ⟦ BΠ ⟧ₙ)
@@ -475,10 +585,12 @@ RedShapeView (ne (ne K D () K≡K) neB) (Uᵣ UA) [B'] A⇒A'' B⇒B''
   | PE.refl 
 RedShapeView (ne (ne K D neK K≡K) neB) (ℕᵣ ℕA) [B'] A⇒A'' B⇒B'' =
   ⊥-elim (ℕ≢ne neK (whrDet* (⇒*-comp (red A⇒A'') (red ℕA) , ℕₙ) (red D , ne neK)))
-RedShapeView (ne (ne K D neK K≡K) neB) (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B'' =
-  ⊥-elim (Empty≢ne neK (whrDet* (⇒*-comp (red A⇒A'') (red EmptyA) , Emptyₙ) (red D , ne neK)))
-RedShapeView (ne (ne K D neK K≡K) neB) (Unitᵣ UnitA) [B'] A⇒A'' B⇒B'' =
-  ⊥-elim (Unit≢ne neK (whrDet* (⇒*-comp (red A⇒A'') (red UnitA) , Unitₙ) (red D , ne neK)))
+RedShapeView (ne (ne K D neK K≡K) neB) (𝔹ᵣ 𝔹A) [B'] A⇒A'' B⇒B'' =
+  ⊥-elim (𝔹≢ne neK (whrDet* (⇒*-comp (red A⇒A'') (red 𝔹A) , 𝔹ₙ) (red D , ne neK)))
+-- RedShapeView (ne (ne K D neK K≡K) neB) (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B'' =
+--  ⊥-elim (Empty≢ne neK (whrDet* (⇒*-comp (red A⇒A'') (red EmptyA) , Emptyₙ) (red D , ne neK)))
+-- RedShapeView (ne (ne K D neK K≡K) neB) (Unitᵣ UnitA) [B'] A⇒A'' B⇒B'' =
+--   ⊥-elim (Unit≢ne neK (whrDet* (⇒*-comp (red A⇒A'') (red UnitA) , Unitₙ) (red D , ne neK)))
 RedShapeView (ne (ne K D neK K≡K) neB) (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] A⇒A'' B⇒B'' =
   ⊥-elim (B≢ne W neK (whrDet* (⇒*-comp (red A⇒A'') (red D') , ⟦ W ⟧ₙ) (red D , ne neK)))
 RedShapeView (ne (ne K D neK K≡K) neB) (ϝᵣ mε A⇒A' αA' tA fA) [B'] A⇒A'' B⇒B'' =
@@ -490,10 +602,12 @@ RedShapeView (ne neA (ne K D () K≡K)) (ne neA') (Uᵣ UB) A⇒A'' B⇒B''
   | PE.refl 
 RedShapeView (ne neA (ne K D neK K≡K)) (ne neA') (ℕᵣ ℕB) A⇒A'' B⇒B'' =
   ⊥-elim (ℕ≢ne neK (whrDet* (⇒*-comp (red B⇒B'') (red ℕB) , ℕₙ) (red D , ne neK)))
-RedShapeView (ne neA (ne K D neK K≡K)) (ne neA') (Emptyᵣ EmptyB) A⇒A'' B⇒B'' =
-  ⊥-elim (Empty≢ne neK (whrDet* (⇒*-comp (red B⇒B'') (red EmptyB) , Emptyₙ) (red D , ne neK)))
-RedShapeView (ne neA (ne K D neK K≡K)) (ne neA') (Unitᵣ UnitB) A⇒A'' B⇒B'' =
-  ⊥-elim (Unit≢ne neK (whrDet* (⇒*-comp (red B⇒B'') (red UnitB) , Unitₙ) (red D , ne neK)))
+RedShapeView (ne neA (ne K D neK K≡K)) (ne neA') (𝔹ᵣ 𝔹B) A⇒A'' B⇒B'' =
+  ⊥-elim (𝔹≢ne neK (whrDet* (⇒*-comp (red B⇒B'') (red 𝔹B) , 𝔹ₙ) (red D , ne neK)))
+-- RedShapeView (ne neA (ne K D neK K≡K)) (ne neA') (Emptyᵣ EmptyB) A⇒A'' B⇒B'' =
+--   ⊥-elim (Empty≢ne neK (whrDet* (⇒*-comp (red B⇒B'') (red EmptyB) , Emptyₙ) (red D , ne neK)))
+-- RedShapeView (ne neA (ne K D neK K≡K)) (ne neA') (Unitᵣ UnitB) A⇒A'' B⇒B'' =
+--   ⊥-elim (Unit≢ne neK (whrDet* (⇒*-comp (red B⇒B'') (red UnitB) , Unitₙ) (red D , ne neK)))
 RedShapeView (ne neA (ne K D neK K≡K)) (ne neA') (Bᵣ′ W F G D'' ⊢F ⊢G A≡A [F] [G] G-ext) A⇒A'' B⇒B'' =
   ⊥-elim (B≢ne W neK (whrDet* (⇒*-comp (red B⇒B'') (red D'') , ⟦ W ⟧ₙ) (red D , ne neK)))
 RedShapeView (ne neA (ne K D neK K≡K)) (ne neA') (ϝᵣ mε A⇒A' αA' tA fA) A⇒A'' B⇒B'' =
@@ -504,10 +618,12 @@ RedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Uᵣ UA) [B']
   ⊥-elim (U≢αne αA (whrDet* (red A⇒A'' , Uₙ) (red A⇒A' , αₙ αA)))
 RedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (ℕᵣ ℕA) [B'] A⇒A'' B⇒B'' =
   ⊥-elim (ℕ≢αne αA (whrDet* (red ℕA , ℕₙ) (whrDet↘ (red A⇒A' , αₙ αA) (red A⇒A'') , αₙ αA)))
-RedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Emptyᵣ D) [B'] A⇒A'' B⇒B'' =
-  ⊥-elim (Empty≢αne αA (whrDet* (red D , Emptyₙ) (whrDet↘ (red A⇒A' , αₙ αA) (red A⇒A'') , αₙ αA)))
-RedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Unitᵣ D) [B'] A⇒A'' B⇒B'' =
-  ⊥-elim (Unit≢αne αA (whrDet* (red D , Unitₙ) (whrDet↘ (red A⇒A' , αₙ αA) (red A⇒A'') , αₙ αA)))
+RedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (𝔹ᵣ 𝔹A) [B'] A⇒A'' B⇒B'' =
+  ⊥-elim (𝔹≢αne αA (whrDet* (red 𝔹A , 𝔹ₙ) (whrDet↘ (red A⇒A' , αₙ αA) (red A⇒A'') , αₙ αA)))
+-- RedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Emptyᵣ D) [B'] A⇒A'' B⇒B'' =
+--   ⊥-elim (Empty≢αne αA (whrDet* (red D , Emptyₙ) (whrDet↘ (red A⇒A' , αₙ αA) (red A⇒A'') , αₙ αA)))
+-- RedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Unitᵣ D) [B'] A⇒A'' B⇒B'' =
+--   ⊥-elim (Unit≢αne αA (whrDet* (red D , Unitₙ) (whrDet↘ (red A⇒A' , αₙ αA) (red A⇒A'') , αₙ αA)))
 RedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) [B'] A⇒A'' B⇒B'' =
   ⊥-elim (B≢αne W αA (whrDet* (red D , ⟦ W ⟧ₙ) (whrDet↘ (red A⇒A' , αₙ αA) (red A⇒A'') , αₙ αA)))
 RedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (ne′ K D₁ neK K≡K) [B'] A⇒A'' B⇒B'' =
@@ -517,10 +633,12 @@ RedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (Uᵣ UB)
   ⊥-elim (U≢αne αB (whrDet* (red B⇒B'' , Uₙ) (red B⇒B' , αₙ αB)))
 RedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (ℕᵣ ℕB) A⇒A'' B⇒B'' =
   ⊥-elim (ℕ≢αne αB (whrDet* (red ℕB , ℕₙ) (whrDet↘ (red B⇒B' , αₙ αB) (red B⇒B'') , αₙ αB)))
-RedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (Emptyᵣ D) A⇒A'' B⇒B'' =
-  ⊥-elim (Empty≢αne αB (whrDet* (red D , Emptyₙ) (whrDet↘ (red B⇒B' , αₙ αB) (red B⇒B'') , αₙ αB)))
-RedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (Unitᵣ D) A⇒A'' B⇒B'' =
-  ⊥-elim (Unit≢αne αB (whrDet* (red D , Unitₙ) (whrDet↘ (red B⇒B' , αₙ αB) (red B⇒B'') , αₙ αB)))
+RedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (𝔹ᵣ 𝔹B) A⇒A'' B⇒B'' =
+  ⊥-elim (𝔹≢αne αB (whrDet* (red 𝔹B , 𝔹ₙ) (whrDet↘ (red B⇒B' , αₙ αB) (red B⇒B'') , αₙ αB)))
+-- RedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (Emptyᵣ D) A⇒A'' B⇒B'' =
+--   ⊥-elim (Empty≢αne αB (whrDet* (red D , Emptyₙ) (whrDet↘ (red B⇒B' , αₙ αB) (red B⇒B'') , αₙ αB)))
+-- RedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (Unitᵣ D) A⇒A'' B⇒B'' =
+--  ⊥-elim (Unit≢αne αB (whrDet* (red D , Unitₙ) (whrDet↘ (red B⇒B' , αₙ αB) (red B⇒B'') , αₙ αB)))
 RedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) A⇒A'' B⇒B'' =
   ⊥-elim (B≢αne W αB (whrDet* (red D , ⟦ W ⟧ₙ) (whrDet↘ (red B⇒B' , αₙ αB) (red B⇒B'') , αₙ αB)))
 RedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (ne′ K D₁ neK K≡K) A⇒A'' B⇒B'' =
@@ -543,8 +661,9 @@ AntiRedShapeView (Uᵥ UA UB) [A]' [B]' A⇒U B⇒U
 
 -- Diagonal cases
 AntiRedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (ℕᵣ ℕB) A⇒A'' B⇒B'' = ℕᵥ ℕA ℕB
-AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Emptyᵣ EmptyB) A⇒A'' B⇒B'' = Emptyᵥ EmptyA EmptyB
-AntiRedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Unitᵣ UnitB) A⇒A'' B⇒B'' = Unitᵥ UnitA UnitB
+AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (𝔹ᵣ 𝔹B) A⇒A'' B⇒B'' = 𝔹ᵥ 𝔹A 𝔹B
+-- AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Emptyᵣ EmptyB) A⇒A'' B⇒B'' = Emptyᵥ EmptyA EmptyB
+-- AntiRedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Unitᵣ UnitB) A⇒A'' B⇒B'' = Unitᵥ UnitA UnitB
 AntiRedShapeView (Bᵥ BΠ BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext))
              (Bᵣ′ BΠ F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext')
              (Bᵣ′ BΠ F'' G'' D'' ⊢F'' ⊢G'' A≡A'' [F''] [G''] G-ext'') A⇒A'' B⇒B'' =
@@ -591,12 +710,15 @@ AntiRedShapeView (ℕᵥ ℕA' ℕB') (Uᵣ UA) [B'] A⇒A'' B⇒B''
   | PE.refl with whrDet* ( red (idRed:*: (⊢A-red ℕA')) , Uₙ) (red ℕA' , ℕₙ)
 AntiRedShapeView (ℕᵥ ℕA' ℕB') (Uᵣ UA) [B'] A⇒A'' B⇒B''
   | PE.refl | ()
-AntiRedShapeView (ℕᵥ ℕA' ℕB') (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B'' 
-  with whrDet* ( whrDet↘ (red EmptyA , Emptyₙ) (red A⇒A'') , Emptyₙ) (red ℕA' , ℕₙ)
+AntiRedShapeView (ℕᵥ ℕA' ℕB') (𝔹ᵣ 𝔹A) [B'] A⇒A'' B⇒B'' 
+  with whrDet* ( whrDet↘ (red 𝔹A , 𝔹ₙ) (red A⇒A'') , 𝔹ₙ) (red ℕA' , ℕₙ)
 ... | ()
-AntiRedShapeView (ℕᵥ ℕA' ℕB') (Unitᵣ UnitA) [B'] A⇒A'' B⇒B''
-  with whrDet* ( whrDet↘ (red UnitA , Unitₙ) (red A⇒A'') , Unitₙ) (red ℕA' , ℕₙ)
-... | ()
+-- AntiRedShapeView (ℕᵥ ℕA' ℕB') (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B'' 
+--   with whrDet* ( whrDet↘ (red EmptyA , Emptyₙ) (red A⇒A'') , Emptyₙ) (red ℕA' , ℕₙ)
+-- ... | ()
+-- AntiRedShapeView (ℕᵥ ℕA' ℕB') (Unitᵣ UnitA) [B'] A⇒A'' B⇒B''
+--   with whrDet* ( whrDet↘ (red UnitA , Unitₙ) (red A⇒A'') , Unitₙ) (red ℕA' , ℕₙ)
+-- ... | ()
 AntiRedShapeView (ℕᵥ ℕA' ℕB') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] A⇒A'' B⇒B'' =
   ⊥-elim (ℕ≢B W (whrDet* (red ℕA' , ℕₙ) ( whrDet↘ (red D' , ⟦ W ⟧ₙ) (red A⇒A'') , ⟦ W ⟧ₙ)))
 AntiRedShapeView (ℕᵥ ℕA' ℕB') (ne′ K D neK K≡K) [B'] A⇒A'' B⇒B'' = 
@@ -608,12 +730,15 @@ AntiRedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Uᵣ UB) A⇒A'' B⇒B''
   with whrDet* ( id (escape (Uᵣ UB)) , Uₙ) (⇒*-comp (red B⇒B'') (red ℕB') , ℕₙ)
 AntiRedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Uᵣ UB) A⇒A'' B⇒B''
   | ()
-AntiRedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Emptyᵣ D) A⇒A'' B⇒B''
-  with whrDet* ( whrDet↘ (red D , Emptyₙ) (red B⇒B'') , Emptyₙ) (red ℕB' , ℕₙ)
+AntiRedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (𝔹ᵣ D) A⇒A'' B⇒B''
+  with whrDet* ( whrDet↘ (red D , 𝔹ₙ) (red B⇒B'') , 𝔹ₙ) (red ℕB' , ℕₙ)
 ... | ()
-AntiRedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Unitᵣ D) A⇒A'' B⇒B''
-  with whrDet* ( whrDet↘ (red D , Unitₙ) (red B⇒B'') , Unitₙ) (red ℕB' , ℕₙ)
-... | ()
+-- AntiRedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Emptyᵣ D) A⇒A'' B⇒B''
+--   with whrDet* ( whrDet↘ (red D , Emptyₙ) (red B⇒B'') , Emptyₙ) (red ℕB' , ℕₙ)
+-- ... | ()
+-- AntiRedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Unitᵣ D) A⇒A'' B⇒B''
+--   with whrDet* ( whrDet↘ (red D , Unitₙ) (red B⇒B'') , Unitₙ) (red ℕB' , ℕₙ)
+-- ... | ()
 AntiRedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) A⇒A'' B⇒B'' = 
   ⊥-elim (ℕ≢B W (whrDet* (red ℕB' , ℕₙ) ( whrDet↘ (red D , ⟦ W ⟧ₙ) (red B⇒B'') , ⟦ W ⟧ₙ)))
 AntiRedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (ne′ K D neK K≡K) A⇒A'' B⇒B'' = 
@@ -621,72 +746,116 @@ AntiRedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (ne′ K D neK K≡K) A⇒A'
 AntiRedShapeView (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (ϝᵣ mε A⇒A' αA' tA fA) A⇒A'' B⇒B'' = 
   ⊥-elim (ℕ≢αne αA' (whrDet* (red ℕB' , ℕₙ) ( whrDet↘ (red A⇒A' , αₙ αA') (red B⇒B'') , αₙ αA')))
 
--- Empty
-AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Uᵣ UA) [B'] A⇒A'' B⇒B''
-  with whrDet* ( id (escape (Uᵣ UA)) , Uₙ) (⇒*-comp (red A⇒A'') (red EmptyA') , Emptyₙ)
+-- ℕ
+AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (Uᵣ UA) [B'] A⇒A'' B⇒B''
+  with whnfRed* (red A⇒A'') Uₙ 
+AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (Uᵣ UA) [B'] A⇒A'' B⇒B''
+  | PE.refl with whrDet* ( red (idRed:*: (⊢A-red 𝔹A')) , Uₙ) (red 𝔹A' , 𝔹ₙ)
+AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (Uᵣ UA) [B'] A⇒A'' B⇒B''
+  | PE.refl | ()
+AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (ℕᵣ ℕA) [B'] A⇒A'' B⇒B'' 
+  with whrDet* ( whrDet↘ (red ℕA , ℕₙ) (red A⇒A'') , ℕₙ) (red 𝔹A' , 𝔹ₙ)
 ... | ()
-AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (ℕᵣ ℕA) [B'] A⇒A'' B⇒B'' 
-  with whrDet* ( whrDet↘ (red ℕA , ℕₙ) (red A⇒A'') , ℕₙ) (red EmptyA' , Emptyₙ)
-... | ()
-AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Unitᵣ UnitA) [B'] A⇒A'' B⇒B''
-  with whrDet* ( whrDet↘ (red UnitA , Unitₙ) (red A⇒A'') , Unitₙ) (red EmptyA' , Emptyₙ)
-... | ()
-AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] A⇒A'' B⇒B'' =
- ⊥-elim (Empty≢B W (whrDet* (red EmptyA' , Emptyₙ) ( whrDet↘ (red D' , ⟦ W ⟧ₙ) (red A⇒A'') , ⟦ W ⟧ₙ)))
-AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (ne′ K D neK K≡K) [B'] A⇒A'' B⇒B'' =
-  ⊥-elim (Empty≢ne neK (whrDet* ((red EmptyA') , Emptyₙ) ( whrDet↘ (red D , ne neK) (red A⇒A'') , ne neK)))
-AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (ϝᵣ mε A⇒A' αA' tA fA) [B'] A⇒A'' B⇒B'' = 
-  ⊥-elim (Empty≢αne αA' (whrDet* (red EmptyA' , Emptyₙ) ( whrDet↘ (red A⇒A' , αₙ αA') (red A⇒A'') , αₙ αA')))
+-- AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B'' 
+--   with whrDet* ( whrDet↘ (red EmptyA , Emptyₙ) (red A⇒A'') , Emptyₙ) (red 𝔹A' , 𝔹ₙ)
+-- ... | ()
+-- AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (Unitᵣ UnitA) [B'] A⇒A'' B⇒B''
+--   with whrDet* ( whrDet↘ (red UnitA , Unitₙ) (red A⇒A'') , Unitₙ) (red 𝔹A' , 𝔹ₙ)
+-- ... | ()
+AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] A⇒A'' B⇒B'' =
+  ⊥-elim (𝔹≢B W (whrDet* (red 𝔹A' , 𝔹ₙ) ( whrDet↘ (red D' , ⟦ W ⟧ₙ) (red A⇒A'') , ⟦ W ⟧ₙ)))
+AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (ne′ K D neK K≡K) [B'] A⇒A'' B⇒B'' = 
+  ⊥-elim (𝔹≢ne neK (whrDet* ((red 𝔹A') , 𝔹ₙ) ( whrDet↘ (red D , ne neK) (red A⇒A'') , ne neK)))
+AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (ϝᵣ mε A⇒A' αA' tA fA) [B'] A⇒A'' B⇒B'' =
+  ⊥-elim (𝔹≢αne αA' (whrDet* (red 𝔹A' , 𝔹ₙ) ( whrDet↘ (red A⇒A' , αₙ αA') (red A⇒A'') , αₙ αA')))
 
-AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Uᵣ UB) A⇒A'' B⇒B''
-  with whrDet* ( id (escape (Uᵣ UB)) , Uₙ) (⇒*-comp (red B⇒B'') (red EmptyB') , Emptyₙ)
+AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (Uᵣ UB) A⇒A'' B⇒B''
+  with whrDet* ( id (escape (Uᵣ UB)) , Uₙ) (⇒*-comp (red B⇒B'') (red 𝔹B') , 𝔹ₙ)
+AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (Uᵣ UB) A⇒A'' B⇒B''
+  | ()
+AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (ℕᵣ D) A⇒A'' B⇒B''
+  with whrDet* ( whrDet↘ (red D , ℕₙ) (red B⇒B'') , ℕₙ) (red 𝔹B' , 𝔹ₙ)
 ... | ()
-AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ℕᵣ ℕB) A⇒A'' B⇒B''
-  with whrDet* ( whrDet↘ (red ℕB , ℕₙ) (red B⇒B'') , ℕₙ) (red EmptyB' , Emptyₙ)
-... | ()
-AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Unitᵣ UnitB) A⇒A'' B⇒B''
-  with whrDet* ( whrDet↘ (red UnitB , Unitₙ) (red B⇒B'') , Unitₙ) (red EmptyB' , Emptyₙ)
-... | ()
-AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) A⇒A'' B⇒B'' =
-  ⊥-elim (Empty≢B W (whrDet* (red EmptyB' , Emptyₙ) ( whrDet↘ (red D , ⟦ W ⟧ₙ) (red B⇒B'') , ⟦ W ⟧ₙ)))
-AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ne′ K D neK K≡K) A⇒A'' B⇒B'' =
-  ⊥-elim (Empty≢ne neK (whrDet* ((red EmptyB') , Emptyₙ) ( whrDet↘ (red D , ne neK) (red B⇒B'') , ne neK)))
-AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ϝᵣ mε A⇒A' αA' tA fA) A⇒A'' B⇒B'' =
-  ⊥-elim (Empty≢αne αA' (whrDet* (red EmptyB' , Emptyₙ) ( whrDet↘ (red A⇒A' , αₙ αA') (red B⇒B'') , αₙ αA')))
+-- AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (Emptyᵣ D) A⇒A'' B⇒B''
+--   with whrDet* ( whrDet↘ (red D , Emptyₙ) (red B⇒B'') , Emptyₙ) (red 𝔹B' , 𝔹ₙ)
+-- ... | ()
+-- AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (Unitᵣ D) A⇒A'' B⇒B''
+--   with whrDet* ( whrDet↘ (red D , Unitₙ) (red B⇒B'') , Unitₙ) (red 𝔹B' , 𝔹ₙ)
+-- ... | ()
+AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) A⇒A'' B⇒B'' = 
+  ⊥-elim (𝔹≢B W (whrDet* (red 𝔹B' , 𝔹ₙ) ( whrDet↘ (red D , ⟦ W ⟧ₙ) (red B⇒B'') , ⟦ W ⟧ₙ)))
+AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (ne′ K D neK K≡K) A⇒A'' B⇒B'' = 
+  ⊥-elim (𝔹≢ne neK (whrDet* ((red 𝔹B') , 𝔹ₙ) ( whrDet↘ (red D , ne neK) (red B⇒B'') , ne neK)))
+AntiRedShapeView (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (ϝᵣ mε A⇒A' αA' tA fA) A⇒A'' B⇒B'' = 
+  ⊥-elim (𝔹≢αne αA' (whrDet* (red 𝔹B' , 𝔹ₙ) ( whrDet↘ (red A⇒A' , αₙ αA') (red B⇒B'') , αₙ αA')))
 
 
--- Unit
-AntiRedShapeView (Unitᵥ UnitA' UnitB')  (Uᵣ UA) [B'] A⇒A'' B⇒B''
-  with whrDet* ( id (escape (Uᵣ UA)) , Uₙ) (⇒*-comp (red A⇒A'') (red UnitA') , Unitₙ)
-... | ()
-AntiRedShapeView (Unitᵥ UnitA' UnitB') (ℕᵣ ℕA) [B'] A⇒A'' B⇒B''
-  with whrDet* (red UnitA' , Unitₙ) ( whrDet↘ (red ℕA , ℕₙ) (red A⇒A'') , ℕₙ) 
-... | ()
-AntiRedShapeView (Unitᵥ UnitA' UnitB') (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B''
-  with whrDet* (red UnitA' , Unitₙ) ( whrDet↘ (red EmptyA , Emptyₙ) (red A⇒A'') , Emptyₙ) 
-... | ()
-AntiRedShapeView (Unitᵥ UnitA' UnitB') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] A⇒A'' B⇒B'' = 
- ⊥-elim (Unit≢B W (whrDet* (red UnitA' , Unitₙ) ( whrDet↘ (red D' , ⟦ W ⟧ₙ) (red A⇒A'') , ⟦ W ⟧ₙ)))
-AntiRedShapeView (Unitᵥ UnitA' UnitB') (ne′ K D neK K≡K) [B'] A⇒A'' B⇒B'' =
-  ⊥-elim (Unit≢ne neK (whrDet* ((red UnitA') , Unitₙ) ( whrDet↘ (red D , ne neK) (red A⇒A'') , ne neK)))
-AntiRedShapeView (Unitᵥ UnitA' UnitB') (ϝᵣ mε A⇒A' αA' tA fA) [B'] A⇒A'' B⇒B'' =
-  ⊥-elim (Unit≢αne αA' (whrDet* (red UnitA' , Unitₙ) ( whrDet↘ (red A⇒A' , αₙ αA') (red A⇒A'') , αₙ αA')))
+-- -- Empty
+-- AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Uᵣ UA) [B'] A⇒A'' B⇒B''
+--   with whrDet* ( id (escape (Uᵣ UA)) , Uₙ) (⇒*-comp (red A⇒A'') (red EmptyA') , Emptyₙ)
+-- ... | ()
+-- AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (ℕᵣ ℕA) [B'] A⇒A'' B⇒B'' 
+--   with whrDet* ( whrDet↘ (red ℕA , ℕₙ) (red A⇒A'') , ℕₙ) (red EmptyA' , Emptyₙ)
+-- ... | ()
+-- AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Unitᵣ UnitA) [B'] A⇒A'' B⇒B''
+--   with whrDet* ( whrDet↘ (red UnitA , Unitₙ) (red A⇒A'') , Unitₙ) (red EmptyA' , Emptyₙ)
+-- ... | ()
+-- AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] A⇒A'' B⇒B'' =
+--  ⊥-elim (Empty≢B W (whrDet* (red EmptyA' , Emptyₙ) ( whrDet↘ (red D' , ⟦ W ⟧ₙ) (red A⇒A'') , ⟦ W ⟧ₙ)))
+-- AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (ne′ K D neK K≡K) [B'] A⇒A'' B⇒B'' =
+--   ⊥-elim (Empty≢ne neK (whrDet* ((red EmptyA') , Emptyₙ) ( whrDet↘ (red D , ne neK) (red A⇒A'') , ne neK)))
+-- AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (ϝᵣ mε A⇒A' αA' tA fA) [B'] A⇒A'' B⇒B'' = 
+--   ⊥-elim (Empty≢αne αA' (whrDet* (red EmptyA' , Emptyₙ) ( whrDet↘ (red A⇒A' , αₙ αA') (red A⇒A'') , αₙ αA')))
 
-AntiRedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Uᵣ UB) A⇒A'' B⇒B''
-  with whrDet* ( id (escape (Uᵣ UB)) , Uₙ) (⇒*-comp (red B⇒B'') (red UnitB') , Unitₙ)
-... | ()
-AntiRedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ℕᵣ ℕB) A⇒A'' B⇒B''
-  with whrDet* (red UnitB' , Unitₙ) ( whrDet↘ (red ℕB , ℕₙ) (red B⇒B'') , ℕₙ) 
-... | ()
-AntiRedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Emptyᵣ D) A⇒A'' B⇒B'' 
-  with whrDet* (red UnitB' , Unitₙ) ( whrDet↘ (red D , Emptyₙ) (red B⇒B'') , Emptyₙ) 
-... | ()
-AntiRedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) A⇒A'' B⇒B'' =
- ⊥-elim (Unit≢B W (whrDet* (red UnitB' , Unitₙ) ( whrDet↘ (red D , ⟦ W ⟧ₙ) (red B⇒B'') , ⟦ W ⟧ₙ)))
-AntiRedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ne′ K D neK K≡K) A⇒A'' B⇒B'' =
-  ⊥-elim (Unit≢ne neK (whrDet* ((red UnitB') , Unitₙ) ( whrDet↘ (red D , ne neK) (red B⇒B'') , ne neK)))
-AntiRedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ϝᵣ mε A⇒A' αA' tA fA) A⇒A'' B⇒B'' =
-  ⊥-elim (Unit≢αne αA' (whrDet* (red UnitB' , Unitₙ) ( whrDet↘ (red A⇒A' , αₙ αA') (red B⇒B'') , αₙ αA')))
+-- AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Uᵣ UB) A⇒A'' B⇒B''
+--   with whrDet* ( id (escape (Uᵣ UB)) , Uₙ) (⇒*-comp (red B⇒B'') (red EmptyB') , Emptyₙ)
+-- ... | ()
+-- AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ℕᵣ ℕB) A⇒A'' B⇒B''
+--   with whrDet* ( whrDet↘ (red ℕB , ℕₙ) (red B⇒B'') , ℕₙ) (red EmptyB' , Emptyₙ)
+-- ... | ()
+-- AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Unitᵣ UnitB) A⇒A'' B⇒B''
+--   with whrDet* ( whrDet↘ (red UnitB , Unitₙ) (red B⇒B'') , Unitₙ) (red EmptyB' , Emptyₙ)
+-- ... | ()
+-- AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) A⇒A'' B⇒B'' =
+--   ⊥-elim (Empty≢B W (whrDet* (red EmptyB' , Emptyₙ) ( whrDet↘ (red D , ⟦ W ⟧ₙ) (red B⇒B'') , ⟦ W ⟧ₙ)))
+-- AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ne′ K D neK K≡K) A⇒A'' B⇒B'' =
+--   ⊥-elim (Empty≢ne neK (whrDet* ((red EmptyB') , Emptyₙ) ( whrDet↘ (red D , ne neK) (red B⇒B'') , ne neK)))
+-- AntiRedShapeView (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ϝᵣ mε A⇒A' αA' tA fA) A⇒A'' B⇒B'' =
+--   ⊥-elim (Empty≢αne αA' (whrDet* (red EmptyB' , Emptyₙ) ( whrDet↘ (red A⇒A' , αₙ αA') (red B⇒B'') , αₙ αA')))
+
+
+-- -- Unit
+-- AntiRedShapeView (Unitᵥ UnitA' UnitB')  (Uᵣ UA) [B'] A⇒A'' B⇒B''
+--   with whrDet* ( id (escape (Uᵣ UA)) , Uₙ) (⇒*-comp (red A⇒A'') (red UnitA') , Unitₙ)
+-- ... | ()
+-- AntiRedShapeView (Unitᵥ UnitA' UnitB') (ℕᵣ ℕA) [B'] A⇒A'' B⇒B''
+--   with whrDet* (red UnitA' , Unitₙ) ( whrDet↘ (red ℕA , ℕₙ) (red A⇒A'') , ℕₙ) 
+-- ... | ()
+-- AntiRedShapeView (Unitᵥ UnitA' UnitB') (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B''
+--   with whrDet* (red UnitA' , Unitₙ) ( whrDet↘ (red EmptyA , Emptyₙ) (red A⇒A'') , Emptyₙ) 
+-- ... | ()
+-- AntiRedShapeView (Unitᵥ UnitA' UnitB') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] A⇒A'' B⇒B'' = 
+--  ⊥-elim (Unit≢B W (whrDet* (red UnitA' , Unitₙ) ( whrDet↘ (red D' , ⟦ W ⟧ₙ) (red A⇒A'') , ⟦ W ⟧ₙ)))
+-- AntiRedShapeView (Unitᵥ UnitA' UnitB') (ne′ K D neK K≡K) [B'] A⇒A'' B⇒B'' =
+--   ⊥-elim (Unit≢ne neK (whrDet* ((red UnitA') , Unitₙ) ( whrDet↘ (red D , ne neK) (red A⇒A'') , ne neK)))
+-- AntiRedShapeView (Unitᵥ UnitA' UnitB') (ϝᵣ mε A⇒A' αA' tA fA) [B'] A⇒A'' B⇒B'' =
+--   ⊥-elim (Unit≢αne αA' (whrDet* (red UnitA' , Unitₙ) ( whrDet↘ (red A⇒A' , αₙ αA') (red A⇒A'') , αₙ αA')))
+
+-- AntiRedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Uᵣ UB) A⇒A'' B⇒B''
+--   with whrDet* ( id (escape (Uᵣ UB)) , Uₙ) (⇒*-comp (red B⇒B'') (red UnitB') , Unitₙ)
+-- ... | ()
+-- AntiRedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ℕᵣ ℕB) A⇒A'' B⇒B''
+--   with whrDet* (red UnitB' , Unitₙ) ( whrDet↘ (red ℕB , ℕₙ) (red B⇒B'') , ℕₙ) 
+-- ... | ()
+-- AntiRedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Emptyᵣ D) A⇒A'' B⇒B'' 
+--   with whrDet* (red UnitB' , Unitₙ) ( whrDet↘ (red D , Emptyₙ) (red B⇒B'') , Emptyₙ) 
+-- ... | ()
+-- AntiRedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) A⇒A'' B⇒B'' =
+--  ⊥-elim (Unit≢B W (whrDet* (red UnitB' , Unitₙ) ( whrDet↘ (red D , ⟦ W ⟧ₙ) (red B⇒B'') , ⟦ W ⟧ₙ)))
+-- AntiRedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ne′ K D neK K≡K) A⇒A'' B⇒B'' =
+--   ⊥-elim (Unit≢ne neK (whrDet* ((red UnitB') , Unitₙ) ( whrDet↘ (red D , ne neK) (red B⇒B'') , ne neK)))
+-- AntiRedShapeView (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ϝᵣ mε A⇒A' αA' tA fA) A⇒A'' B⇒B'' =
+--   ⊥-elim (Unit≢αne αA' (whrDet* (red UnitB' , Unitₙ) ( whrDet↘ (red A⇒A' , αₙ αA') (red B⇒B'') , αₙ αA')))
 
 
 -- Σ and Π-types
@@ -696,10 +865,12 @@ AntiRedShapeView (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) [A] (U�
   ⊥-elim (U≢B W (whrDet* (id (escape (Uᵣ UB)) , Uₙ) (⇒*-comp (red B⇒B'') (red D) , ⟦ W ⟧ₙ)))
 AntiRedShapeView (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (ℕᵣ ℕA) [B'] A⇒A'' B⇒B'' = 
  ⊥-elim (ℕ≢B W (whrDet* ( whrDet↘ (red ℕA , ℕₙ) (red A⇒A'') , ℕₙ) (red D , ⟦ W ⟧ₙ)))
-AntiRedShapeView (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B'' =
- ⊥-elim (Empty≢B W (whrDet* ( whrDet↘ (red EmptyA , Emptyₙ) (red A⇒A'') , Emptyₙ) (red D , ⟦ W ⟧ₙ)))
-AntiRedShapeView (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (Unitᵣ UnitA) [B'] A⇒A'' B⇒B'' =
- ⊥-elim (Unit≢B W (whrDet* ( whrDet↘ (red UnitA , Unitₙ) (red A⇒A'') , Unitₙ) (red D , ⟦ W ⟧ₙ)))
+AntiRedShapeView (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (𝔹ᵣ 𝔹A) [B'] A⇒A'' B⇒B'' = 
+ ⊥-elim (𝔹≢B W (whrDet* ( whrDet↘ (red 𝔹A , 𝔹ₙ) (red A⇒A'') , 𝔹ₙ) (red D , ⟦ W ⟧ₙ)))
+-- AntiRedShapeView (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B'' =
+--  ⊥-elim (Empty≢B W (whrDet* ( whrDet↘ (red EmptyA , Emptyₙ) (red A⇒A'') , Emptyₙ) (red D , ⟦ W ⟧ₙ)))
+-- AntiRedShapeView (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (Unitᵣ UnitA) [B'] A⇒A'' B⇒B'' =
+--  ⊥-elim (Unit≢B W (whrDet* ( whrDet↘ (red UnitA , Unitₙ) (red A⇒A'') , Unitₙ) (red D , ⟦ W ⟧ₙ)))
 AntiRedShapeView (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (ne′ K' D' neK' K≡K') [B'] A⇒A'' B⇒B'' =
   ⊥-elim (B≢ne W neK' (whrDet* ((red D) , ⟦ W ⟧ₙ) ( whrDet↘ (red D' , ne neK') (red A⇒A'') , ne neK')))
 AntiRedShapeView (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (ϝᵣ mε A⇒A' αA' tA fA) [B'] A⇒A'' B⇒B'' =
@@ -720,10 +891,12 @@ AntiRedShapeView (Bᵥ BΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB)
 
 AntiRedShapeView (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (ℕᵣ ℕB) A⇒A'' B⇒B'' =
  ⊥-elim (ℕ≢B W (whrDet* ( whrDet↘ (red ℕB , ℕₙ) (red B⇒B'') , ℕₙ) (red D , ⟦ W ⟧ₙ)))
-AntiRedShapeView (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (Emptyᵣ EmptyB) A⇒A'' B⇒B'' =
- ⊥-elim (Empty≢B W (whrDet* ( whrDet↘ (red EmptyB , Emptyₙ) (red B⇒B'') , Emptyₙ) (red D , ⟦ W ⟧ₙ)))
-AntiRedShapeView (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (Unitᵣ UnitB) A⇒A'' B⇒B'' =
- ⊥-elim (Unit≢B W (whrDet* ( whrDet↘ (red UnitB , Unitₙ) (red B⇒B'') , Unitₙ) (red D , ⟦ W ⟧ₙ)))
+AntiRedShapeView (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (𝔹ᵣ 𝔹B) A⇒A'' B⇒B'' =
+ ⊥-elim (𝔹≢B W (whrDet* ( whrDet↘ (red 𝔹B , 𝔹ₙ) (red B⇒B'') , 𝔹ₙ) (red D , ⟦ W ⟧ₙ)))
+-- AntiRedShapeView (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (Emptyᵣ EmptyB) A⇒A'' B⇒B'' =
+--  ⊥-elim (Empty≢B W (whrDet* ( whrDet↘ (red EmptyB , Emptyₙ) (red B⇒B'') , Emptyₙ) (red D , ⟦ W ⟧ₙ)))
+-- AntiRedShapeView (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (Unitᵣ UnitB) A⇒A'' B⇒B'' =
+--  ⊥-elim (Unit≢B W (whrDet* ( whrDet↘ (red UnitB , Unitₙ) (red B⇒B'') , Unitₙ) (red D , ⟦ W ⟧ₙ)))
 AntiRedShapeView (Bᵥ BΣ BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ BΣ BA')
              (Bᵣ′ BΠ F'' G'' D'' ⊢F'' ⊢G''w A≡A'' [F''] [G''] G-ext'') A⇒A'' B⇒B''
              with whrDet* (red D , ⟦ BΣ ⟧ₙ) ( whrDet↘ (red D'' , Πₙ) (red B⇒B'') , ⟦ BΠ ⟧ₙ)
@@ -751,10 +924,12 @@ AntiRedShapeView (ne (ne K D () K≡K) neB) (Uᵣ UA) [B'] A⇒A'' B⇒B''
   | PE.refl | PE.refl
 AntiRedShapeView (ne (ne K D neK K≡K) neB) (ℕᵣ ℕA) [B'] A⇒A'' B⇒B'' =
   ⊥-elim (ℕ≢ne neK (whrDet* ( whrDet↘ (red ℕA , ℕₙ) (red A⇒A'') , ℕₙ) (red D , ne neK)))
-AntiRedShapeView (ne (ne K D neK K≡K) neB) (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B'' =
-  ⊥-elim (Empty≢ne neK (whrDet* ( whrDet↘ (red EmptyA , Emptyₙ) (red A⇒A'') , Emptyₙ) (red D , ne neK)))
-AntiRedShapeView (ne (ne K D neK K≡K) neB) (Unitᵣ UnitA) [B'] A⇒A'' B⇒B'' =
-  ⊥-elim (Unit≢ne neK (whrDet* ( whrDet↘ (red UnitA , Unitₙ) (red A⇒A'') , Unitₙ) (red D , ne neK)))
+AntiRedShapeView (ne (ne K D neK K≡K) neB) (𝔹ᵣ 𝔹A) [B'] A⇒A'' B⇒B'' =
+  ⊥-elim (𝔹≢ne neK (whrDet* ( whrDet↘ (red 𝔹A , 𝔹ₙ) (red A⇒A'') , 𝔹ₙ) (red D , ne neK)))
+-- AntiRedShapeView (ne (ne K D neK K≡K) neB) (Emptyᵣ EmptyA) [B'] A⇒A'' B⇒B'' =
+--   ⊥-elim (Empty≢ne neK (whrDet* ( whrDet↘ (red EmptyA , Emptyₙ) (red A⇒A'') , Emptyₙ) (red D , ne neK)))
+-- AntiRedShapeView (ne (ne K D neK K≡K) neB) (Unitᵣ UnitA) [B'] A⇒A'' B⇒B'' =
+--   ⊥-elim (Unit≢ne neK (whrDet* ( whrDet↘ (red UnitA , Unitₙ) (red A⇒A'') , Unitₙ) (red D , ne neK)))
 AntiRedShapeView (ne (ne K D neK K≡K) neB) (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] A⇒A'' B⇒B'' =
   ⊥-elim (B≢ne W neK (whrDet* ( whrDet↘ (red D' , ⟦ W ⟧ₙ) (red A⇒A'') , ⟦ W ⟧ₙ) (red D , ne neK)))
 AntiRedShapeView (ne (ne K D neK K≡K) neB) (ϝᵣ mε A⇒A' αA' tA fA) [B'] A⇒A'' B⇒B'' =
@@ -768,10 +943,12 @@ AntiRedShapeView (ne neA (ne K D () K≡K)) (ne neA') (Uᵣ UB) A⇒A'' B⇒B''
   | PE.refl | PE.refl 
 AntiRedShapeView (ne neA (ne K D neK K≡K)) (ne neA') (ℕᵣ ℕB) A⇒A'' B⇒B'' =
   ⊥-elim (ℕ≢ne neK (whrDet* ( whrDet↘ (red ℕB , ℕₙ) (red B⇒B'') , ℕₙ) (red D , ne neK)))
-AntiRedShapeView (ne neA (ne K D neK K≡K)) (ne neA') (Emptyᵣ EmptyB) A⇒A'' B⇒B'' =
-  ⊥-elim (Empty≢ne neK (whrDet* ( whrDet↘ (red EmptyB , Emptyₙ) (red B⇒B'') , Emptyₙ) (red D , ne neK)))
-AntiRedShapeView (ne neA (ne K D neK K≡K)) (ne neA') (Unitᵣ UnitB) A⇒A'' B⇒B'' =
-  ⊥-elim (Unit≢ne neK (whrDet* ( whrDet↘ (red UnitB , Unitₙ) (red B⇒B'') , Unitₙ) (red D , ne neK)))
+AntiRedShapeView (ne neA (ne K D neK K≡K)) (ne neA') (𝔹ᵣ 𝔹B) A⇒A'' B⇒B'' =
+  ⊥-elim (𝔹≢ne neK (whrDet* ( whrDet↘ (red 𝔹B , 𝔹ₙ) (red B⇒B'') , 𝔹ₙ) (red D , ne neK)))
+-- AntiRedShapeView (ne neA (ne K D neK K≡K)) (ne neA') (Emptyᵣ EmptyB) A⇒A'' B⇒B'' =
+--   ⊥-elim (Empty≢ne neK (whrDet* ( whrDet↘ (red EmptyB , Emptyₙ) (red B⇒B'') , Emptyₙ) (red D , ne neK)))
+-- AntiRedShapeView (ne neA (ne K D neK K≡K)) (ne neA') (Unitᵣ UnitB) A⇒A'' B⇒B'' =
+--   ⊥-elim (Unit≢ne neK (whrDet* ( whrDet↘ (red UnitB , Unitₙ) (red B⇒B'') , Unitₙ) (red D , ne neK)))
 AntiRedShapeView (ne neA (ne K D neK K≡K)) (ne neA') (Bᵣ′ W F G D'' ⊢F ⊢G A≡A [F] [G] G-ext) A⇒A'' B⇒B'' =
   ⊥-elim (B≢ne W neK (whrDet* ( whrDet↘ (red D'' , ⟦ W ⟧ₙ) (red B⇒B'') , ⟦ W ⟧ₙ) (red D , ne neK)))
 AntiRedShapeView (ne neA (ne K D neK K≡K)) (ne neA') (ϝᵣ mε A⇒A' αA' tA fA) A⇒A'' B⇒B'' =
@@ -782,10 +959,12 @@ AntiRedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Uᵣ UA) 
   ⊥-elim (U≢αne αA (whrDet* ( id (escape (Uᵣ UA)) , Uₙ) (⇒*-comp (red A⇒A'') (red A⇒A') , αₙ αA)))
 AntiRedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (ℕᵣ ℕA) [B'] A⇒A'' B⇒B'' =
   ⊥-elim (ℕ≢αne αA (whrDet* (red ℕA , ℕₙ) (⇒*-comp (red A⇒A'') (red A⇒A') , αₙ αA)))
-AntiRedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Emptyᵣ D) [B'] A⇒A'' B⇒B'' =
-  ⊥-elim (Empty≢αne αA (whrDet* (red D , Emptyₙ) (⇒*-comp (red A⇒A'') (red A⇒A') , αₙ αA)))
-AntiRedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Unitᵣ D) [B'] A⇒A'' B⇒B'' =
-  ⊥-elim (Unit≢αne αA (whrDet* (red D , Unitₙ) (⇒*-comp (red A⇒A'') (red A⇒A') , αₙ αA)))
+AntiRedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (𝔹ᵣ 𝔹A) [B'] A⇒A'' B⇒B'' =
+  ⊥-elim (𝔹≢αne αA (whrDet* (red 𝔹A , 𝔹ₙ) (⇒*-comp (red A⇒A'') (red A⇒A') , αₙ αA)))
+-- AntiRedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Emptyᵣ D) [B'] A⇒A'' B⇒B'' =
+--   ⊥-elim (Empty≢αne αA (whrDet* (red D , Emptyₙ) (⇒*-comp (red A⇒A'') (red A⇒A') , αₙ αA)))
+-- AntiRedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Unitᵣ D) [B'] A⇒A'' B⇒B'' =
+--   ⊥-elim (Unit≢αne αA (whrDet* (red D , Unitₙ) (⇒*-comp (red A⇒A'') (red A⇒A') , αₙ αA)))
 AntiRedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) [B'] A⇒A'' B⇒B'' =
   ⊥-elim (B≢αne W αA (whrDet* (red D , ⟦ W ⟧ₙ) (⇒*-comp (red A⇒A'') (red A⇒A') , αₙ αA)))
 AntiRedShapeView (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (ne′ K D₁ neK K≡K) [B'] A⇒A'' B⇒B'' =
@@ -795,10 +974,12 @@ AntiRedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (Uᵣ
   ⊥-elim (U≢αne αB (whrDet* ( id (escape (Uᵣ UB)) , Uₙ) (⇒*-comp (red B⇒B'') (red B⇒B') , αₙ αB)))
 AntiRedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (ℕᵣ ℕB) A⇒A'' B⇒B'' =
   ⊥-elim (ℕ≢αne αB (whrDet* (red ℕB , ℕₙ) (⇒*-comp (red B⇒B'') (red B⇒B') , αₙ αB)))
-AntiRedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (Emptyᵣ D) A⇒A'' B⇒B'' =
-  ⊥-elim (Empty≢αne αB (whrDet* (red D , Emptyₙ) (⇒*-comp (red B⇒B'') (red B⇒B') , αₙ αB)))
-AntiRedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (Unitᵣ D) A⇒A'' B⇒B'' =
-  ⊥-elim (Unit≢αne αB (whrDet* (red D , Unitₙ) (⇒*-comp (red B⇒B'') (red B⇒B') , αₙ αB)))
+AntiRedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (𝔹ᵣ 𝔹B) A⇒A'' B⇒B'' =
+  ⊥-elim (𝔹≢αne αB (whrDet* (red 𝔹B , 𝔹ₙ) (⇒*-comp (red B⇒B'') (red B⇒B') , αₙ αB)))
+-- AntiRedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (Emptyᵣ D) A⇒A'' B⇒B'' =
+--   ⊥-elim (Empty≢αne αB (whrDet* (red D , Emptyₙ) (⇒*-comp (red B⇒B'') (red B⇒B') , αₙ αB)))
+-- AntiRedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (Unitᵣ D) A⇒A'' B⇒B'' =
+--   ⊥-elim (Unit≢αne αB (whrDet* (red D , Unitₙ) (⇒*-comp (red B⇒B'') (red B⇒B') , αₙ αB)))
 AntiRedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) A⇒A'' B⇒B'' =
   ⊥-elim (B≢αne W αB (whrDet* (red D , ⟦ W ⟧ₙ) (⇒*-comp (red B⇒B'') (red B⇒B') , αₙ αB)))
 AntiRedShapeView (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (ne′ K D₁ neK K≡K) A⇒A'' B⇒B'' =
@@ -883,10 +1064,12 @@ ShapeView≤W (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) [A] (Uᵣ U
   ⊥-elim (U≢B W (whrDet* ( red (idRed:*: (escape (Uᵣ UB))) , Uₙ) (red (wfRed≤* f< D)  , ⟦ W ⟧ₙ)))
 ShapeView≤W (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (ℕᵣ ℕA) [B'] f< = 
  ⊥-elim (ℕ≢B W (whrDet* ( (red ℕA) , ℕₙ) (red (wfRed≤* f< D)  , ⟦ W ⟧ₙ)))
-ShapeView≤W (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (Emptyᵣ EmptyA) [B'] f< =
- ⊥-elim (Empty≢B W (whrDet* ( (red EmptyA) , Emptyₙ) (red (wfRed≤* f< D)  , ⟦ W ⟧ₙ)))
-ShapeView≤W (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (Unitᵣ UnitA) [B'] f< =
- ⊥-elim (Unit≢B W (whrDet* ( (red UnitA) , Unitₙ) (red (wfRed≤* f< D)  , ⟦ W ⟧ₙ)))
+ShapeView≤W (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (𝔹ᵣ 𝔹A) [B'] f< = 
+ ⊥-elim (𝔹≢B W (whrDet* ( (red 𝔹A) , 𝔹ₙ) (red (wfRed≤* f< D)  , ⟦ W ⟧ₙ)))
+-- ShapeView≤W (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (Emptyᵣ EmptyA) [B'] f< =
+--  ⊥-elim (Empty≢B W (whrDet* ( (red EmptyA) , Emptyₙ) (red (wfRed≤* f< D)  , ⟦ W ⟧ₙ)))
+-- ShapeView≤W (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (Unitᵣ UnitA) [B'] f< =
+--  ⊥-elim (Unit≢B W (whrDet* ( (red UnitA) , Unitₙ) (red (wfRed≤* f< D)  , ⟦ W ⟧ₙ)))
 ShapeView≤W (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (ne′ K' D' neK' K≡K') [B'] f< =
   ⊥-elim (B≢ne W neK' (whrDet* ((red (wfRed≤* f< D) ) , ⟦ W ⟧ₙ) ( (red D') , ne neK')))
 ShapeView≤W (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) (ϝᵣ mε A⇒A' αA' tA fA) [B'] f< =
@@ -905,10 +1088,12 @@ ShapeView≤W (Bᵥ BΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB)
              | ()
 ShapeView≤W (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (ℕᵣ ℕB) f< =
  ⊥-elim (ℕ≢B W (whrDet* ( (red ℕB) , ℕₙ) (red (wfRed≤* f< D)  , ⟦ W ⟧ₙ)))
-ShapeView≤W (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (Emptyᵣ EmptyB) f< =
- ⊥-elim (Empty≢B W (whrDet* ( (red EmptyB) , Emptyₙ) (red (wfRed≤* f< D)  , ⟦ W ⟧ₙ)))
-ShapeView≤W (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (Unitᵣ UnitB) f< =
- ⊥-elim (Unit≢B W (whrDet* ( (red UnitB) , Unitₙ) (red (wfRed≤* f< D)  , ⟦ W ⟧ₙ)))
+ShapeView≤W (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (𝔹ᵣ 𝔹B) f< =
+ ⊥-elim (𝔹≢B W (whrDet* ( (red 𝔹B) , 𝔹ₙ) (red (wfRed≤* f< D)  , ⟦ W ⟧ₙ)))
+-- ShapeView≤W (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (Emptyᵣ EmptyB) f< =
+--  ⊥-elim (Empty≢B W (whrDet* ( (red EmptyB) , Emptyₙ) (red (wfRed≤* f< D)  , ⟦ W ⟧ₙ)))
+-- ShapeView≤W (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W' BA') (Unitᵣ UnitB) f< =
+--  ⊥-elim (Unit≢B W (whrDet* ( (red UnitB) , Unitₙ) (red (wfRed≤* f< D)  , ⟦ W ⟧ₙ)))
 ShapeView≤W (Bᵥ BΣ BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ BΣ BA')
              (Bᵣ′ BΠ F'' G'' D'' ⊢F'' ⊢G''w A≡A'' [F''] [G''] G-ext'') f< 
              with whrDet* (red (wfRed≤* f< D)  , ⟦ BΣ ⟧ₙ) ( (red D'') , ⟦ BΠ ⟧ₙ)
@@ -944,10 +1129,12 @@ ShapeView≤ne (ne (ne K D () K≡K) neB) (Uᵣ UA) [B'] f<
   | PE.refl 
 ShapeView≤ne (ne (ne K D neK K≡K) neB) (ℕᵣ ℕA) [B'] f< =
   ⊥-elim (ℕ≢ne neK (whrDet* ( (red ℕA) , ℕₙ) (red (wfRed≤* f< D)  , ne neK)))
-ShapeView≤ne (ne (ne K D neK K≡K) neB) (Emptyᵣ EmptyA) [B'] f< =
-  ⊥-elim (Empty≢ne neK (whrDet* ( (red EmptyA) , Emptyₙ) (red (wfRed≤* f< D)  , ne neK)))
-ShapeView≤ne (ne (ne K D neK K≡K) neB) (Unitᵣ UnitA) [B'] f< =
-  ⊥-elim (Unit≢ne neK (whrDet* ( (red UnitA) , Unitₙ) (red (wfRed≤* f< D)  , ne neK)))
+ShapeView≤ne (ne (ne K D neK K≡K) neB) (𝔹ᵣ 𝔹A) [B'] f< =
+  ⊥-elim (𝔹≢ne neK (whrDet* ( (red 𝔹A) , 𝔹ₙ) (red (wfRed≤* f< D)  , ne neK)))
+-- ShapeView≤ne (ne (ne K D neK K≡K) neB) (Emptyᵣ EmptyA) [B'] f< =
+--   ⊥-elim (Empty≢ne neK (whrDet* ( (red EmptyA) , Emptyₙ) (red (wfRed≤* f< D)  , ne neK)))
+-- ShapeView≤ne (ne (ne K D neK K≡K) neB) (Unitᵣ UnitA) [B'] f< =
+--   ⊥-elim (Unit≢ne neK (whrDet* ( (red UnitA) , Unitₙ) (red (wfRed≤* f< D)  , ne neK)))
 ShapeView≤ne (ne (ne K D neK K≡K) neB) (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] f< =
   ⊥-elim (B≢ne W neK (whrDet* ( (red D') , ⟦ W ⟧ₙ) (red (wfRed≤* f< D)  , ne neK)))
 ShapeView≤ne (ne (ne K D neK K≡K) neB) (ϝᵣ mε A⇒A' αA' tA fA) [B'] f< =
@@ -959,10 +1146,12 @@ ShapeView≤ne (ne neA (ne K D () K≡K)) (ne neA') (Uᵣ UB) f<
   | PE.refl 
 ShapeView≤ne (ne neA (ne K D neK K≡K)) (ne neA') (ℕᵣ ℕB) f< =
   ⊥-elim (ℕ≢ne neK (whrDet* ( (red ℕB) , ℕₙ) (red (wfRed≤* f< D)  , ne neK)))
-ShapeView≤ne (ne neA (ne K D neK K≡K)) (ne neA') (Emptyᵣ EmptyB) f< =
-  ⊥-elim (Empty≢ne neK (whrDet* ( (red EmptyB) , Emptyₙ) (red (wfRed≤* f< D)  , ne neK)))
-ShapeView≤ne (ne neA (ne K D neK K≡K)) (ne neA') (Unitᵣ UnitB) f< =
-  ⊥-elim (Unit≢ne neK (whrDet* ( (red UnitB) , Unitₙ) (red (wfRed≤* f< D)  , ne neK)))
+ShapeView≤ne (ne neA (ne K D neK K≡K)) (ne neA') (𝔹ᵣ 𝔹B) f< =
+  ⊥-elim (𝔹≢ne neK (whrDet* ( (red 𝔹B) , 𝔹ₙ) (red (wfRed≤* f< D)  , ne neK)))
+-- ShapeView≤ne (ne neA (ne K D neK K≡K)) (ne neA') (Emptyᵣ EmptyB) f< =
+--   ⊥-elim (Empty≢ne neK (whrDet* ( (red EmptyB) , Emptyₙ) (red (wfRed≤* f< D)  , ne neK)))
+-- ShapeView≤ne (ne neA (ne K D neK K≡K)) (ne neA') (Unitᵣ UnitB) f< =
+--   ⊥-elim (Unit≢ne neK (whrDet* ( (red UnitB) , Unitₙ) (red (wfRed≤* f< D)  , ne neK)))
 ShapeView≤ne (ne neA (ne K D neK K≡K)) (ne neA') (Bᵣ′ W F G D'' ⊢F ⊢G A≡A [F] [G] G-ext) f< =
   ⊥-elim (B≢ne W neK (whrDet* ( (red D'') , ⟦ W ⟧ₙ) (red (wfRed≤* f< D)  , ne neK)))
 ShapeView≤ne (ne neA (ne K D neK K≡K)) (ne neA') (ϝᵣ mε A⇒A' αA' tA fA) f< =
@@ -984,12 +1173,15 @@ ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (Uᵣ UA) [B'] f<
   with whrDet* ( red (idRed:*: (escape (Uᵣ UA))) , Uₙ) (red (wfRed≤* f< ℕA') , ℕₙ)
 ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (Uᵣ UA) [B'] f<
   | ()
-ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (Emptyᵣ EmptyA) [B'] f<
-  with whrDet* ( red EmptyA , Emptyₙ) (red (wfRed≤* f< ℕA') , ℕₙ)
+ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (𝔹ᵣ 𝔹A) [B'] f<
+  with whrDet* ( red 𝔹A , 𝔹ₙ) (red (wfRed≤* f< ℕA') , ℕₙ)
 ... | ()
-ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (Unitᵣ UnitA) [B'] f<
-  with whrDet* ( (red UnitA) , Unitₙ) (red ( wfRed≤* f< ℕA') , ℕₙ)
-... | ()
+-- ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (Emptyᵣ EmptyA) [B'] f<
+--   with whrDet* ( red EmptyA , Emptyₙ) (red (wfRed≤* f< ℕA') , ℕₙ)
+-- ... | ()
+-- ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (Unitᵣ UnitA) [B'] f<
+--   with whrDet* ( (red UnitA) , Unitₙ) (red ( wfRed≤* f< ℕA') , ℕₙ)
+-- ... | ()
 ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] f< =
   ⊥-elim (ℕ≢B W (whrDet* (red (wfRed≤* f< ℕA') , ℕₙ) ( (red D') , ⟦ W ⟧ₙ)))
 ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (ne′ K D neK K≡K) [B'] f< = 
@@ -1001,12 +1193,15 @@ ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Uᵣ UB)  f<
   with whrDet* ( red (idRed:*: (escape (Uᵣ UB))) , Uₙ) (red (wfRed≤* f< ℕB')  , ℕₙ)
 ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Uᵣ UB) f<
   | ()
-ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Emptyᵣ D) f< 
-  with whrDet* ( (red D) , Emptyₙ) (red (wfRed≤* f< ℕB')  , ℕₙ)
+ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (𝔹ᵣ D) f< 
+  with whrDet* ( (red D) , 𝔹ₙ) (red (wfRed≤* f< ℕB')  , ℕₙ)
 ... | ()
-ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Unitᵣ D) f<
-  with whrDet* ( (red D) , Unitₙ) (red (wfRed≤* f< ℕB')  , ℕₙ)
-... | ()
+-- ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Emptyᵣ D) f< 
+--   with whrDet* ( (red D) , Emptyₙ) (red (wfRed≤* f< ℕB')  , ℕₙ)
+-- ... | ()
+-- ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Unitᵣ D) f<
+--   with whrDet* ( (red D) , Unitₙ) (red (wfRed≤* f< ℕB')  , ℕₙ)
+-- ... | ()
 ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) f< = 
   ⊥-elim (ℕ≢B W (whrDet* (red (wfRed≤* f< ℕB')  , ℕₙ) ( (red D) , ⟦ W ⟧ₙ)))
 ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (ne′ K D neK K≡K) f< = 
@@ -1015,92 +1210,145 @@ ShapeView≤ℕ (ℕᵥ ℕA' ℕB') (ℕᵣ ℕA) (ϝᵣ mε A⇒A' αA' tA fA)
   ⊥-elim (ℕ≢αne αA' (whrDet* (red (wfRed≤* f< ℕB')  , ℕₙ) (  (red A⇒A') , αₙ αA')))
 
 
-ShapeView≤Empty : ∀ {k k′ j j'} {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'}
-                      {EmptyA EmptyB}
-                      ([AB] : ShapeView Γ {l} {lε} k k′ A B (Emptyᵣ EmptyA) (Emptyᵣ EmptyB))
+ShapeView≤𝔹 : ∀ {k k′ j j'} {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'}
+                      {𝔹A 𝔹B}
+                      ([AB] : ShapeView Γ {l} {lε} k k′ A B (𝔹ᵣ 𝔹A) (𝔹ᵣ 𝔹B))
                       ([A]' : Γ / lε' ⊩⟨ j ⟩ A) ([B]' : Γ / lε' ⊩⟨ j' ⟩ B)
                       (≤ε : l ≤ₗ l')
                       → ShapeView Γ j j' A B [A]' [B]'
 -- Diagonal case
-ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Emptyᵣ EmptyB) f< = Emptyᵥ EmptyA EmptyB
+ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (𝔹ᵣ 𝔹B) f< = 𝔹ᵥ 𝔹A 𝔹B
 -- Embeddings
-ShapeView≤Empty [AB] (emb 0<1 [A]) [B] f< = emb⁰¹ (ShapeView≤Empty [AB] [A] [B] f<)
-ShapeView≤Empty [AB] [A] (emb 0<1 [B]) f< = emb¹⁰ (ShapeView≤Empty [AB] [A] [B] f<)
+ShapeView≤𝔹 [AB] (emb 0<1 [A]) [B] f< = emb⁰¹ (ShapeView≤𝔹 [AB] [A] [B] f<)
+ShapeView≤𝔹 [AB] [A] (emb 0<1 [B]) f< = emb¹⁰ (ShapeView≤𝔹 [AB] [A] [B] f<)
 -- Impossible cases
-ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Uᵣ UA) [B'] f<
-  with whrDet* ( red (idRed:*: (escape (Uᵣ UA))) , Uₙ) (red (wfRed≤* f< EmptyA')  , Emptyₙ)
+ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (Uᵣ UA) [B'] f< 
+  with whrDet* ( red (idRed:*: (escape (Uᵣ UA))) , Uₙ) (red (wfRed≤* f< 𝔹A') , 𝔹ₙ)
+ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (Uᵣ UA) [B'] f<
+  | ()
+ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (ℕᵣ ℕA) [B'] f<
+  with whrDet* ( red ℕA , ℕₙ) (red (wfRed≤* f< 𝔹A') , 𝔹ₙ)
 ... | ()
-ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (ℕᵣ ℕA) [B'] f<
-  with whrDet* ( (red ℕA) , ℕₙ) (red (wfRed≤* f< EmptyA')  , Emptyₙ)
-... | ()
-ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Unitᵣ UnitA) [B'] f< 
-  with whrDet* ( (red UnitA) , Unitₙ) (red (wfRed≤* f< EmptyA')  , Emptyₙ)
-... | ()
-ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] f< =
- ⊥-elim (Empty≢B W (whrDet* (red (wfRed≤* f< EmptyA')  , Emptyₙ) ( (red D') , ⟦ W ⟧ₙ)))
-ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (ne′ K D neK K≡K) [B'] f< =
-  ⊥-elim (Empty≢ne neK (whrDet* ((red (wfRed≤* f< EmptyA') ) , Emptyₙ) ( (red D) , ne neK)))
-ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (ϝᵣ mε A⇒A' αA' tA fA) [B'] f< = 
-  ⊥-elim (Empty≢αne αA' (whrDet* (red (wfRed≤* f< EmptyA')  , Emptyₙ) (  (red A⇒A') , αₙ αA')))
+-- ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (Emptyᵣ EmptyA) [B'] f<
+--   with whrDet* ( red EmptyA , Emptyₙ) (red (wfRed≤* f< 𝔹A') , 𝔹ₙ)
+-- ... | ()
+-- ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (Unitᵣ UnitA) [B'] f<
+--   with whrDet* ( (red UnitA) , Unitₙ) (red ( wfRed≤* f< 𝔹A') , 𝔹ₙ)
+-- ... | ()
+ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] f< =
+  ⊥-elim (𝔹≢B W (whrDet* (red (wfRed≤* f< 𝔹A') , 𝔹ₙ) ( (red D') , ⟦ W ⟧ₙ)))
+ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (ne′ K D neK K≡K) [B'] f< = 
+  ⊥-elim (𝔹≢ne neK (whrDet* ((red (wfRed≤* f< 𝔹A') ) , 𝔹ₙ) ( (red D) , ne neK)))
+ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (ϝᵣ mε A⇒A' αA' tA fA) [B'] f< =
+  ⊥-elim (𝔹≢αne αA' (whrDet* (red (wfRed≤* f< 𝔹A')  , 𝔹ₙ) (  (red A⇒A') , αₙ αA')))
 
-ShapeView≤Empty {lε' = lε'} (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Uᵣ UB) f<
-  with whrDet* ( red (idRed:*: (escape (Uᵣ UB))) , Uₙ) (red (wfRed≤* f< EmptyB')  , Emptyₙ)
+ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (Uᵣ UB)  f<
+  with whrDet* ( red (idRed:*: (escape (Uᵣ UB))) , Uₙ) (red (wfRed≤* f< 𝔹B')  , 𝔹ₙ)
+ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (Uᵣ UB) f<
+  | ()
+ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (ℕᵣ D) f< 
+  with whrDet* ( (red D) , ℕₙ) (red (wfRed≤* f< 𝔹B')  , 𝔹ₙ)
 ... | ()
-ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ℕᵣ ℕB) f<
-  with whrDet* ( (red ℕB) , ℕₙ) (red (wfRed≤* f< EmptyB')  , Emptyₙ)
-... | ()
-ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Unitᵣ UnitB) f<
-  with whrDet* ( (red UnitB) , Unitₙ) (red (wfRed≤* f< EmptyB')  , Emptyₙ)
-... | ()
-ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) f< =
-  ⊥-elim (Empty≢B W (whrDet* (red (wfRed≤* f< EmptyB')  , Emptyₙ) ( (red D) , ⟦ W ⟧ₙ)))
-ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ne′ K D neK K≡K) f< =
-  ⊥-elim (Empty≢ne neK (whrDet* ((red (wfRed≤* f< EmptyB') ) , Emptyₙ) ( (red D) , ne neK)))
-ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ϝᵣ mε A⇒A' αA' tA fA) f< =
-  ⊥-elim (Empty≢αne αA' (whrDet* (red (wfRed≤* f< EmptyB')  , Emptyₙ) (  (red A⇒A') , αₙ αA')))
+-- ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (Emptyᵣ D) f< 
+--   with whrDet* ( (red D) , Emptyₙ) (red (wfRed≤* f< 𝔹B')  , 𝔹ₙ)
+-- ... | ()
+-- ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (Unitᵣ D) f<
+--   with whrDet* ( (red D) , Unitₙ) (red (wfRed≤* f< 𝔹B')  , 𝔹ₙ)
+-- ... | ()
+ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) f< = 
+  ⊥-elim (𝔹≢B W (whrDet* (red (wfRed≤* f< 𝔹B')  , 𝔹ₙ) ( (red D) , ⟦ W ⟧ₙ)))
+ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (ne′ K D neK K≡K) f< = 
+  ⊥-elim (𝔹≢ne neK (whrDet* ((red (wfRed≤* f< 𝔹B') ) , 𝔹ₙ) ( (red D) , ne neK)))
+ShapeView≤𝔹 (𝔹ᵥ 𝔹A' 𝔹B') (𝔹ᵣ 𝔹A) (ϝᵣ mε A⇒A' αA' tA fA) f< = 
+  ⊥-elim (𝔹≢αne αA' (whrDet* (red (wfRed≤* f< 𝔹B')  , 𝔹ₙ) (  (red A⇒A') , αₙ αA')))
 
-ShapeView≤Unit : ∀ {k k′ j j'} {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'}
-                      {UnitA UnitB}
-                      ([AB] : ShapeView Γ {l} {lε} k k′ A B (Unitᵣ UnitA) (Unitᵣ UnitB))
-                      ([A]' : Γ / lε' ⊩⟨ j ⟩ A) ([B]' : Γ / lε' ⊩⟨ j' ⟩ B)
-                      (≤ε : l ≤ₗ l')
-                      → ShapeView Γ j j' A B [A]' [B]'
--- Diagonal case
-ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Unitᵣ UnitB) f< = Unitᵥ UnitA UnitB
--- Embeddings
-ShapeView≤Unit [AB] (emb 0<1 [A]) [B] f< = emb⁰¹ (ShapeView≤Unit [AB] [A] [B] f<)
-ShapeView≤Unit [AB] [A] (emb 0<1 [B]) f< = emb¹⁰ (ShapeView≤Unit [AB] [A] [B] f<)
-ShapeView≤Unit (Unitᵥ UnitA' UnitB')  (Uᵣ UA) [B']  f<
-  with whrDet* ( red (idRed:*: (escape (Uᵣ UA))) , Uₙ) (red (wfRed≤* f< UnitA')  , Unitₙ)
-... | ()
-ShapeView≤Unit (Unitᵥ UnitA' UnitB') (ℕᵣ ℕA) [B'] f<
-  with whrDet* (red (wfRed≤* f< UnitA')  , Unitₙ) ( (red ℕA) , ℕₙ) 
-... | ()
-ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Emptyᵣ EmptyA) [B'] f<
-  with whrDet* (red (wfRed≤* f< UnitA')  , Unitₙ) ( (red EmptyA) , Emptyₙ) 
-... | ()
-ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] f< = 
- ⊥-elim (Unit≢B W (whrDet* (red (wfRed≤* f< UnitA')  , Unitₙ) ( (red D') , ⟦ W ⟧ₙ)))
-ShapeView≤Unit (Unitᵥ UnitA' UnitB') (ne′ K D neK K≡K) [B'] f< =
-  ⊥-elim (Unit≢ne neK (whrDet* ((red (wfRed≤* f< UnitA') ) , Unitₙ) ( (red D) , ne neK)))
-ShapeView≤Unit (Unitᵥ UnitA' UnitB') (ϝᵣ mε A⇒A' αA' tA fA) [B'] f< =
-  ⊥-elim (Unit≢αne αA' (whrDet* (red (wfRed≤* f< UnitA')  , Unitₙ) (  (red A⇒A') , αₙ αA')))
 
-ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Uᵣ UB) f<
-  with whrDet* ( red (idRed:*: (escape (Uᵣ UB))) , Uₙ) (red (wfRed≤* f< UnitB')  , Unitₙ)
-... | ()
-ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ℕᵣ ℕB) f<
-  with whrDet* (red (wfRed≤* f< UnitB')  , Unitₙ) ( (red ℕB) , ℕₙ) 
-... | ()
-ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Emptyᵣ D) f<  
-  with whrDet* (red (wfRed≤* f< UnitB')  , Unitₙ) ( (red D) , Emptyₙ) 
-... | ()
-ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) f< =
- ⊥-elim (Unit≢B W (whrDet* (red (wfRed≤* f< UnitB')  , Unitₙ) ( (red D) , ⟦ W ⟧ₙ)))
-ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ne′ K D neK K≡K) f< =
-  ⊥-elim (Unit≢ne neK (whrDet* ((red (wfRed≤* f< UnitB') ) , Unitₙ) ( (red D) , ne neK)))
-ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ϝᵣ mε A⇒A' αA' tA fA) f< =
-  ⊥-elim (Unit≢αne αA' (whrDet* (red (wfRed≤* f< UnitB')  , Unitₙ) (  (red A⇒A') , αₙ αA')))
+-- ShapeView≤Empty : ∀ {k k′ j j'} {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'}
+--                       {EmptyA EmptyB}
+--                       ([AB] : ShapeView Γ {l} {lε} k k′ A B (Emptyᵣ EmptyA) (Emptyᵣ EmptyB))
+--                       ([A]' : Γ / lε' ⊩⟨ j ⟩ A) ([B]' : Γ / lε' ⊩⟨ j' ⟩ B)
+--                       (≤ε : l ≤ₗ l')
+--                       → ShapeView Γ j j' A B [A]' [B]'
+-- -- Diagonal case
+-- ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Emptyᵣ EmptyB) f< = Emptyᵥ EmptyA EmptyB
+-- -- Embeddings
+-- ShapeView≤Empty [AB] (emb 0<1 [A]) [B] f< = emb⁰¹ (ShapeView≤Empty [AB] [A] [B] f<)
+-- ShapeView≤Empty [AB] [A] (emb 0<1 [B]) f< = emb¹⁰ (ShapeView≤Empty [AB] [A] [B] f<)
+-- -- Impossible cases
+-- ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Uᵣ UA) [B'] f<
+--   with whrDet* ( red (idRed:*: (escape (Uᵣ UA))) , Uₙ) (red (wfRed≤* f< EmptyA')  , Emptyₙ)
+-- ... | ()
+-- ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (ℕᵣ ℕA) [B'] f<
+--   with whrDet* ( (red ℕA) , ℕₙ) (red (wfRed≤* f< EmptyA')  , Emptyₙ)
+-- ... | ()
+-- ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Unitᵣ UnitA) [B'] f< 
+--   with whrDet* ( (red UnitA) , Unitₙ) (red (wfRed≤* f< EmptyA')  , Emptyₙ)
+-- ... | ()
+-- ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] f< =
+--  ⊥-elim (Empty≢B W (whrDet* (red (wfRed≤* f< EmptyA')  , Emptyₙ) ( (red D') , ⟦ W ⟧ₙ)))
+-- ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (ne′ K D neK K≡K) [B'] f< =
+--   ⊥-elim (Empty≢ne neK (whrDet* ((red (wfRed≤* f< EmptyA') ) , Emptyₙ) ( (red D) , ne neK)))
+-- ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (ϝᵣ mε A⇒A' αA' tA fA) [B'] f< = 
+--   ⊥-elim (Empty≢αne αA' (whrDet* (red (wfRed≤* f< EmptyA')  , Emptyₙ) (  (red A⇒A') , αₙ αA')))
+
+-- ShapeView≤Empty {lε' = lε'} (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Uᵣ UB) f<
+--   with whrDet* ( red (idRed:*: (escape (Uᵣ UB))) , Uₙ) (red (wfRed≤* f< EmptyB')  , Emptyₙ)
+-- ... | ()
+-- ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ℕᵣ ℕB) f<
+--   with whrDet* ( (red ℕB) , ℕₙ) (red (wfRed≤* f< EmptyB')  , Emptyₙ)
+-- ... | ()
+-- ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Unitᵣ UnitB) f<
+--   with whrDet* ( (red UnitB) , Unitₙ) (red (wfRed≤* f< EmptyB')  , Emptyₙ)
+-- ... | ()
+-- ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) f< =
+--   ⊥-elim (Empty≢B W (whrDet* (red (wfRed≤* f< EmptyB')  , Emptyₙ) ( (red D) , ⟦ W ⟧ₙ)))
+-- ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ne′ K D neK K≡K) f< =
+--   ⊥-elim (Empty≢ne neK (whrDet* ((red (wfRed≤* f< EmptyB') ) , Emptyₙ) ( (red D) , ne neK)))
+-- ShapeView≤Empty (Emptyᵥ EmptyA' EmptyB') (Emptyᵣ EmptyA) (ϝᵣ mε A⇒A' αA' tA fA) f< =
+--   ⊥-elim (Empty≢αne αA' (whrDet* (red (wfRed≤* f< EmptyB')  , Emptyₙ) (  (red A⇒A') , αₙ αA')))
+
+-- ShapeView≤Unit : ∀ {k k′ j j'} {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'}
+--                       {UnitA UnitB}
+--                       ([AB] : ShapeView Γ {l} {lε} k k′ A B (Unitᵣ UnitA) (Unitᵣ UnitB))
+--                       ([A]' : Γ / lε' ⊩⟨ j ⟩ A) ([B]' : Γ / lε' ⊩⟨ j' ⟩ B)
+--                       (≤ε : l ≤ₗ l')
+--                       → ShapeView Γ j j' A B [A]' [B]'
+-- -- Diagonal case
+-- ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Unitᵣ UnitB) f< = Unitᵥ UnitA UnitB
+-- -- Embeddings
+-- ShapeView≤Unit [AB] (emb 0<1 [A]) [B] f< = emb⁰¹ (ShapeView≤Unit [AB] [A] [B] f<)
+-- ShapeView≤Unit [AB] [A] (emb 0<1 [B]) f< = emb¹⁰ (ShapeView≤Unit [AB] [A] [B] f<)
+-- ShapeView≤Unit (Unitᵥ UnitA' UnitB')  (Uᵣ UA) [B']  f<
+--   with whrDet* ( red (idRed:*: (escape (Uᵣ UA))) , Uₙ) (red (wfRed≤* f< UnitA')  , Unitₙ)
+-- ... | ()
+-- ShapeView≤Unit (Unitᵥ UnitA' UnitB') (ℕᵣ ℕA) [B'] f<
+--   with whrDet* (red (wfRed≤* f< UnitA')  , Unitₙ) ( (red ℕA) , ℕₙ) 
+-- ... | ()
+-- ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Emptyᵣ EmptyA) [B'] f<
+--   with whrDet* (red (wfRed≤* f< UnitA')  , Unitₙ) ( (red EmptyA) , Emptyₙ) 
+-- ... | ()
+-- ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Bᵣ′ W F' G' D' ⊢F' ⊢G' A≡A' [F'] [G'] G-ext') [B'] f< = 
+--  ⊥-elim (Unit≢B W (whrDet* (red (wfRed≤* f< UnitA')  , Unitₙ) ( (red D') , ⟦ W ⟧ₙ)))
+-- ShapeView≤Unit (Unitᵥ UnitA' UnitB') (ne′ K D neK K≡K) [B'] f< =
+--   ⊥-elim (Unit≢ne neK (whrDet* ((red (wfRed≤* f< UnitA') ) , Unitₙ) ( (red D) , ne neK)))
+-- ShapeView≤Unit (Unitᵥ UnitA' UnitB') (ϝᵣ mε A⇒A' αA' tA fA) [B'] f< =
+--   ⊥-elim (Unit≢αne αA' (whrDet* (red (wfRed≤* f< UnitA')  , Unitₙ) (  (red A⇒A') , αₙ αA')))
+
+-- ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Uᵣ UB) f<
+--   with whrDet* ( red (idRed:*: (escape (Uᵣ UB))) , Uₙ) (red (wfRed≤* f< UnitB')  , Unitₙ)
+-- ... | ()
+-- ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ℕᵣ ℕB) f<
+--   with whrDet* (red (wfRed≤* f< UnitB')  , Unitₙ) ( (red ℕB) , ℕₙ) 
+-- ... | ()
+-- ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Emptyᵣ D) f<  
+--   with whrDet* (red (wfRed≤* f< UnitB')  , Unitₙ) ( (red D) , Emptyₙ) 
+-- ... | ()
+-- ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) f< =
+--  ⊥-elim (Unit≢B W (whrDet* (red (wfRed≤* f< UnitB')  , Unitₙ) ( (red D) , ⟦ W ⟧ₙ)))
+-- ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ne′ K D neK K≡K) f< =
+--   ⊥-elim (Unit≢ne neK (whrDet* ((red (wfRed≤* f< UnitB') ) , Unitₙ) ( (red D) , ne neK)))
+-- ShapeView≤Unit (Unitᵥ UnitA' UnitB') (Unitᵣ UnitA) (ϝᵣ mε A⇒A' αA' tA fA) f< =
+--   ⊥-elim (Unit≢αne αA' (whrDet* (red (wfRed≤* f< UnitB')  , Unitₙ) (  (red A⇒A') , αₙ αA')))
   
 
 ShapeView≤ : ∀ {k k′ j j'} {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'}
@@ -1126,13 +1374,17 @@ ShapeView≤ [AB] [A] (emb 0<1 [B]) f< = emb¹⁰ (ShapeView≤ [AB] [A] [B] f<)
 ShapeView≤ {k = k} {k′ = k′} (ℕᵥ ℕA' ℕB') [A'] [B'] f< =
   ShapeView≤ℕ {k = k} {k′ = k′} (ℕᵥ ℕA' ℕB') [A'] [B'] f<
 
--- Empty
-ShapeView≤ {k = k} {k′ = k′} (Emptyᵥ EmptyA' EmptyB') [A'] [B'] f<
-  = ShapeView≤Empty {k = k} {k′ = k′} (Emptyᵥ EmptyA' EmptyB') [A'] [B'] f<
+-- 𝔹
+ShapeView≤ {k = k} {k′ = k′} (𝔹ᵥ 𝔹A' 𝔹B') [A'] [B'] f< =
+  ShapeView≤𝔹 {k = k} {k′ = k′} (𝔹ᵥ 𝔹A' 𝔹B') [A'] [B'] f<
 
--- Unit
-ShapeView≤ {k = k} {k′ = k′} (Unitᵥ UnitA' UnitB') [A'] [B'] f<
-  = ShapeView≤Unit {k = k} {k′ = k′} (Unitᵥ UnitA' UnitB') [A'] [B'] f<
+-- -- Empty
+-- ShapeView≤ {k = k} {k′ = k′} (Emptyᵥ EmptyA' EmptyB') [A'] [B'] f<
+--   = ShapeView≤Empty {k = k} {k′ = k′} (Emptyᵥ EmptyA' EmptyB') [A'] [B'] f<
+
+-- -- Unit
+-- ShapeView≤ {k = k} {k′ = k′} (Unitᵥ UnitA' UnitB') [A'] [B'] f<
+--   = ShapeView≤Unit {k = k} {k′ = k′} (Unitᵥ UnitA' UnitB') [A'] [B'] f<
   
 -- Σ and Π-types
 ShapeView≤ (Bᵥ W BA BB) [A'] [B'] f< =
@@ -1157,16 +1409,20 @@ ShapeView≤ {lε' = lε'}  (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB)
   | TS.inj₂ notinl' =
   ⊥-elim (ℕ≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αA)
                     (whrDet* (red ℕA , ℕₙ) (red (wfRed≤* f< A⇒A') , αₙ (αNeNotIn notinl' αA))))
+ShapeView≤ {lε' = lε'}  (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (𝔹ᵣ 𝔹A) [B'] f<
+  | TS.inj₂ notinl' =
+  ⊥-elim (𝔹≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αA)
+                    (whrDet* (red 𝔹A , 𝔹ₙ) (red (wfRed≤* f< A⇒A') , αₙ (αNeNotIn notinl' αA))))
 ShapeView≤ (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Uᵣ UA) [B'] f<
   | TS.inj₂ notinl' = ⊥-elim (U≢αne αA (whnfRed* (red A⇒A') Uₙ))
-ShapeView≤ {lε' = lε'} (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Emptyᵣ D) [B'] f<
-  | TS.inj₂ notinl' =
-  ⊥-elim (Empty≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αA)
-                    (whrDet* (red D , Emptyₙ) (red (wfRed≤* f< A⇒A') , αₙ (αNeNotIn notinl' αA))))
-ShapeView≤ {lε' = lε'} (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Unitᵣ D) [B'] f<
-  | TS.inj₂ notinl' =
-  ⊥-elim (Unit≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αA)
-                   (whrDet* (red D , Unitₙ) (red (wfRed≤* f< A⇒A') , αₙ (αNeNotIn notinl' αA))))
+-- ShapeView≤ {lε' = lε'} (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Emptyᵣ D) [B'] f<
+--   | TS.inj₂ notinl' =
+--   ⊥-elim (Empty≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αA)
+--                     (whrDet* (red D , Emptyₙ) (red (wfRed≤* f< A⇒A') , αₙ (αNeNotIn notinl' αA))))
+-- ShapeView≤ {lε' = lε'} (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Unitᵣ D) [B'] f<
+--   | TS.inj₂ notinl' =
+--   ⊥-elim (Unit≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αA)
+--                    (whrDet* (red D , Unitₙ) (red (wfRed≤* f< A⇒A') , αₙ (αNeNotIn notinl' αA))))
 ShapeView≤ {lε' = lε'} (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) [B'] f<
   | TS.inj₂ notinl' =
   ⊥-elim (B≢αne {_} {_} {_} {_} {_} {lε'} W (αNeNotIn notinl' αA)
@@ -1180,14 +1436,18 @@ ShapeView≤ {lε' = lε'} (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) 
   | TS.inj₂ notinl' = 
   ⊥-elim (ℕ≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αA)
                     (whrDet* (red ℕA , ℕₙ) (red (wfRed≤* f< A⇒A') , αₙ (αNeNotIn notinl' αA))))
-ShapeView≤ {lε' = lε'}  (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (emb 0<1 (Emptyᵣ D)) [B'] f<
-  | TS.inj₂ notinl' =
-  ⊥-elim (Empty≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αA)
-                    (whrDet* (red D , Emptyₙ) (red (wfRed≤* f< A⇒A') , αₙ (αNeNotIn notinl' αA))))
-ShapeView≤ {lε' = lε'}  (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (emb 0<1 (Unitᵣ D)) [B'] f<
-  | TS.inj₂ notinl' =
-  ⊥-elim (Unit≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αA)
-                   (whrDet* (red D , Unitₙ) (red (wfRed≤* f< A⇒A') , αₙ (αNeNotIn notinl' αA))))
+ShapeView≤ {lε' = lε'} (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (emb 0<1 (𝔹ᵣ 𝔹A)) [B'] f<
+  | TS.inj₂ notinl' = 
+  ⊥-elim (𝔹≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αA)
+                    (whrDet* (red 𝔹A , 𝔹ₙ) (red (wfRed≤* f< A⇒A') , αₙ (αNeNotIn notinl' αA))))
+-- ShapeView≤ {lε' = lε'}  (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (emb 0<1 (Emptyᵣ D)) [B'] f<
+--   | TS.inj₂ notinl' =
+--   ⊥-elim (Empty≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αA)
+--                     (whrDet* (red D , Emptyₙ) (red (wfRed≤* f< A⇒A') , αₙ (αNeNotIn notinl' αA))))
+-- ShapeView≤ {lε' = lε'}  (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (emb 0<1 (Unitᵣ D)) [B'] f<
+--   | TS.inj₂ notinl' =
+--   ⊥-elim (Unit≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αA)
+--                    (whrDet* (red D , Unitₙ) (red (wfRed≤* f< A⇒A') , αₙ (αNeNotIn notinl' αA))))
 ShapeView≤ {lε' = lε'}  (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB)
            (emb 0<1 (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext)) [B'] f<
   | TS.inj₂ notinl' =
@@ -1224,6 +1484,7 @@ ShapeView≤ (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) (ϝᵣ mε A�
       (ShapeView≤ tAB tA (τTyLog [B']) (≤ₗ-add _ _ _ (λ n b ne₁ → InThere _ (f< n b ne₁) _ _) (InHereNat _)))
       (ShapeView≤ fAB fA (τTyLog [B']) (≤ₗ-add _ _ _ (λ n b ne₁ → InThere _ (f< n b ne₁) _ _) (InHereNat _)))
 
+-- Right αNeutrals with embedding
 ShapeView≤ {l' = l'} (ϝᵣ-r {n = n} B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] [B'] f<
   with decidInLConNat l' n
 ShapeView≤ {l' = l'} (ϝᵣ-r {n = n} {nε = nε} B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] [B'] f<
@@ -1238,14 +1499,18 @@ ShapeView≤ {lε' = lε'} (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) 
   | TS.inj₂ notinl' =
   ⊥-elim (ℕ≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αB)
            (whrDet* (red ℕB , ℕₙ) (red (wfRed≤* f< B⇒B') , αₙ (αNeNotIn notinl' αB))))
-ShapeView≤ {lε' = lε'} (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (emb 0<1 (Emptyᵣ D)) f<
+ShapeView≤ {lε' = lε'} (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (emb 0<1 (𝔹ᵣ 𝔹B)) f<
   | TS.inj₂ notinl' =
-  ⊥-elim (Empty≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αB)
-                    (whrDet* (red D , Emptyₙ) (red (wfRed≤* f< B⇒B') , αₙ (αNeNotIn notinl' αB))))
-ShapeView≤ {lε' = lε'} (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (emb 0<1 (Unitᵣ D)) f<
-  | TS.inj₂ notinl' =
-  ⊥-elim (Unit≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αB)
-                    (whrDet* (red D , Unitₙ) (red (wfRed≤* f< B⇒B') , αₙ (αNeNotIn notinl' αB))))
+  ⊥-elim (𝔹≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αB)
+           (whrDet* (red 𝔹B , 𝔹ₙ) (red (wfRed≤* f< B⇒B') , αₙ (αNeNotIn notinl' αB))))
+-- ShapeView≤ {lε' = lε'} (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (emb 0<1 (Emptyᵣ D)) f<
+--   | TS.inj₂ notinl' =
+--   ⊥-elim (Empty≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αB)
+--                     (whrDet* (red D , Emptyₙ) (red (wfRed≤* f< B⇒B') , αₙ (αNeNotIn notinl' αB))))
+-- ShapeView≤ {lε' = lε'} (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (emb 0<1 (Unitᵣ D)) f<
+--   | TS.inj₂ notinl' =
+--   ⊥-elim (Unit≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αB)
+--                     (whrDet* (red D , Unitₙ) (red (wfRed≤* f< B⇒B') , αₙ (αNeNotIn notinl' αB))))
 ShapeView≤ {lε' = lε'} (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A']
            (emb 0<1 (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext))  f<
   | TS.inj₂ notinl' =
@@ -1276,14 +1541,18 @@ ShapeView≤ {lε' = lε'}  (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB)
   | TS.inj₂ notinl' =
     ⊥-elim (ℕ≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αB)
                   (whrDet* (red ℕB , ℕₙ) (red (wfRed≤* f< B⇒B') , αₙ (αNeNotIn notinl' αB))))
-ShapeView≤ {lε' = lε'} (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (Emptyᵣ D) f<
-  | TS.inj₂ notinl' = 
-  ⊥-elim (Empty≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αB)
-                    (whrDet* (red D , Emptyₙ) (red (wfRed≤* f< B⇒B') , αₙ (αNeNotIn notinl' αB))))
-ShapeView≤ {lε' = lε'}  (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (Unitᵣ D) f<
+ShapeView≤ {lε' = lε'}  (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (𝔹ᵣ 𝔹B) f<
   | TS.inj₂ notinl' =
-  ⊥-elim (Unit≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αB)
-                    (whrDet* (red D , Unitₙ) (red (wfRed≤* f< B⇒B') , αₙ (αNeNotIn notinl' αB))))
+    ⊥-elim (𝔹≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αB)
+                  (whrDet* (red 𝔹B , 𝔹ₙ) (red (wfRed≤* f< B⇒B') , αₙ (αNeNotIn notinl' αB))))
+-- ShapeView≤ {lε' = lε'} (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (Emptyᵣ D) f<
+--   | TS.inj₂ notinl' = 
+--   ⊥-elim (Empty≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αB)
+--                     (whrDet* (red D , Emptyₙ) (red (wfRed≤* f< B⇒B') , αₙ (αNeNotIn notinl' αB))))
+-- ShapeView≤ {lε' = lε'}  (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A'] (Unitᵣ D) f<
+--   | TS.inj₂ notinl' =
+--   ⊥-elim (Unit≢αne {_} {_} {_} {lε'} (αNeNotIn notinl' αB)
+--                     (whrDet* (red D , Unitₙ) (red (wfRed≤* f< B⇒B') , αₙ (αNeNotIn notinl' αB))))
 ShapeView≤ {lε' = lε'}  (ϝᵣ-r B⇒B' αB [A] [A]t [A]f [B]t [B]f tAB fAB) [A']
            (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) f<
   | TS.inj₂ notinl' = 
@@ -1306,16 +1575,18 @@ ShapeView≤ (ϝᵣ-r B⇒B' αB [B] [A]t [A]f [B]t [B]f tAB fAB) [A'] (ϝᵣ m�
       (ShapeView≤ tAB (τTyLog [A']) tB (≤ₗ-add _ _ _ (λ n b ne₁ → InThere _ (f< n b ne₁) _ _) (InHereNat _)))
       (ShapeView≤ fAB (τTyLog [A']) fB (≤ₗ-add _ _ _ (λ n b ne₁ → InThere _ (f< n b ne₁) _ _) (InHereNat _)))
 
-
+-- Building ShapeViews
 
 goodCasesℕ : ∀ {k k′}  ([A] : Γ / lε ⊩ℕ A) ([B] : Γ / lε ⊩⟨ k′ ⟩ B)
              → Γ / lε ⊩⟨ k ⟩ A ≡ B / (ℕᵣ [A]) → ShapeView Γ k k′ A B (ℕᵣ [A]) [B]
 goodCasesℕ ℕA (ℕᵣ ℕB) A≡B = ℕᵥ ℕA ℕB
 goodCasesℕ {k = k} {k′ = k′} D (Uᵣ ⊢Γ) ℕ≡U = ⊥-elim (ℕ≠U {_} {_} {_} {_} {_} {k} {k′} D ⊢Γ ℕ≡U)
-goodCasesℕ D (Emptyᵣ D') (⊩ℕ≡ _ _ A⇒N) with whrDet* (A⇒N , ℕₙ) (red D' , Emptyₙ)
+goodCasesℕ D (𝔹ᵣ D') (⊩ℕ≡ _ _ A⇒N) with whrDet* (A⇒N , ℕₙ) (red D' , 𝔹ₙ)
 ... | ()
-goodCasesℕ D (Unitᵣ D') (⊩ℕ≡ _ _ A⇒N) with whrDet* (A⇒N , ℕₙ) (red D' , Unitₙ)
-... | ()
+-- goodCasesℕ D (Emptyᵣ D') (⊩ℕ≡ _ _ A⇒N) with whrDet* (A⇒N , Emptyₙ) (red D' , 𝔹ₙ)
+-- ... | ()
+-- goodCasesℕ D (Unitᵣ D') (⊩ℕ≡ _ _ A⇒N) with whrDet* (A⇒N , ℕₙ) (red D' , Unitₙ)
+-- ... | ()
 goodCasesℕ D (ne′ K D₁ neK K≡K) (⊩ℕ≡ _ _ A⇒N) =
   ⊥-elim (ℕ≢ne neK (whrDet* (A⇒N , ℕₙ) (red D₁ , ne neK)))
 goodCasesℕ D (Bᵣ′ W F G D₁ ⊢F ⊢G A≡A [F] [G] G-ext) (⊩ℕ≡ _ _ A⇒N) =
@@ -1328,10 +1599,12 @@ goodCasesℕ D (ϝᵣ mε A⇒B αB [A]t [A]f) (ϝ⊩ℕ≡ mε' A⇒B' αB' tA�
     ϝᵣ-r A⇒B αB (ℕᵣ D) (ℕᵣ (τwfRed* D)) (ℕᵣ (τwfRed* D)) [A]t [A]f
       (goodCasesℕ ((τwfRed* D)) [A]t tA≡B)
       (goodCasesℕ ((τwfRed* D)) [A]f fA≡B)
-goodCasesℕ [A] (Emptyᵣ D) (ϝ⊩ℕ≡ mε B⇒B' αB tA≡B fA≡B) =
-  ⊥-elim (Empty≢αne αB (whrDet* (red D , Emptyₙ) (red B⇒B' , αₙ αB)))
-goodCasesℕ [A] (Unitᵣ D) (ϝ⊩ℕ≡ mε B⇒B' αB tA≡B fA≡B) =
-  ⊥-elim (Unit≢αne αB (whrDet* (red D , Unitₙ) (red B⇒B' , αₙ αB)))
+goodCasesℕ [a] (𝔹ᵣ D) (ϝ⊩ℕ≡ mε B⇒B' αB tA≡B fA≡B) =
+  ⊥-elim (𝔹≢αne αB (whrDet* (red D , 𝔹ₙ) (red B⇒B' , αₙ αB)))
+-- goodCasesℕ [A] (Emptyᵣ D) (ϝ⊩ℕ≡ mε B⇒B' αB tA≡B fA≡B) =
+--   ⊥-elim (Empty≢αne αB (whrDet* (red D , Emptyₙ) (red B⇒B' , αₙ αB)))
+-- goodCasesℕ [A] (Unitᵣ D) (ϝ⊩ℕ≡ mε B⇒B' αB tA≡B fA≡B) =
+--   ⊥-elim (Unit≢αne αB (whrDet* (red D , Unitₙ) (red B⇒B' , αₙ αB)))
 goodCasesℕ [A] (ne′ K D neK K≡K) (ϝ⊩ℕ≡ mε B⇒B' αB tA≡B fA≡B) =
   ⊥-elim (ne≢αne neK αB (whrDet* (red D , ne neK) (red B⇒B' , αₙ αB)))
 goodCasesℕ [A] (Bᵣ′ BΠ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
@@ -1343,133 +1616,127 @@ goodCasesℕ [A] (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
 goodCasesℕ {k = k} [A] (emb 0<1 x) A≡B =
   emb¹⁰ (goodCasesℕ {k = k} {⁰} [A] x A≡B)
 
-goodCasesΣ : ∀ {k k′} [A] ([B] : Γ / lε ⊩⟨ k′ ⟩ B)
-          → Γ / lε ⊩⟨ k ⟩ A ≡ B / Bᵣ BΣ [A] → ShapeView Γ k k′ A B (Bᵣ BΣ [A]) [B]
-goodCasesΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Uᵣ ⊢Γ)
+
+goodCases𝔹 : ∀ {k k′}  ([A] : Γ / lε ⊩𝔹 A) ([B] : Γ / lε ⊩⟨ k′ ⟩ B)
+             → Γ / lε ⊩⟨ k ⟩ A ≡ B / (𝔹ᵣ [A]) → ShapeView Γ k k′ A B (𝔹ᵣ [A]) [B]
+goodCases𝔹 𝔹A (𝔹ᵣ 𝔹B) A≡B = 𝔹ᵥ 𝔹A 𝔹B
+goodCases𝔹 {k = k} {k′ = k′} D (Uᵣ ⊢Γ) 𝔹≡U = ⊥-elim (𝔹≠U {_} {_} {_} {_} {_} {k} {k′} D ⊢Γ 𝔹≡U)
+goodCases𝔹 D (ℕᵣ D') (⊩𝔹≡ _ _ A⇒N) with whrDet* (A⇒N , 𝔹ₙ) (red D' , ℕₙ)
+... | ()
+-- goodCases𝔹 D (ℕᵣ D') (⊩𝔹≡ _ _ A⇒N) with whrDet* (A⇒N , 𝔹ₙ) (red D' , ℕₙ)
+-- ... | ()
+-- goodCases𝔹 D (Unitᵣ D') (⊩𝔹≡ _ _ A⇒N) with whrDet* (A⇒N , 𝔹ₙ) (red D' , Unitₙ)
+-- ... | ()
+goodCases𝔹 D (ne′ K D₁ neK K≡K) (⊩𝔹≡ _ _ A⇒N) =
+  ⊥-elim (𝔹≢ne neK (whrDet* (A⇒N , 𝔹ₙ) (red D₁ , ne neK)))
+goodCases𝔹 D (Bᵣ′ W F G D₁ ⊢F ⊢G A≡A [F] [G] G-ext) (⊩𝔹≡ _ _ A⇒N) =
+  ⊥-elim (𝔹≢B W (whrDet* (A⇒N , 𝔹ₙ) (red D₁ , ⟦ W ⟧ₙ)))
+goodCases𝔹 D (ϝᵣ mε A⇒B αB [A]t [A]f) (⊩𝔹≡ _ _ A⇒N) = ⊥-elim (𝔹≢αne αB (whrDet* (A⇒N , 𝔹ₙ) (red A⇒B , αₙ αB)))
+goodCases𝔹 D (ϝᵣ mε A⇒B αB [A]t [A]f) (ϝ⊩𝔹≡ mε' A⇒B' αB' tA≡B fA≡B)
+  rewrite whrDet* (red A⇒B' , αₙ αB') (red A⇒B , αₙ αB)
+  rewrite αNeutralHProp (PE.subst (λ K → αNeutral _ K) (whrDet* (red A⇒B' , αₙ αB') (red A⇒B , αₙ αB)) αB') αB
+  rewrite NotInLConNatHProp _ _ mε' mε =
+    ϝᵣ-r A⇒B αB (𝔹ᵣ D) (𝔹ᵣ (τwfRed* D)) (𝔹ᵣ (τwfRed* D)) [A]t [A]f
+      (goodCases𝔹 ((τwfRed* D)) [A]t tA≡B)
+      (goodCases𝔹 ((τwfRed* D)) [A]f fA≡B)
+goodCases𝔹 [a] (ℕᵣ D) (ϝ⊩𝔹≡ mε B⇒B' αB tA≡B fA≡B) =
+  ⊥-elim (ℕ≢αne αB (whrDet* (red D , ℕₙ) (red B⇒B' , αₙ αB)))
+-- goodCases𝔹 [A] (Emptyᵣ D) (ϝ⊩𝔹≡ mε B⇒B' αB tA≡B fA≡B) =
+--   ⊥-elim (Empty≢αne αB (whrDet* (red D , Emptyₙ) (red B⇒B' , αₙ αB)))
+-- goodCases𝔹 [A] (Unitᵣ D) (ϝ⊩𝔹≡ mε B⇒B' αB tA≡B fA≡B) =
+--   ⊥-elim (Unit≢αne αB (whrDet* (red D , Unitₙ) (red B⇒B' , αₙ αB)))
+goodCases𝔹 [A] (ne′ K D neK K≡K) (ϝ⊩𝔹≡ mε B⇒B' αB tA≡B fA≡B) =
+  ⊥-elim (ne≢αne neK αB (whrDet* (red D , ne neK) (red B⇒B' , αₙ αB)))
+goodCases𝔹 [A] (Bᵣ′ BΠ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+    (ϝ⊩𝔹≡ mε B⇒B' αB tA≡B fA≡B) =
+    ⊥-elim (B≢αne BΠ αB (whrDet* (red D , Πₙ) (red B⇒B' , αₙ αB)))
+goodCases𝔹 [A] (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+    (ϝ⊩𝔹≡ mε B⇒B' αB tA≡B fA≡B) =
+    ⊥-elim (B≢αne BΣ αB (whrDet* (red D , Σₙ) (red B⇒B' , αₙ αB)))
+goodCases𝔹 {k = k} [A] (emb 0<1 x) A≡B =
+  emb¹⁰ (goodCases𝔹 {k = k} {⁰} [A] x A≡B)
+
+
+goodCasesW : ∀ {k k′} W [A] ([B] : Γ / lε ⊩⟨ k′ ⟩ B)
+          → Γ / lε ⊩⟨ k ⟩ A ≡ B / Bᵣ W [A] → ShapeView Γ k k′ A B (Bᵣ W [A]) [B]
+goodCasesW BΣ ΣA (Bᵣ BΣ ΣB) A≡B = Bᵥ BΣ ΣA ΣB 
+goodCasesW BΠ ΠA (Bᵣ BΠ ΠB) A≡B = Bᵥ BΠ ΠA ΠB 
+goodCasesW BΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Uᵣ ⊢Γ)
           (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) with whnfRed* D′ Uₙ
 ... | ()
-goodCasesΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ℕᵣ D₁)
-          (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D₁ , ℕₙ) (D′ , Σₙ)
+goodCasesW BΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Uᵣ ⊢Γ)
+          (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) with whnfRed* D′ Uₙ
 ... | ()
-goodCasesΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Emptyᵣ D₁)
-          (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D₁ , Emptyₙ) (D′ , Σₙ)
-... | ()
-goodCasesΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Unitᵣ D₁)
-          (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D₁ , Unitₙ) (D′ , Σₙ)
-... | ()
-goodCasesΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Bᵣ′ BΠ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′)
+goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ℕᵣ D₁)
+          (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
+          ⊥-elim (ℕ≢B W (whrDet* (red D₁ , ℕₙ) (D′ , ⟦ W ⟧ₙ)))
+goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (𝔹ᵣ D₁)
+          (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
+          ⊥-elim (𝔹≢B W (whrDet* (red D₁ , 𝔹ₙ) (D′ , ⟦ W ⟧ₙ)))
+-- goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Emptyᵣ D₁)
+--           (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D₁ , Emptyₙ) (D′ , Σₙ)
+-- ... | ()
+-- goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Unitᵣ D₁)
+--           (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D₁ , Unitₙ) (D′ , Σₙ)
+-- ... | ()
+goodCasesW BΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Bᵣ′ BΠ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′)
   (B₌ _ _ _ _ _ _ _ _ _ F′₁ G′₁ D′₁ A≡B [F≡F′] [G≡G′]) with whrDet* (red D′ , Πₙ) (D′₁ , Σₙ)
 ... | ()
-goodCasesΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne′ K D₁ neK K≡K)
+goodCasesW BΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Bᵣ′ BΣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′)
+  (B₌ _ _ _ _ _ _ _ _ _ F′₁ G′₁ D′₁ A≡B [F≡F′] [G≡G′]) with whrDet* (red D′ , Σₙ) (D′₁ , Πₙ)
+... | ()
+goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne′ K D₁ neK K≡K)
           (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-  ⊥-elim (B≢ne BΣ neK (whrDet* (D′ , Σₙ) (red D₁ , ne neK)))
-goodCasesΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ϝᵣ mε A⇒B αB [A]t [A]f)
+  ⊥-elim (B≢ne W neK (whrDet* (D′ ,  ⟦ W ⟧ₙ) (red D₁ , ne neK)))
+goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ϝᵣ mε A⇒B αB [A]t [A]f)
           (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-          ⊥-elim (B≢αne BΣ αB (whrDet* (D′ , Σₙ) (red A⇒B , αₙ αB)))
-goodCasesΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Uᵣ′ _ _ ⊢Γ)
+          ⊥-elim (B≢αne W αB (whrDet* (D′ ,  ⟦ W ⟧ₙ) (red A⇒B , αₙ αB)))
+goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Uᵣ′ _ _ ⊢Γ)
     (Bϝ .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [ ⊢U , ⊢B , U⇒B ] αB' [A]t [A]f tA≡Σ fA≡Σ) =
     ⊥-elim (U≢αne αB' (whrDet* (id ⊢U , Uₙ) (U⇒B , αₙ αB')))
-goodCasesΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ℕᵣ x)
+goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ℕᵣ x)
     (Bϝ .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)  B⇒B' αB' [A]t [A]f tA≡Σ fA≡Σ) =
       ⊥-elim (ℕ≢αne αB' (whrDet* (red x , ℕₙ) (red B⇒B' , αₙ αB')))
-goodCasesΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Emptyᵣ x)
-    (Bϝ .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) B⇒B' αB' [A]t [A]f tA≡Σ fA≡Σ) =
-    ⊥-elim (Empty≢αne αB' (whrDet* (red x , Emptyₙ) (red B⇒B' , αₙ αB')))
-goodCasesΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Unitᵣ x)
-    (Bϝ .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) B⇒B' αB' [A]t [A]f tA≡Σ fA≡Σ) =
-    ⊥-elim (Unit≢αne αB' (whrDet* (red x , Unitₙ) (red B⇒B' , αₙ αB')))
-goodCasesΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne′ K D₁ neK K≡K)
+goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (𝔹ᵣ x)
+    (Bϝ .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)  B⇒B' αB' [A]t [A]f tA≡Σ fA≡Σ) =
+      ⊥-elim (𝔹≢αne αB' (whrDet* (red x , 𝔹ₙ) (red B⇒B' , αₙ αB')))
+-- goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Emptyᵣ x)
+--     (Bϝ .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) B⇒B' αB' [A]t [A]f tA≡Σ fA≡Σ) =
+--     ⊥-elim (Empty≢αne αB' (whrDet* (red x , Emptyₙ) (red B⇒B' , αₙ αB')))
+-- goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Unitᵣ x)
+--     (Bϝ .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) B⇒B' αB' [A]t [A]f tA≡Σ fA≡Σ) =
+--     ⊥-elim (Unit≢αne αB' (whrDet* (red x , Unitₙ) (red B⇒B' , αₙ αB')))
+goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne′ K D₁ neK K≡K)
     (Bϝ .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) B⇒B' αB' [A]t [A]f tA≡Σ fA≡Σ) =
       ⊥-elim (ne≢αne neK αB' (whrDet* (red D₁ , ne neK) (red B⇒B' , αₙ αB')))
-goodCasesΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-    (Πᵣ′ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
+goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+    (Bᵣ′ W' F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
     (Bϝ .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) B⇒B' αB' [A]t [A]f tA≡Σ fA≡Σ) =
-    ⊥-elim (B≢αne BΠ αB' (whrDet* (red D₁ , Πₙ) (red B⇒B' , αₙ αB')))
-goodCasesΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ϝᵣ {m = n} nε A⇒B αB tA≡B fA≡B)
+    ⊥-elim (B≢αne W' αB' (whrDet* (red D₁ , ⟦ W' ⟧ₙ) (red B⇒B' , αₙ αB')))
+goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ϝᵣ {m = n} nε A⇒B αB tA≡B fA≡B)
     (Bϝ {m = m} {mε = mε} .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) B⇒B' αB' [A]t [A]f tA≡Σ fA≡Σ)  with decidEqNat n m
-goodCasesΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ϝᵣ {m = n} nε A⇒B αB tA≡B fA≡B)
+goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ϝᵣ {m = n} nε A⇒B αB tA≡B fA≡B)
     (Bϝ {m = m} {mε = mε} .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) B⇒B' αB' [A]t [A]f tA≡Σ fA≡Σ) | TS.inj₁ e
       rewrite e
       rewrite NotInLConNatHProp _ _ mε nε
       rewrite whrDet* (red B⇒B' , αₙ αB') (red A⇒B , αₙ αB) =
-    ϝᵣ-r A⇒B αB (Bᵣ _ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ BΣ [A]t) (Bᵣ BΣ [A]f) tA≡B fA≡B
-      (goodCasesΣ [A]t tA≡B tA≡Σ) (goodCasesΣ [A]f fA≡B fA≡Σ)
-goodCasesΣ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ϝᵣ {m = n} nε A⇒B αB tA≡B fA≡B)
+    ϝᵣ-r A⇒B αB (Bᵣ _ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ W [A]t) (Bᵣ W [A]f) tA≡B fA≡B
+      (goodCasesW W [A]t tA≡B tA≡Σ) (goodCasesW W [A]f fA≡B fA≡Σ)
+goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ϝᵣ {m = n} nε A⇒B αB tA≡B fA≡B)
     (Bϝ {m = m} {mε = mε} .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) B⇒B' αB' [A]t [A]f tA≡Σ fA≡Σ) | TS.inj₂ noteq =
     ⊥-elim (noteq (αNeutralHProp αB (PE.subst (λ K → αNeutral m K) (whrDet* (red B⇒B' , αₙ αB') (red A⇒B , αₙ αB)) αB')))
-goodCasesΣ ΣA (Bᵣ BΣ ΣB) A≡B = Bᵥ BΣ ΣA ΣB 
-goodCasesΣ {k = k} ΣA (emb 0<1 x) A≡B =
-          emb¹⁰ (goodCasesΣ {k = k} {⁰} ΣA x A≡B)
-          
-goodCasesΠ : ∀ {k k′} [A] ([B] : Γ / lε ⊩⟨ k′ ⟩ B)
-          → Γ / lε ⊩⟨ k ⟩ A ≡ B / Bᵣ BΠ [A] → ShapeView Γ k k′ A B (Bᵣ BΠ [A]) [B]
-goodCasesΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Uᵣ ⊢Γ)
-          (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) with whnfRed* D′ Uₙ
-... | ()
-goodCasesΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ℕᵣ D₁)
-          (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D₁ , ℕₙ) (D′ , Πₙ)
-... | ()
-goodCasesΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Emptyᵣ D₁)
-          (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D₁ , Emptyₙ) (D′ , Πₙ)
-... | ()
-goodCasesΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Unitᵣ D₁)
-          (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) with whrDet* (red D₁ , Unitₙ) (D′ , Πₙ)
-... | ()
-goodCasesΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Bᵣ′ BΣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′)
-  (B₌ _ _ _ _ _ _ _ _ _ F′₁ G′₁ D′₁ A≡B [F≡F′] [G≡G′]) with whrDet* (red D′ , Σₙ) (D′₁ , Πₙ)
-... | ()
-goodCasesΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne′ K D₁ neK K≡K)
-          (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-  ⊥-elim (B≢ne BΠ neK (whrDet* (D′ , Πₙ) (red D₁ , ne neK)))
-goodCasesΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ϝᵣ mε A⇒B αB [A]t [A]f)
-          (B₌ _ _ _ _ _ _ _ _ _ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-          ⊥-elim (B≢αne BΠ αB (whrDet* (D′ , Πₙ) (red A⇒B , αₙ αB)))
-goodCasesΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Uᵣ′ _ _ ⊢Γ)
-    (Bϝ .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [ ⊢U , ⊢B , U⇒B ] αB' [A]t [A]f tA≡Π fA≡Π) =
-    ⊥-elim (U≢αne αB' (whrDet* (id ⊢U , Uₙ) (U⇒B , αₙ αB')))
-goodCasesΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ℕᵣ x)
-    (Bϝ .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)  B⇒B' αB' [A]t [A]f tA≡Π fA≡Π) =
-      ⊥-elim (ℕ≢αne αB' (whrDet* (red x , ℕₙ) (red B⇒B' , αₙ αB')))
-goodCasesΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Emptyᵣ x)
-    (Bϝ .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) B⇒B' αB' [A]t [A]f tA≡Π fA≡Π) =
-    ⊥-elim (Empty≢αne αB' (whrDet* (red x , Emptyₙ) (red B⇒B' , αₙ αB')))
-goodCasesΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Unitᵣ x)
-    (Bϝ .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) B⇒B' αB' [A]t [A]f tA≡Π fA≡Π) =
-    ⊥-elim (Unit≢αne αB' (whrDet* (red x , Unitₙ) (red B⇒B' , αₙ αB')))
-goodCasesΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ne′ K D₁ neK K≡K)
-    (Bϝ .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) B⇒B' αB' [A]t [A]f tA≡Π fA≡Π) =
-      ⊥-elim (ne≢αne neK αB' (whrDet* (red D₁ , ne neK) (red B⇒B' , αₙ αB')))
-goodCasesΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-    (Σᵣ′ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁)
-    (Bϝ .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) B⇒B' αB' [A]t [A]f tA≡Π fA≡Π) =
-    ⊥-elim (B≢αne BΣ αB' (whrDet* (red D₁ , Σₙ) (red B⇒B' , αₙ αB')))
-goodCasesΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ϝᵣ {m = n} nε A⇒B αB tA≡B fA≡B)
-    (Bϝ {m = m} {mε = mε} .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) B⇒B' αB' [A]t [A]f tA≡Π fA≡Π)  with decidEqNat n m
-goodCasesΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ϝᵣ {m = n} nε A⇒B αB tA≡B fA≡B)
-    (Bϝ {m = m} {mε = mε} .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) B⇒B' αB' [A]t [A]f tA≡Π fA≡Π) | TS.inj₁ e
-      rewrite e
-      rewrite NotInLConNatHProp _ _ mε nε
-      rewrite whrDet* (red B⇒B' , αₙ αB') (red A⇒B , αₙ αB) =
-    ϝᵣ-r A⇒B αB (Bᵣ _ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵣ BΠ [A]t) (Bᵣ BΠ [A]f) tA≡B fA≡B
-      (goodCasesΠ [A]t tA≡B tA≡Π) (goodCasesΠ [A]f fA≡B fA≡Π)
-goodCasesΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ϝᵣ {m = n} nε A⇒B αB tA≡B fA≡B)
-    (Bϝ {m = m} {mε = mε} .(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) B⇒B' αB' [A]t [A]f tA≡Π fA≡Π) | TS.inj₂ noteq =
-    ⊥-elim (noteq (αNeutralHProp αB (PE.subst (λ K → αNeutral m K) (whrDet* (red B⇒B' , αₙ αB') (red A⇒B , αₙ αB)) αB')))
-goodCasesΠ ΠA (Bᵣ BΠ ΠB) A≡B = Bᵥ BΠ ΠA ΠB 
-goodCasesΠ {k = k} ΠA (emb 0<1 x) A≡B =
-          emb¹⁰ (goodCasesΠ {k = k} {⁰} ΠA x A≡B)
-
+goodCasesW {k = k} W BA (emb 0<1 x) A≡B =
+          emb¹⁰ (goodCasesW {k = k} {⁰} W BA x A≡B)
+ 
 
 -- Construct an shape view from an equality (aptly named)
 goodCases : ∀ {k k′} ([A] : Γ / lε ⊩⟨ k ⟩ A) ([B] : Γ / lε ⊩⟨ k′ ⟩ B)
           → Γ / lε ⊩⟨ k ⟩ A ≡ B / [A] → ShapeView Γ k k′ A B [A] [B]
--- Diagonal cases
+-- Diagonal cases not treated in the auxiliary functions
 goodCases (Uᵣ UA) (Uᵣ UB) A≡B = Uᵥ UA UB
-goodCases (Emptyᵣ EmptyA) (Emptyᵣ EmptyB) A≡B = Emptyᵥ EmptyA EmptyB
-goodCases (Unitᵣ UnitA) (Unitᵣ UnitB) A≡B = Unitᵥ UnitA UnitB
+-- goodCases (Emptyᵣ EmptyA) (Emptyᵣ EmptyB) A≡B = Emptyᵥ EmptyA EmptyB
+-- goodCases (Unitᵣ UnitA) (Unitᵣ UnitB) A≡B = Unitᵥ UnitA UnitB
 goodCases (ne neA) (ne neB) A≡B = ne neA neB
-goodCases (Bᵣ BΠ ΠA) (Bᵣ BΠ ΠB) A≡B = Bᵥ BΠ ΠA ΠB
-goodCases (Bᵣ BΣ ΣA) (Bᵣ BΣ ΣB) A≡B = Bᵥ BΣ ΣA ΣB
 goodCases (ϝᵣ {m = m} nε A⇒B αB [B]t [B]f) (ϝᵣ {m = m'} nε' A⇒B' αB' [B]t' [B]f') ( tA≡B , fA≡B ) with decidEqNat m m'
 goodCases (ϝᵣ nε A⇒B αB [B]t [B]f) (ϝᵣ nε' A⇒B' αB' [B]t' [B]f') ( tA≡B , fA≡B ) | TS.inj₁ e rewrite e rewrite NotInLConNatHProp _ _ nε nε' =
   ϝᵣ-l A⇒B αB (ϝᵣ nε' A⇒B' αB' [B]t' [B]f') [B]t [B]f (AntiRedLog [B]t' (τwfRed* A⇒B')) (AntiRedLog [B]f' (τwfRed* A⇒B')) (goodCases [B]t (AntiRedLog [B]t' (τwfRed* A⇒B')) tA≡B) (goodCases [B]f (AntiRedLog [B]f' (τwfRed* A⇒B')) fA≡B)
@@ -1482,8 +1749,6 @@ goodCases (ϝᵣ {m = m} nε A⇒B αB [B]t [B]f) (ϝᵣ {m = m'} nε' A⇒B' α
   ϝᵣ-l A⇒B αB (ϝᵣ nε' A⇒B' αB' [B]t' [B]f') [B]t [B]f (ϝε Btrue) (ϝε Bfalse)
     (goodCases [B]t (ϝε Btrue) tA≡B) (goodCases [B]f (ϝε Bfalse) fA≡B)
 
---goodCases (Σᵣ ΣA) (Σᵣ ΣB) A≡B = Σᵥ ΣA ΣB
-
 goodCases {k = k} [A] (emb 0<1 x) A≡B =
   emb¹⁰ (goodCases {k = k} {⁰} [A] x A≡B)
 goodCases {k′ = k} (emb 0<1 x) [B] A≡B =
@@ -1493,10 +1758,12 @@ goodCases {k′ = k} (emb 0<1 x) [B] A≡B =
 -- U ≡ _
 goodCases (Uᵣ′ _ _ ⊢Γ) (ℕᵣ D) PE.refl with whnfRed* (red D) Uₙ
 ... | ()
-goodCases (Uᵣ′ _ _ ⊢Γ) (Emptyᵣ D) PE.refl with whnfRed* (red D) Uₙ
+goodCases (Uᵣ′ _ _ ⊢Γ) (𝔹ᵣ D) PE.refl with whnfRed* (red D) Uₙ
 ... | ()
-goodCases (Uᵣ′ _ _ ⊢Γ) (Unitᵣ D) PE.refl with whnfRed* (red D) Uₙ
-... | ()
+-- goodCases (Uᵣ′ _ _ ⊢Γ) (Emptyᵣ D) PE.refl with whnfRed* (red D) Uₙ
+-- ... | ()
+-- goodCases (Uᵣ′ _ _ ⊢Γ) (Unitᵣ D) PE.refl with whnfRed* (red D) Uₙ
+-- ... | ()
 goodCases (Uᵣ′ _ _ ⊢Γ) (ne′ K D neK K≡K) PE.refl =
   ⊥-elim (U≢ne neK (whnfRed* (red D) Uₙ))
 goodCases (Uᵣ′ _ _ ⊢Γ) (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext) PE.refl =
@@ -1506,45 +1773,50 @@ goodCases (Uᵣ′ _ _ ⊢Γ) (ϝᵣ mε A⇒B αB [A]t [A]f) PE.refl =
 
 -- ℕ ≡ _
 goodCases (ℕᵣ ℕA) [B] A≡B = goodCasesℕ ℕA [B] A≡B
+
+-- 𝔹 ≡ _
+goodCases (𝔹ᵣ 𝔹A) [B] A≡B = goodCases𝔹 𝔹A [B] A≡B
       
--- Empty ≢ _
-goodCases (Emptyᵣ D) (Uᵣ ⊢Γ) A≡B with whnfRed* A≡B Uₙ
-... | ()
-goodCases (Emptyᵣ _) (Unitᵣ D') D with whrDet* (red D' , Unitₙ) (D , Emptyₙ)
-... | ()
-goodCases (Emptyᵣ _) (ℕᵣ D') D with whrDet* (red D' , ℕₙ) (D , Emptyₙ)
-... | ()
-goodCases (Emptyᵣ D) (ne′ K D₁ neK K≡K) A≡B =
-  ⊥-elim (Empty≢ne neK (whrDet* (A≡B , Emptyₙ) (red D₁ , ne neK)))
-goodCases (Emptyᵣ D) (Bᵣ′ W F G D₁ ⊢F ⊢G A≡A [F] [G] G-ext) A≡B =
-  ⊥-elim (Empty≢B W (whrDet* (A≡B , Emptyₙ) (red D₁ , ⟦ W ⟧ₙ)))
-goodCases (Emptyᵣ D) (ϝᵣ mε A⇒B αB [A]t [A]f) A≡B =
- ⊥-elim (Empty≢αne αB (whrDet* (A≡B , Emptyₙ) (red A⇒B , αₙ αB)))
+-- -- Empty ≢ _
+-- goodCases (Emptyᵣ D) (Uᵣ ⊢Γ) A≡B with whnfRed* A≡B Uₙ
+-- ... | ()
+-- goodCases (Emptyᵣ _) (Unitᵣ D') D with whrDet* (red D' , Unitₙ) (D , Emptyₙ)
+-- ... | ()
+-- goodCases (Emptyᵣ _) (ℕᵣ D') D with whrDet* (red D' , ℕₙ) (D , Emptyₙ)
+-- ... | ()
+-- goodCases (Emptyᵣ D) (ne′ K D₁ neK K≡K) A≡B =
+--   ⊥-elim (Empty≢ne neK (whrDet* (A≡B , Emptyₙ) (red D₁ , ne neK)))
+-- goodCases (Emptyᵣ D) (Bᵣ′ W F G D₁ ⊢F ⊢G A≡A [F] [G] G-ext) A≡B =
+--   ⊥-elim (Empty≢B W (whrDet* (A≡B , Emptyₙ) (red D₁ , ⟦ W ⟧ₙ)))
+-- goodCases (Emptyᵣ D) (ϝᵣ mε A⇒B αB [A]t [A]f) A≡B =
+--  ⊥-elim (Empty≢αne αB (whrDet* (A≡B , Emptyₙ) (red A⇒B , αₙ αB)))
 
 
--- Unit ≡ _
-goodCases (Unitᵣ _) (Uᵣ x₁) A≡B with whnfRed* A≡B Uₙ
-... | ()
-goodCases (Unitᵣ _) (Emptyᵣ D') D with whrDet* (red D' , Emptyₙ) (D , Unitₙ)
-... | ()
-goodCases (Unitᵣ _) (ℕᵣ D') D with whrDet* (red D' , ℕₙ) (D , Unitₙ)
-... | ()
-goodCases (Unitᵣ D) (ne′ K D₁ neK K≡K) A≡B =
-  ⊥-elim (Unit≢ne neK (whrDet* (A≡B , Unitₙ) (red D₁ , ne neK)))
-goodCases (Unitᵣ D) (Bᵣ′ W F G D₁ ⊢F ⊢G A≡A [F] [G] G-ext) A≡B =
-  ⊥-elim (Unit≢B W (whrDet* (A≡B , Unitₙ) (red D₁ , ⟦ W ⟧ₙ)))
-goodCases (Unitᵣ D) (ϝᵣ mε A⇒B αB [A]t [A]f) A≡B =
-  ⊥-elim (Unit≢αne αB (whrDet* (A≡B , Unitₙ) (red A⇒B , αₙ αB)))
+-- -- Unit ≡ _
+-- goodCases (Unitᵣ _) (Uᵣ x₁) A≡B with whnfRed* A≡B Uₙ
+-- ... | ()
+-- goodCases (Unitᵣ _) (Emptyᵣ D') D with whrDet* (red D' , Emptyₙ) (D , Unitₙ)
+-- ... | ()
+-- goodCases (Unitᵣ _) (ℕᵣ D') D with whrDet* (red D' , ℕₙ) (D , Unitₙ)
+-- ... | ()
+-- goodCases (Unitᵣ D) (ne′ K D₁ neK K≡K) A≡B =
+--   ⊥-elim (Unit≢ne neK (whrDet* (A≡B , Unitₙ) (red D₁ , ne neK)))
+-- goodCases (Unitᵣ D) (Bᵣ′ W F G D₁ ⊢F ⊢G A≡A [F] [G] G-ext) A≡B =
+--   ⊥-elim (Unit≢B W (whrDet* (A≡B , Unitₙ) (red D₁ , ⟦ W ⟧ₙ)))
+-- goodCases (Unitᵣ D) (ϝᵣ mε A⇒B αB [A]t [A]f) A≡B =
+--   ⊥-elim (Unit≢αne αB (whrDet* (A≡B , Unitₙ) (red A⇒B , αₙ αB)))
 
 -- ne ≡ _
 goodCases (ne′ K D neK K≡K) (Uᵣ ⊢Γ) (ne₌ M D′ neM K≡M) =
   ⊥-elim (U≢ne neM (whnfRed* (red D′) Uₙ))
 goodCases (ne′ K D neK K≡K) (ℕᵣ D₁) (ne₌ M D′ neM K≡M) =
   ⊥-elim (ℕ≢ne neM (whrDet* (red D₁ , ℕₙ) (red D′ , ne neM)))
-goodCases (ne′ K D neK K≡K) (Emptyᵣ D₁) (ne₌ M D′ neM K≡M) =
-  ⊥-elim (Empty≢ne neM (whrDet* (red D₁ , Emptyₙ) (red D′ , ne neM)))
-goodCases (ne′ K D neK K≡K) (Unitᵣ D₁) (ne₌ M D′ neM K≡M) =
-  ⊥-elim (Unit≢ne neM (whrDet* (red D₁ , Unitₙ) (red D′ , ne neM)))
+goodCases (ne′ K D neK K≡K) (𝔹ᵣ D₁) (ne₌ M D′ neM K≡M) =
+  ⊥-elim (𝔹≢ne neM (whrDet* (red D₁ , 𝔹ₙ) (red D′ , ne neM)))
+-- goodCases (ne′ K D neK K≡K) (Emptyᵣ D₁) (ne₌ M D′ neM K≡M) =
+--   ⊥-elim (Empty≢ne neM (whrDet* (red D₁ , Emptyₙ) (red D′ , ne neM)))
+-- goodCases (ne′ K D neK K≡K) (Unitᵣ D₁) (ne₌ M D′ neM K≡M) =
+--  ⊥-elim (Unit≢ne neM (whrDet* (red D₁ , Unitₙ) (red D′ , ne neM)))
 goodCases (ne′ K D neK K≡K) (Bᵣ′ W F G D₁ ⊢F ⊢G A≡A [F] [G] G-ext) (ne₌ M D′ neM K≡M) =
   ⊥-elim (B≢ne W neM (whrDet* (red D₁ , ⟦ W ⟧ₙ) (red D′ , ne neM)))
 goodCases (ne′ K D neK K≡K) (ϝᵣ mε A⇒B αB [A]t [A]f)  (ne₌ M D′ neM K≡M) =
@@ -1552,11 +1824,8 @@ goodCases (ne′ K D neK K≡K) (ϝᵣ mε A⇒B αB [A]t [A]f)  (ne₌ M D′ n
 
 
 -- Π ≡ _
-goodCases (Bᵣ BΠ ΠA) ⊢B A≡B = goodCasesΠ ΠA ⊢B A≡B
+goodCases (Bᵣ W BA) ⊢B A≡B = goodCasesW W BA ⊢B A≡B
     
-
--- Σ ≡ _
-goodCases (Bᵣ BΣ ΣA) ⊢B A≡B = goodCasesΣ ΣA ⊢B A≡B
 
 -- ϝ ≡ _
 goodCases (ϝᵣ mε A⇒B αB [A]t [A]f) (Uᵣ (Uᵣ j' j< ⊢Γ)) ( tA≡U , fA≡U ) = ϝᵣ-l A⇒B αB (Uᵣ (Uᵣ j' j< ⊢Γ)) [A]t [A]f (Uᵣ (Uᵣ j' j< (τCon _ _ _ _ ⊢Γ))) (Uᵣ (Uᵣ j' j< (τCon _ _ _ _ ⊢Γ))) (goodCases [A]t (Uᵣ (Uᵣ j' j< (τCon _ _ _ _ ⊢Γ))) tA≡U) (goodCases [A]f (Uᵣ (Uᵣ j' j< (τCon _ _ _ _ ⊢Γ))) fA≡U)
@@ -1564,14 +1833,18 @@ goodCases (ϝᵣ mε A⇒B αB [B]t [B]f) (ℕᵣ D) (tA≡ℕ , fA≡ℕ) =
   ϝᵣ-l A⇒B αB (ℕᵣ D) [B]t [B]f (ℕᵣ (τwfRed* D)) (ℕᵣ (τwfRed* D))
     (goodCases [B]t (ℕᵣ (τwfRed* D)) tA≡ℕ)
     (goodCases [B]f (ℕᵣ (τwfRed* D)) fA≡ℕ)
-goodCases (ϝᵣ mε A⇒B αB [B]t [B]f) (Emptyᵣ D) (tA≡B , fA≡B) =
-  ϝᵣ-l A⇒B αB (Emptyᵣ D) [B]t [B]f (Emptyᵣ (τwfRed* D)) (Emptyᵣ (τwfRed* D))
-    (goodCases [B]t (Emptyᵣ (τwfRed* D)) tA≡B)
-    (goodCases [B]f (Emptyᵣ (τwfRed* D)) fA≡B)
-goodCases (ϝᵣ mε A⇒B αB [B]t [B]f) (Unitᵣ D) (tA≡B , fA≡B) =
-  ϝᵣ-l A⇒B αB (Unitᵣ D) [B]t [B]f (Unitᵣ (τwfRed* D)) (Unitᵣ (τwfRed* D))
-    (goodCases [B]t (Unitᵣ (τwfRed* D)) tA≡B)
-    (goodCases [B]f (Unitᵣ (τwfRed* D)) fA≡B)
+goodCases (ϝᵣ mε A⇒B αB [B]t [B]f) (𝔹ᵣ D) (tA≡𝔹 , fA≡𝔹) =
+  ϝᵣ-l A⇒B αB (𝔹ᵣ D) [B]t [B]f (𝔹ᵣ (τwfRed* D)) (𝔹ᵣ (τwfRed* D))
+    (goodCases [B]t (𝔹ᵣ (τwfRed* D)) tA≡𝔹)
+    (goodCases [B]f (𝔹ᵣ (τwfRed* D)) fA≡𝔹)
+-- goodCases (ϝᵣ mε A⇒B αB [B]t [B]f) (Emptyᵣ D) (tA≡B , fA≡B) =
+--   ϝᵣ-l A⇒B αB (Emptyᵣ D) [B]t [B]f (Emptyᵣ (τwfRed* D)) (Emptyᵣ (τwfRed* D))
+--     (goodCases [B]t (Emptyᵣ (τwfRed* D)) tA≡B)
+--     (goodCases [B]f (Emptyᵣ (τwfRed* D)) fA≡B)
+-- goodCases (ϝᵣ mε A⇒B αB [B]t [B]f) (Unitᵣ D) (tA≡B , fA≡B) =
+--   ϝᵣ-l A⇒B αB (Unitᵣ D) [B]t [B]f (Unitᵣ (τwfRed* D)) (Unitᵣ (τwfRed* D))
+--     (goodCases [B]t (Unitᵣ (τwfRed* D)) tA≡B)
+--     (goodCases [B]f (Unitᵣ (τwfRed* D)) fA≡B)
 goodCases (ϝᵣ mε A⇒B αB [B]t [B]f) (ne′ K D₁ neK K≡K) (tA≡B , fA≡B) =
   ϝᵣ-l A⇒B αB (ne′ K D₁ neK K≡K) [B]t [B]f (ne′ K (τwfRed* D₁) neK (~-τ K≡K)) (ne′ K (τwfRed* D₁) neK (~-τ K≡K))
     (goodCases [B]t (ne′ K (τwfRed* D₁) neK (~-τ K≡K)) tA≡B)
@@ -1604,10 +1877,12 @@ data ShapeView₃ (Γ : Con Term n) : ∀ {l : LCon} {lε : ⊢ₗ l} k k′ k�
   Uᵥ : ∀ {l lε k k′ k″} UA UB UC → ShapeView₃ Γ {l} {lε} k k′ k″ U U U (Uᵣ UA) (Uᵣ UB) (Uᵣ UC)
   ℕᵥ : ∀ {A B C k k′ k″} ℕA ℕB ℕC
     → ShapeView₃ Γ {l} {lε}  k k′ k″ A B C (ℕᵣ ℕA) (ℕᵣ ℕB) (ℕᵣ ℕC)
-  Emptyᵥ : ∀ {l} {lε}  {A B C k k′ k″} EmptyA EmptyB EmptyC
-    → ShapeView₃ Γ {l} {lε}  k k′ k″ A B C (Emptyᵣ EmptyA) (Emptyᵣ EmptyB) (Emptyᵣ EmptyC)
-  Unitᵥ : ∀ {l} {lε}  {A B C k k′ k″} UnitA UnitB UnitC
-    → ShapeView₃ Γ {l} {lε}  k k′ k″ A B C (Unitᵣ UnitA) (Unitᵣ UnitB) (Unitᵣ UnitC)
+  𝔹ᵥ : ∀ {A B C k k′ k″} 𝔹A 𝔹B 𝔹C
+    → ShapeView₃ Γ {l} {lε}  k k′ k″ A B C (𝔹ᵣ 𝔹A) (𝔹ᵣ 𝔹B) (𝔹ᵣ 𝔹C)
+--   Emptyᵥ : ∀ {l} {lε}  {A B C k k′ k″} EmptyA EmptyB EmptyC
+--     → ShapeView₃ Γ {l} {lε}  k k′ k″ A B C (Emptyᵣ EmptyA) (Emptyᵣ EmptyB) (Emptyᵣ EmptyC)
+--   Unitᵥ : ∀ {l} {lε}  {A B C k k′ k″} UnitA UnitB UnitC
+--     → ShapeView₃ Γ {l} {lε}  k k′ k″ A B C (Unitᵣ UnitA) (Unitᵣ UnitB) (Unitᵣ UnitC)
   ne  : ∀ {l} {lε}  {A B C k k′ k″} neA neB neC
       → ShapeView₃ Γ {l} {lε}  k k′ k″ A B C (ne neA) (ne neB) (ne neC)
   Bᵥ : ∀ {l} {lε}  {A B C k k′ k″} W BA BB BC
@@ -1654,10 +1929,12 @@ combineW-l W (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Uᵥ UA UB)
   ⊥-elim (U≢B W (whnfRed* (red D) Uₙ))
 combineW-l W (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (ℕᵥ ℕA ℕB) =
   ⊥-elim (ℕ≢B W (whrDet* (red ℕA , ℕₙ) (red D , ⟦ W ⟧ₙ)))
-combineW-l W (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Emptyᵥ EmptyA EmptyB) =
-  ⊥-elim (Empty≢B W (whrDet* (red EmptyA , Emptyₙ) (red D , ⟦ W ⟧ₙ)))
-combineW-l W (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Unitᵥ UnitA UnitB) =
-  ⊥-elim (Unit≢B W (whrDet* (red UnitA , Unitₙ) (red D , ⟦ W ⟧ₙ)))
+combineW-l W (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (𝔹ᵥ 𝔹A 𝔹B) =
+  ⊥-elim (𝔹≢B W (whrDet* (red 𝔹A , 𝔹ₙ) (red D , ⟦ W ⟧ₙ)))
+-- combineW-l W (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Emptyᵥ EmptyA EmptyB) =
+--   ⊥-elim (Empty≢B W (whrDet* (red EmptyA , Emptyₙ) (red D , ⟦ W ⟧ₙ)))
+-- combineW-l W (Bᵥ W BA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Unitᵥ UnitA UnitB) =
+--   ⊥-elim (Unit≢B W (whrDet* (red UnitA , Unitₙ) (red D , ⟦ W ⟧ₙ)))
 combineW-l W (Bᵥ W BA (Bᵣ F G D₁ ⊢F ⊢G A≡A [F] [G] G-ext)) (ne (ne K D neK K≡K) neB) =
   ⊥-elim (B≢ne W neK (whrDet* (red D₁ , ⟦ W ⟧ₙ) (red D , ne neK)))
 combineW-l W (Bᵥ BΠ ΠA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) (Bᵥ BΣ (Bᵣ F′ G′ D′ ⊢F′ ⊢G′ A≡A′ [F]′ [G]′ G-ext′) ΣA)
@@ -1679,10 +1956,12 @@ combineU [AB] (emb⁰¹ [BC]) = combineU [AB] [BC]
 combineU [AB] (emb¹⁰ [BC]) = emb¹¹⁰ (combineU [AB] [BC])
 combineU (Uᵥ UA UB) (ℕᵥ ℕA ℕB) with whnfRed* (red ℕA) Uₙ
 ... | ()
-combineU (Uᵥ UA UB) (Emptyᵥ EmptyA EmptyB) with whnfRed* (red EmptyA) Uₙ
+combineU (Uᵥ UA UB) (𝔹ᵥ 𝔹A 𝔹B) with whnfRed* (red 𝔹A) Uₙ
 ... | ()
-combineU (Uᵥ UA UB) (Unitᵥ UnA UnB) with whnfRed* (red UnA) Uₙ
-... | ()
+-- combineU (Uᵥ UA UB) (Emptyᵥ EmptyA EmptyB) with whnfRed* (red EmptyA) Uₙ
+-- ... | ()
+-- combineU (Uᵥ UA UB) (Unitᵥ UnA UnB) with whnfRed* (red UnA) Uₙ
+-- ... | ()
 combineU (Uᵥ UA UB) (ne (ne K D neK K≡K) neB) =
   ⊥-elim (U≢ne neK (whnfRed* (red D) Uₙ))
 combineU (Uᵥ UA UB) (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) =
@@ -1710,10 +1989,12 @@ combineℕ [AB] (emb⁰¹ [BC]) = combineℕ [AB] [BC]
 combineℕ [AB] (emb¹⁰ [BC]) = emb¹¹⁰ (combineℕ [AB] [BC])
 combineℕ (ℕᵥ ℕA ℕB) (Uᵥ UA UB) with whnfRed* (red ℕB) Uₙ
 ... | ()
-combineℕ (ℕᵥ ℕA ℕB) (Emptyᵥ EmptyA EmptyB) with whrDet* (red ℕB , ℕₙ) (red EmptyA , Emptyₙ)
+combineℕ (ℕᵥ ℕA ℕB) (𝔹ᵥ 𝔹A 𝔹B) with whrDet* (red ℕB , ℕₙ) (red 𝔹A , 𝔹ₙ)
 ... | ()
-combineℕ (ℕᵥ ℕA ℕB) (Unitᵥ UnA UnB) with whrDet* (red ℕB , ℕₙ) (red UnA , Unitₙ)
-... | ()
+-- combineℕ (ℕᵥ ℕA ℕB) (Emptyᵥ EmptyA EmptyB) with whrDet* (red ℕB , ℕₙ) (red EmptyA , Emptyₙ)
+-- ... | ()
+-- combineℕ (ℕᵥ ℕA ℕB) (Unitᵥ UnA UnB) with whrDet* (red ℕB , ℕₙ) (red UnA , Unitₙ)
+-- ... | ()
 combineℕ (ℕᵥ ℕA ℕB) (ne (ne K D neK K≡K) neB) =
   ⊥-elim (ℕ≢ne neK (whrDet* (red ℕB , ℕₙ) (red D , ne neK)))
 combineℕ (ℕᵥ ℕA ℕB) (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) =
@@ -1726,56 +2007,84 @@ combineℕ (ℕᵥ ℕA ℕB) (ϝᵣ-r C⇒C' αC [B] [B]t [B]f [C]t [C]f tBC fB
     (combineℕ (ℕᵥ (τwfRed* ℕA) (τwfRed* ℕB)) tBC)
     (combineℕ (ℕᵥ (τwfRed* ℕA) (τwfRed* ℕB)) fBC)
 
-combineUnit : ∀ {l : LCon} {lε : ⊢ₗ l} {k k′ k″ k‴ A B C UnitA UnitB [B]′ [C]}
-          → ShapeView Γ {l} {lε} k k′ A B (Unitᵣ UnitA) (Unitᵣ UnitB)
+combine𝔹 : ∀ {l : LCon} {lε : ⊢ₗ l} {k k′ k″ k‴ A B C 𝔹A 𝔹B [B]′ [C]}
+          → ShapeView Γ {l} {lε} k k′ A B (𝔹ᵣ 𝔹A) (𝔹ᵣ 𝔹B)
           → ShapeView Γ {l} {lε} k″ k‴ B C [B]′ [C]
-          → ShapeView₃ Γ {l} {lε} k k′ k‴ A B C (Unitᵣ UnitA) (Unitᵣ UnitB) [C]
-combineUnit (Unitᵥ UnitA₁ UnitB₁) (Unitᵥ UnitA UnitB) = Unitᵥ UnitA₁ UnitB₁ UnitB
-combineUnit [AB] (emb⁰¹ [BC]) = combineUnit [AB] [BC]
-combineUnit [AB] (emb¹⁰ [BC]) = emb¹¹⁰ (combineUnit [AB] [BC])
-combineUnit (Unitᵥ UnitA UnitB) (Uᵥ UA UB) with whnfRed* (red UnitB) Uₙ
+          → ShapeView₃ Γ {l} {lε} k k′ k‴ A B C (𝔹ᵣ 𝔹A) (𝔹ᵣ 𝔹B) [C]
+combine𝔹 (𝔹ᵥ 𝔹A₁ 𝔹B₁) (𝔹ᵥ 𝔹A 𝔹B) = 𝔹ᵥ 𝔹A₁ 𝔹B₁ 𝔹B
+combine𝔹 [AB] (emb⁰¹ [BC]) = combine𝔹 [AB] [BC]
+combine𝔹 [AB] (emb¹⁰ [BC]) = emb¹¹⁰ (combine𝔹 [AB] [BC])
+combine𝔹 (𝔹ᵥ 𝔹A 𝔹B) (Uᵥ UA UB) with whnfRed* (red 𝔹B) Uₙ
 ... | ()
-combineUnit (Unitᵥ UnitA UnitB) (ℕᵥ ℕA ℕB) with whrDet* (red UnitB , Unitₙ) (red ℕA , ℕₙ)
+combine𝔹 (𝔹ᵥ 𝔹A 𝔹B) (ℕᵥ ℕA ℕB) with whrDet* (red 𝔹B , 𝔹ₙ) (red ℕA , ℕₙ)
 ... | ()
-combineUnit (Unitᵥ UnitA UnitB) (Emptyᵥ EmptyA EmptyB) with whrDet* (red UnitB , Unitₙ) (red EmptyA , Emptyₙ)
-... | ()
-combineUnit (Unitᵥ UnitA UnitB) (ne (ne K D neK K≡K) neB) =
-  ⊥-elim (Unit≢ne neK (whrDet* (red UnitB , Unitₙ) (red D , ne neK)))
-combineUnit (Unitᵥ UnitA UnitB) (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) =
-  ⊥-elim (Unit≢B W (whrDet* (red UnitB , Unitₙ) (red D , ⟦ W ⟧ₙ)))
-combineUnit (Unitᵥ UnitA UnitB) (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) =
-  ⊥-elim (Unit≢αne αA (whrDet* (red UnitB , Unitₙ) (red A⇒A' , αₙ αA)))
-combineUnit (Unitᵥ UnitA UnitB) (ϝᵣ-r C⇒C' αC [B] [B]t [B]f [C]t [C]f tBC fBC) =
-  ϝᵣ-r C⇒C' αC (Unitᵣ UnitA) (Unitᵣ UnitB) (Unitᵣ (τwfRed* UnitA)) (Unitᵣ (τwfRed* UnitA))
-    (Unitᵣ (τwfRed* UnitB)) (Unitᵣ (τwfRed* UnitB)) [C]t [C]f
-    (combineUnit (Unitᵥ (τwfRed* UnitA) (τwfRed* UnitB)) tBC)
-    (combineUnit (Unitᵥ (τwfRed* UnitA) (τwfRed* UnitB)) fBC)
+-- combine𝔹 (𝔹ᵥ 𝔹A 𝔹B) (Emptyᵥ EmptyA EmptyB) with whrDet* (red 𝔹B , 𝔹ₙ) (red EmptyA , Emptyₙ)
+-- ... | ()
+-- combine𝔹 (𝔹ᵥ 𝔹A 𝔹B) (Unitᵥ UnA UnB) with whrDet* (red 𝔹B , 𝔹ₙ) (red UnA , Unitₙ)
+-- ... | ()
+combine𝔹 (𝔹ᵥ 𝔹A 𝔹B) (ne (ne K D neK K≡K) neB) =
+  ⊥-elim (𝔹≢ne neK (whrDet* (red 𝔹B , 𝔹ₙ) (red D , ne neK)))
+combine𝔹 (𝔹ᵥ 𝔹A 𝔹B) (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) =
+  ⊥-elim (𝔹≢B W (whrDet* (red 𝔹B , 𝔹ₙ) (red D , ⟦ W ⟧ₙ)))
+combine𝔹 (𝔹ᵥ 𝔹A 𝔹B) (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) =
+  ⊥-elim (𝔹≢αne αA (whrDet* (red 𝔹B , 𝔹ₙ) (red A⇒A' , αₙ αA)))
+combine𝔹 (𝔹ᵥ 𝔹A 𝔹B) (ϝᵣ-r C⇒C' αC [B] [B]t [B]f [C]t [C]f tBC fBC) =
+  ϝᵣ-r C⇒C' αC (𝔹ᵣ 𝔹A) (𝔹ᵣ 𝔹B) (𝔹ᵣ (τwfRed* 𝔹A)) (𝔹ᵣ (τwfRed* 𝔹A))
+    (𝔹ᵣ (τwfRed* 𝔹B)) (𝔹ᵣ (τwfRed* 𝔹B)) [C]t [C]f
+    (combine𝔹 (𝔹ᵥ (τwfRed* 𝔹A) (τwfRed* 𝔹B)) tBC)
+    (combine𝔹 (𝔹ᵥ (τwfRed* 𝔹A) (τwfRed* 𝔹B)) fBC)
 
 
-combineE : ∀ {l : LCon} {lε : ⊢ₗ l} {k k′ k″ k‴ A B C EA EB [B]′ [C]}
-          → ShapeView Γ {l} {lε} k k′ A B (Emptyᵣ EA) (Emptyᵣ EB)
-          → ShapeView Γ {l} {lε} k″ k‴ B C [B]′ [C]
-          → ShapeView₃ Γ {l} {lε} k k′ k‴ A B C (Emptyᵣ EA) (Emptyᵣ EB) [C]
-combineE (Emptyᵥ EA₁ EB₁) (Emptyᵥ EA EB) = Emptyᵥ EA₁ EB₁ EB
-combineE [AB] (emb⁰¹ [BC]) = combineE [AB] [BC]
-combineE [AB] (emb¹⁰ [BC]) = emb¹¹⁰ (combineE [AB] [BC])
-combineE (Emptyᵥ EmptyA EmptyB) (Uᵥ UA UB) with whnfRed* (red EmptyB) Uₙ
-... | ()
-combineE (Emptyᵥ EmptyA EmptyB) (ℕᵥ ℕA ℕB) with whrDet* (red EmptyB , Emptyₙ) (red ℕA , ℕₙ)
-... | ()
-combineE (Emptyᵥ EmptyA EmptyB) (Unitᵥ UnA UnB) with whrDet* (red EmptyB , Emptyₙ) (red UnA , Unitₙ)
-... | ()
-combineE (Emptyᵥ EmptyA EmptyB) (ne (ne K D neK K≡K) neB) =
-  ⊥-elim (Empty≢ne neK (whrDet* (red EmptyB , Emptyₙ) (red D , ne neK)))
-combineE (Emptyᵥ EmptyA EmptyB) (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) =
-  ⊥-elim (Empty≢B W (whrDet* (red EmptyB , Emptyₙ) (red D , ⟦ W ⟧ₙ)))
-combineE (Emptyᵥ EmptyA EmptyB) (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) =
-  ⊥-elim (Empty≢αne αA (whrDet* (red EmptyB , Emptyₙ) (red A⇒A' , αₙ αA)))
-combineE (Emptyᵥ EA EB) (ϝᵣ-r C⇒C' αC [B] [B]t [B]f [C]t [C]f tBC fBC) =
-  ϝᵣ-r C⇒C' αC (Emptyᵣ EA) (Emptyᵣ EB) (Emptyᵣ (τwfRed* EA)) (Emptyᵣ (τwfRed* EA))
-    (Emptyᵣ (τwfRed* EB)) (Emptyᵣ (τwfRed* EB)) [C]t [C]f
-    (combineE (Emptyᵥ (τwfRed* EA) (τwfRed* EB)) tBC)
-    (combineE (Emptyᵥ (τwfRed* EA) (τwfRed* EB)) fBC)
+-- combineUnit : ∀ {l : LCon} {lε : ⊢ₗ l} {k k′ k″ k‴ A B C UnitA UnitB [B]′ [C]}
+--           → ShapeView Γ {l} {lε} k k′ A B (Unitᵣ UnitA) (Unitᵣ UnitB)
+--           → ShapeView Γ {l} {lε} k″ k‴ B C [B]′ [C]
+--           → ShapeView₃ Γ {l} {lε} k k′ k‴ A B C (Unitᵣ UnitA) (Unitᵣ UnitB) [C]
+-- combineUnit (Unitᵥ UnitA₁ UnitB₁) (Unitᵥ UnitA UnitB) = Unitᵥ UnitA₁ UnitB₁ UnitB
+-- combineUnit [AB] (emb⁰¹ [BC]) = combineUnit [AB] [BC]
+-- combineUnit [AB] (emb¹⁰ [BC]) = emb¹¹⁰ (combineUnit [AB] [BC])
+-- combineUnit (Unitᵥ UnitA UnitB) (Uᵥ UA UB) with whnfRed* (red UnitB) Uₙ
+-- ... | ()
+-- combineUnit (Unitᵥ UnitA UnitB) (ℕᵥ ℕA ℕB) with whrDet* (red UnitB , Unitₙ) (red ℕA , ℕₙ)
+-- ... | ()
+-- combineUnit (Unitᵥ UnitA UnitB) (Emptyᵥ EmptyA EmptyB) with whrDet* (red UnitB , Unitₙ) (red EmptyA , Emptyₙ)
+-- ... | ()
+-- combineUnit (Unitᵥ UnitA UnitB) (ne (ne K D neK K≡K) neB) =
+--   ⊥-elim (Unit≢ne neK (whrDet* (red UnitB , Unitₙ) (red D , ne neK)))
+-- combineUnit (Unitᵥ UnitA UnitB) (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) =
+--   ⊥-elim (Unit≢B W (whrDet* (red UnitB , Unitₙ) (red D , ⟦ W ⟧ₙ)))
+-- combineUnit (Unitᵥ UnitA UnitB) (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) =
+--   ⊥-elim (Unit≢αne αA (whrDet* (red UnitB , Unitₙ) (red A⇒A' , αₙ αA)))
+-- combineUnit (Unitᵥ UnitA UnitB) (ϝᵣ-r C⇒C' αC [B] [B]t [B]f [C]t [C]f tBC fBC) =
+--   ϝᵣ-r C⇒C' αC (Unitᵣ UnitA) (Unitᵣ UnitB) (Unitᵣ (τwfRed* UnitA)) (Unitᵣ (τwfRed* UnitA))
+--     (Unitᵣ (τwfRed* UnitB)) (Unitᵣ (τwfRed* UnitB)) [C]t [C]f
+--     (combineUnit (Unitᵥ (τwfRed* UnitA) (τwfRed* UnitB)) tBC)
+--     (combineUnit (Unitᵥ (τwfRed* UnitA) (τwfRed* UnitB)) fBC)
+
+
+-- combineE : ∀ {l : LCon} {lε : ⊢ₗ l} {k k′ k″ k‴ A B C EA EB [B]′ [C]}
+--           → ShapeView Γ {l} {lε} k k′ A B (Emptyᵣ EA) (Emptyᵣ EB)
+--           → ShapeView Γ {l} {lε} k″ k‴ B C [B]′ [C]
+--           → ShapeView₃ Γ {l} {lε} k k′ k‴ A B C (Emptyᵣ EA) (Emptyᵣ EB) [C]
+-- combineE (Emptyᵥ EA₁ EB₁) (Emptyᵥ EA EB) = Emptyᵥ EA₁ EB₁ EB
+-- combineE [AB] (emb⁰¹ [BC]) = combineE [AB] [BC]
+-- combineE [AB] (emb¹⁰ [BC]) = emb¹¹⁰ (combineE [AB] [BC])
+-- combineE (Emptyᵥ EmptyA EmptyB) (Uᵥ UA UB) with whnfRed* (red EmptyB) Uₙ
+-- ... | ()
+-- combineE (Emptyᵥ EmptyA EmptyB) (ℕᵥ ℕA ℕB) with whrDet* (red EmptyB , Emptyₙ) (red ℕA , ℕₙ)
+-- ... | ()
+-- combineE (Emptyᵥ EmptyA EmptyB) (Unitᵥ UnA UnB) with whrDet* (red EmptyB , Emptyₙ) (red UnA , Unitₙ)
+-- ... | ()
+-- combineE (Emptyᵥ EmptyA EmptyB) (ne (ne K D neK K≡K) neB) =
+--   ⊥-elim (Empty≢ne neK (whrDet* (red EmptyB , Emptyₙ) (red D , ne neK)))
+-- combineE (Emptyᵥ EmptyA EmptyB) (Bᵥ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) BB) =
+--   ⊥-elim (Empty≢B W (whrDet* (red EmptyB , Emptyₙ) (red D , ⟦ W ⟧ₙ)))
+-- combineE (Emptyᵥ EmptyA EmptyB) (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) =
+--   ⊥-elim (Empty≢αne αA (whrDet* (red EmptyB , Emptyₙ) (red A⇒A' , αₙ αA)))
+-- combineE (Emptyᵥ EA EB) (ϝᵣ-r C⇒C' αC [B] [B]t [B]f [C]t [C]f tBC fBC) =
+--   ϝᵣ-r C⇒C' αC (Emptyᵣ EA) (Emptyᵣ EB) (Emptyᵣ (τwfRed* EA)) (Emptyᵣ (τwfRed* EA))
+--     (Emptyᵣ (τwfRed* EB)) (Emptyᵣ (τwfRed* EB)) [C]t [C]f
+--     (combineE (Emptyᵥ (τwfRed* EA) (τwfRed* EB)) tBC)
+--     (combineE (Emptyᵥ (τwfRed* EA) (τwfRed* EB)) fBC)
 
 
 combineNe : ∀ {l : LCon} {lε : ⊢ₗ l} {k k′ k″ k‴ A B C neA neB [B]′ [C]}
@@ -1789,10 +2098,12 @@ combineNe (ne neA (ne K D neK K≡K)) (Uᵥ UA UB) =
   ⊥-elim (U≢ne neK (whnfRed* (red D) Uₙ))
 combineNe (ne neA (ne K D neK K≡K)) (ℕᵥ ℕA ℕB) =
   ⊥-elim (ℕ≢ne neK (whrDet* (red ℕA , ℕₙ) (red D , ne neK)))
-combineNe (ne neA (ne K D neK K≡K)) (Emptyᵥ EmptyA EmptyB) =
-  ⊥-elim (Empty≢ne neK (whrDet* (red EmptyA , Emptyₙ) (red D , ne neK)))
-combineNe (ne neA (ne K D neK K≡K)) (Unitᵥ UnA UnB) =
-  ⊥-elim (Unit≢ne neK (whrDet* (red UnA , Unitₙ) (red D , ne neK)))
+combineNe (ne neA (ne K D neK K≡K)) (𝔹ᵥ 𝔹A 𝔹B) =
+  ⊥-elim (𝔹≢ne neK (whrDet* (red 𝔹A , 𝔹ₙ) (red D , ne neK)))
+-- combineNe (ne neA (ne K D neK K≡K)) (Emptyᵥ EmptyA EmptyB) =
+--   ⊥-elim (Empty≢ne neK (whrDet* (red EmptyA , Emptyₙ) (red D , ne neK)))
+-- combineNe (ne neA (ne K D neK K≡K)) (Unitᵥ UnA UnB) =
+--   ⊥-elim (Unit≢ne neK (whrDet* (red UnA , Unitₙ) (red D , ne neK)))
 combineNe (ne neA (ne K D neK K≡K)) (Bᵥ W (Bᵣ F G D₁ ⊢F ⊢G A≡A [F] [G] G-ext) BB) =
   ⊥-elim (B≢ne W neK (whrDet* (red D₁ , ⟦ W ⟧ₙ) (red D , ne neK)))
 combineNe (ne neA (ne K D neK K≡K)) (ϝᵣ-l A⇒A' αA [B] [A]t [A]f [B]t [B]f tAB fAB) =
@@ -1828,11 +2139,14 @@ combine (Uᵥ UA UB) [BC] = combineU (Uᵥ UA UB) [BC]
 -- ℕ ≡ _
 combine (ℕᵥ ℕA ℕB) [BC] = combineℕ (ℕᵥ ℕA ℕB) [BC]
 
--- Empty ≡ _
-combine (Emptyᵥ EmptyA EmptyB) = combineE (Emptyᵥ EmptyA EmptyB) 
+-- 𝔹 ≡ _
+combine (𝔹ᵥ 𝔹A 𝔹B) [BC] = combine𝔹 (𝔹ᵥ 𝔹A 𝔹B) [BC]
 
--- Unit ≡ _
-combine (Unitᵥ UnitA UnitB) = combineUnit (Unitᵥ UnitA UnitB)
+-- -- Empty ≡ _
+-- combine (Emptyᵥ EmptyA EmptyB) = combineE (Emptyᵥ EmptyA EmptyB) 
+
+-- -- Unit ≡ _
+-- combine (Unitᵥ UnitA UnitB) = combineUnit (Unitᵥ UnitA UnitB)
 
 -- ne ≡ _
 combine (ne neA neB) = combineNe (ne neA neB)
