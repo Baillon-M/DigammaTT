@@ -25,6 +25,18 @@ private
 
 
 
+-- ConvLog-ϝ : ∀ {A B k k' k'' n nε} {[A]t [A]f} [A]
+--                          → Γ / ⊢ₗ• l lε n Btrue nε ⊩⟨ k ⟩ A ≡ B / [A]t
+--                          → Γ / ⊢ₗ• l lε n Bfalse nε ⊩⟨ k' ⟩ A ≡ B / [A]f
+--                          →  Γ / lε ⊩⟨ k'' ⟩ A ≡ B / [A]
+-- ConvLog-ϝ (ℕᵣ D) tAB fAB = ϝ⊩ℕ≡ {!!} {!!} {!!} {!!} {!!}
+-- ConvLog-ϝ (Uᵣ x₂) x x₁
+-- ConvLog-ϝ (𝔹ᵣ x₂) x x₁
+-- ConvLog-ϝ (ne x₂) x x₁
+-- ConvLog-ϝ (Bᵣ W x₂) x x₁
+-- ConvLog-ϝ (emb j< [A]) x x₁
+-- ConvLog-ϝ (ϝᵣ mε x₂ x₃ [A] [A]₁) x x₁
+
 AntiRedLog : ∀ {k A B} ([B] :  Γ / lε ⊩⟨ k ⟩ B) →  Γ / lε ⊢ A :⇒*: B →  Γ / lε ⊩⟨ k ⟩ A
 AntiRedLog (Uᵣ′ k′ k< ⊢Γ) [ ⊢A , ⊢B' , D' ] rewrite redU* D' = Uᵣ′ k′ k< ⊢Γ
 AntiRedLog (ℕᵣ [ ⊢B , ⊢ℕ , D ]) [ ⊢A , ⊢B' , D' ] = ℕᵣ ([ ⊢A , ⊢ℕ , ⇒*-comp D' D ])
@@ -78,7 +90,8 @@ AntiRedConvLog {k = k} (ℕᵣ [C]) B≡ℕ D = AntiRedConvℕ k [C] B≡ℕ D
 AntiRedConvLog {k = k} (𝔹ᵣ [C]) B≡𝔹 D = AntiRedConv𝔹 k [C] B≡𝔹 D
 -- AntiRedConvLog (Emptyᵣ x₁) C≡B D = ⇒*-comp (red D) C≡B
 -- AntiRedConvLog (Unitᵣ x₁) C≡B D = ⇒*-comp (red D) C≡B
-AntiRedConvLog (ne (ne K D neK K≡K)) (ne₌ _ D' neM M≡M) A⇒B = ne₌ _ ([ ⊢A-red A⇒B , ⊢B-red D' , ⇒*-comp (red A⇒B) (red D') ]) neM M≡M
+AntiRedConvLog (ne′ K D neK K≡K) (ne₌ [A] _ D' neM M≡M) A⇒B = ne₌ _ _ ([ ⊢A-red A⇒B , ⊢B-red D' , ⇒*-comp (red A⇒B) (red D') ]) neM M≡M
+AntiRedConvLog (ne′ K D neK K≡K) (ϝ⊩ne≡ mε B⇒B' αB tC≡B fC≡B) A⇒B = ϝ⊩ne≡ mε (:⇒:*-comp A⇒B B⇒B') αB tC≡B fC≡B
 AntiRedConvLog {k = k} (Bᵣ W [C]) B≡C A⇒B = AntiRedConvW k W [C] B≡C A⇒B
 AntiRedConvLog (emb 0<1 [A]) C≡B D = AntiRedConvLog [A] C≡B D
 AntiRedConvLog (ϝᵣ { B = D } mε C⇒D αD [D]t [D]f) ( tC≡B , fC≡B ) A⇒B =
@@ -152,7 +165,7 @@ reflEqAux (ℕᵣ [ ⊢B , ⊢ℕ , D ]) [ ⊢A , ⊢B' , D' ] = ⊩ℕ≡ _ _ (
 reflEqAux (𝔹ᵣ [ ⊢B , ⊢𝔹 , D ]) [ ⊢A , ⊢B' , D' ] = ⊩𝔹≡ _ _ (red ( [ ⊢A , ⊢𝔹 , ⇒*-comp D' D ] ))
 -- reflEqAux (Emptyᵣ [ ⊢B , ⊢Empty , D ]) [ ⊢A , ⊢B' , D' ] = ⇒*-comp D' D
 -- reflEqAux (Unitᵣ [ ⊢B , ⊢Empty , D ]) [ ⊢A , ⊢B' , D' ] = ⇒*-comp D' D
-reflEqAux (ne (ne K [ ⊢A' , ⊢K , D ] neK K≡K)) [ ⊢A , ⊢B , D' ] = ne₌ _ [ ⊢A , ⊢K , ⇒*-comp D' D ] neK K≡K
+reflEqAux (ne (ne K [ ⊢A' , ⊢K , D ] neK K≡K)) [ ⊢A , ⊢B , D' ] = ne₌ _ _ [ ⊢A , ⊢K , ⇒*-comp D' D ] neK K≡K
 reflEqAux (Bᵣ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) [ ⊢A , ⊢B , D' ] =
   B₌ F G D ⊢F ⊢G A≡A [F] [G] G-ext _ _ (⇒*-comp D' (red D)) A≡A
     (λ {m} {_} {_} {l'} {≤ε} {lε'} ρ Δ → reflEqAux ([F] ρ Δ) (idRed:*: (Definition.Typed.Weakening.wk ρ Δ (Ty≤ ≤ε ⊢F))))
@@ -176,8 +189,7 @@ escapeEq {k = k} (ℕᵣ D) A=B  = LogRel.escapeEqℕ k (logRelRec _) D A=B
 escapeEq {k = k} (𝔹ᵣ D) A=B  = LogRel.escapeEq𝔹 k (logRelRec _) D A=B
 -- escapeEq (Emptyᵣ [ ⊢A , ⊢B , D ]) D′ = ≅-red D D′ Emptyₙ Emptyₙ (≅-Emptyrefl (wf ⊢A))
 -- escapeEq (Unitᵣ [ ⊢A , ⊢B , D ]) D′ = ≅-red D D′ Unitₙ Unitₙ (≅-Unitrefl (wf ⊢A))
-escapeEq (ne′ K D neK K≡K) (ne₌ M D′ neM K≡M) =
-  ≅-red (red D) (red D′) (ne neK) (ne neM) (~-to-≅ K≡M)
+escapeEq {k = k} (ne neA) A=B = LogRel.escapeEqNe k (logRelRec _) neA A=B
 escapeEq {k = k} (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext)
              A=B = LogRel.escapeEqB k (logRelRec _) (Bᵣ _ _ D ⊢F ⊢G A≡A [F] [G] G-ext) A=B
   -- ≅-red (red D) D′ ⟦ W ⟧ₙ ⟦ W ⟧ₙ A≡B
@@ -210,6 +222,7 @@ escapeTerm (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
 escapeTerm (ϝᵣ mε A⇒B αB  tB fB) ( x , y ) = conv (ϝⱼ (escapeTerm tB x) (escapeTerm fB y)) (sym (subset* (red A⇒B))) --  ϝⱼ (escapeTerm {!!} x) (escapeTerm {!!} y)
 escapeTerm (emb 0<1 A) t = escapeTerm A t
 
+
 -- Reducible term equality respect the equality relation.
 escapeTermEq : ∀ {k A t u} → ([A] : Γ / lε ⊩⟨ k ⟩ A)
                 → Γ / lε ⊩⟨ k ⟩ t ≡ u ∷ A / [A]
@@ -232,10 +245,7 @@ escapeTermEq (𝔹ᵣ D) (𝔹ₜ₌ k k′ d d′ k≡k′ prop) =
 --   let t≅u = ≅ₜ-η-unit ⊢t ⊢u
 --       A≡Unit = subset* (red D)
 --   in  ≅-conv t≅u (sym A≡Unit)
-escapeTermEq (ne′ K D neK K≡K)
-                 (neₜ₌ k m d d′ (neNfₜ₌ neT neU t≡u)) =
-  ≅ₜ-red (red D) (redₜ d) (redₜ d′) (ne neK) (ne neT) (ne neU)
-         (~-to-≅ₜ t≡u)
+escapeTermEq {k = k} (ne neA) t=u = LogRel.escapeTermEqNe k (logRelRec _) neA t=u
 escapeTermEq (Bᵣ′ BΠ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                  (Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g]) =
   ≅ₜ-red (red D) (redₜ d) (redₜ d′) Πₙ (functionWhnf funcF) (functionWhnf funcG) f≡g

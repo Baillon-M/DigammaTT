@@ -34,6 +34,8 @@ reflNatural-prop (sucᵣ (ℕₜ n d t≡t prop)) =
             (reflNatural-prop prop))
 reflNatural-prop zeroᵣ = zeroᵣ
 reflNatural-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
+reflNatural-prop (ne (neNfϝ {[A]t = [A]t} ⊢k αk tk fk)) =
+  PE.⊥-elim (ℕ≢ne (_/_⊩ne_.neK [A]t) (whnfRed* (red (_/_⊩ne_.D [A]t)) ℕₙ))
 reflNatural-prop (ℕϝ ⊢n αn (ℕₜ k red k=k prop) (ℕₜ k' red' k'=k' prop')) =
   [ℕ]ϝ-l αn (ℕϝ ⊢n αn (ℕₜ k red k=k prop) (ℕₜ k' red' k'=k' prop'))
        (ℕₜ₌ _ _ red red k=k (reflNatural-prop prop))
@@ -45,6 +47,8 @@ reflBoolean-prop : ∀ {n}
 reflBoolean-prop trueᵣ = trueᵣ
 reflBoolean-prop falseᵣ = falseᵣ
 reflBoolean-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
+reflBoolean-prop (ne (neNfϝ {[A]t = [A]t} ⊢k αk tk fk)) =
+  PE.⊥-elim (𝔹≢ne (_/_⊩ne_.neK [A]t) (whnfRed* (red (_/_⊩ne_.D [A]t)) 𝔹ₙ))
 reflBoolean-prop (𝔹ϝ ⊢n αn (𝔹ₜ k red k=k prop) (𝔹ₜ k' red' k'=k' prop')) =
   [𝔹]ϝ-l αn (𝔹ϝ ⊢n αn (𝔹ₜ k red k=k prop) (𝔹ₜ k' red' k'=k' prop'))
          (𝔹ₜ₌ _ _ red red k=k (reflBoolean-prop prop))
@@ -73,8 +77,7 @@ reflEqTerm (𝔹ᵣ D) (𝔹ₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
 --    (reflEmpty-prop prop)
 -- reflEqTerm (Unitᵣ D) (Unitₜ n [ ⊢t , ⊢u , d ] prop) =
 --   Unitₜ₌ ⊢t ⊢t
-reflEqTerm (ne′ K D neK K≡K) (neₜ k d (neNfₜ neK₁ ⊢k k≡k)) =
-  neₜ₌ k k d d (neNfₜ₌ neK₁ neK₁ k≡k)
+reflEqTerm {k = k} (ne neA) [t] = LogRel.reflEqTermNe k (logRelRec _) neA [t]
 reflEqTerm (Bᵣ′ BΠ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Πₜ f d funcF f≡f [f] [f]₁) =
   Πₜ₌ f f d d funcF funcF f≡f [t] [t]
       (λ ρ ⊢Δ [a] → [f] ρ ⊢Δ [a] [a] (reflEqTerm ([F] ρ ⊢Δ) [a]))

@@ -1727,7 +1727,46 @@ goodCasesW W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (ϝᵣ {m = n} nε A⇒B
     ⊥-elim (noteq (αNeutralHProp αB (PE.subst (λ K → αNeutral m K) (whrDet* (red B⇒B' , αₙ αB') (red A⇒B , αₙ αB)) αB')))
 goodCasesW {k = k} W BA (emb 0<1 x) A≡B =
           emb¹⁰ (goodCasesW {k = k} {⁰} W BA x A≡B)
- 
+
+
+goodCasesNe : ∀ {k k′} neA ([B] : Γ / lε ⊩⟨ k′ ⟩ B)
+          → Γ / lε ⊩⟨ k ⟩ A ≡ B / ne neA → ShapeView Γ k k′ A B (ne neA) [B]
+goodCasesNe neA (ne neB) A≡B = ne neA neB
+goodCasesNe (ne K D neK K≡K) (Uᵣ ⊢Γ) (ne₌ [A] M D′ neM K≡M) =
+  ⊥-elim (U≢ne neM (whnfRed* (red D′) Uₙ))
+goodCasesNe (ne K D neK K≡K) (Uᵣ x) (ϝ⊩ne≡ mε B⇒B' αB tAB fAB) = 
+  ⊥-elim (U≢αne αB (whnfRed* (red B⇒B') Uₙ))
+goodCasesNe (ne K D neK K≡K) (ℕᵣ D₁) (ne₌ [A] M D′ neM K≡M) =
+  ⊥-elim (ℕ≢ne neM (whrDet* (red D₁ , ℕₙ) (red D′ , ne neM)))
+goodCasesNe (ne K D neK K≡K) (ℕᵣ x) (ϝ⊩ne≡ mε B⇒B' αB tAB fAB) =
+ ⊥-elim (ℕ≢αne αB (whrDet* (red x , ℕₙ) (red B⇒B' , αₙ αB)))
+goodCasesNe (ne K D neK K≡K) (𝔹ᵣ D₁) (ne₌ [A] M D′ neM K≡M) =
+  ⊥-elim (𝔹≢ne neM (whrDet* (red D₁ , 𝔹ₙ) (red D′ , ne neM)))
+goodCasesNe (ne K D neK K≡K) (𝔹ᵣ x) (ϝ⊩ne≡ mε B⇒B' αB tAB fAB) =
+ ⊥-elim (𝔹≢αne αB (whrDet* (red x , 𝔹ₙ) (red B⇒B' , αₙ αB)))
+-- goodCasesNe (ne K D neK K≡K) (Emptyᵣ D₁) (ne₌ [A] M D′ neM K≡M) =
+--   ⊥-elim (Empty≢ne neM (whrDet* (red D₁ , Emptyₙ) (red D′ , ne neM)))
+-- goodCasesNe (ne K D neK K≡K) (Unitᵣ D₁) (ne₌ [A] M D′ neM K≡M) =
+--  ⊥-elim (Unit≢ne neM (whrDet* (red D₁ , Unitₙ) (red D′ , ne neM)))
+goodCasesNe (ne K D neK K≡K) (Bᵣ′ W F G D₁ ⊢F ⊢G A≡A [F] [G] G-ext) (ne₌ [A] M D′ neM K≡M) =
+  ⊥-elim (B≢ne W neM (whrDet* (red D₁ , ⟦ W ⟧ₙ) (red D′ , ne neM)))
+goodCasesNe (ne K D neK K≡K) (Bᵣ′ W F G D₁ ⊢F ⊢G A≡A [F] [G] G-ext) (ϝ⊩ne≡ mε B⇒B' αB tAB fAB) =
+ ⊥-elim (B≢αne W αB (whrDet* (red D₁ , ⟦ W ⟧ₙ) (red B⇒B' , αₙ αB)))
+goodCasesNe (ne K D neK K≡K) (ϝᵣ mε A⇒B αB [A]t [A]f)  (ne₌ [A] M D′ neM K≡M) =
+  ⊥-elim (ne≢αne neM αB (whrDet* (red D′ , ne neM) (red A⇒B , αₙ αB)))
+goodCasesNe (ne K D neK K≡K) (ϝᵣ mε A⇒B αB [A]t [A]f) (ϝ⊩ne≡ mε' B⇒B' αB' tAB fAB)
+  with whrDet* (red A⇒B , αₙ αB) (red B⇒B' , αₙ αB')
+goodCasesNe (ne K D neK K≡K) (ϝᵣ mε A⇒B αB [A]t [A]f) (ϝ⊩ne≡ mε' B⇒B' αB' tAB fAB)
+  | PE.refl with αNeutralHProp αB αB'
+goodCasesNe (ne K D neK K≡K) (ϝᵣ mε A⇒B αB [A]t [A]f) (ϝ⊩ne≡ mε' B⇒B' αB' tAB fAB)
+  | PE.refl | PE.refl with NotInLConNatHProp _ _ mε mε'
+goodCasesNe (ne K D neK K≡K) (ϝᵣ mε B⇒B' αB' [B]t [B]f) (ϝ⊩ne≡ mε {[A]t = [A]t} {[A]f = [A]f} B⇒B'' αB'' tAB fAB)
+  | PE.refl | PE.refl | PE.refl =
+    ϝᵣ-r B⇒B' αB' (ne′ K D neK K≡K) (ne [A]t) (ne [A]f) [B]t [B]f
+         (goodCasesNe [A]t [B]t tAB) (goodCasesNe [A]f [B]f fAB)
+goodCasesNe {k = k} [A] (emb 0<1 x) A≡B =
+  emb¹⁰ (goodCasesNe {k = k} {⁰} [A] x A≡B)
+
 
 -- Construct an shape view from an equality (aptly named)
 goodCases : ∀ {k k′} ([A] : Γ / lε ⊩⟨ k ⟩ A) ([B] : Γ / lε ⊩⟨ k′ ⟩ B)
@@ -1736,7 +1775,6 @@ goodCases : ∀ {k k′} ([A] : Γ / lε ⊩⟨ k ⟩ A) ([B] : Γ / lε ⊩⟨ 
 goodCases (Uᵣ UA) (Uᵣ UB) A≡B = Uᵥ UA UB
 -- goodCases (Emptyᵣ EmptyA) (Emptyᵣ EmptyB) A≡B = Emptyᵥ EmptyA EmptyB
 -- goodCases (Unitᵣ UnitA) (Unitᵣ UnitB) A≡B = Unitᵥ UnitA UnitB
-goodCases (ne neA) (ne neB) A≡B = ne neA neB
 goodCases (ϝᵣ {m = m} nε A⇒B αB [B]t [B]f) (ϝᵣ {m = m'} nε' A⇒B' αB' [B]t' [B]f') ( tA≡B , fA≡B ) with decidEqNat m m'
 goodCases (ϝᵣ nε A⇒B αB [B]t [B]f) (ϝᵣ nε' A⇒B' αB' [B]t' [B]f') ( tA≡B , fA≡B ) | TS.inj₁ e rewrite e rewrite NotInLConNatHProp _ _ nε nε' =
   ϝᵣ-l A⇒B αB (ϝᵣ nε' A⇒B' αB' [B]t' [B]f') [B]t [B]f (AntiRedLog [B]t' (τwfRed* A⇒B')) (AntiRedLog [B]f' (τwfRed* A⇒B')) (goodCases [B]t (AntiRedLog [B]t' (τwfRed* A⇒B')) tA≡B) (goodCases [B]f (AntiRedLog [B]f' (τwfRed* A⇒B')) fA≡B)
@@ -1807,20 +1845,7 @@ goodCases (𝔹ᵣ 𝔹A) [B] A≡B = goodCases𝔹 𝔹A [B] A≡B
 --   ⊥-elim (Unit≢αne αB (whrDet* (A≡B , Unitₙ) (red A⇒B , αₙ αB)))
 
 -- ne ≡ _
-goodCases (ne′ K D neK K≡K) (Uᵣ ⊢Γ) (ne₌ M D′ neM K≡M) =
-  ⊥-elim (U≢ne neM (whnfRed* (red D′) Uₙ))
-goodCases (ne′ K D neK K≡K) (ℕᵣ D₁) (ne₌ M D′ neM K≡M) =
-  ⊥-elim (ℕ≢ne neM (whrDet* (red D₁ , ℕₙ) (red D′ , ne neM)))
-goodCases (ne′ K D neK K≡K) (𝔹ᵣ D₁) (ne₌ M D′ neM K≡M) =
-  ⊥-elim (𝔹≢ne neM (whrDet* (red D₁ , 𝔹ₙ) (red D′ , ne neM)))
--- goodCases (ne′ K D neK K≡K) (Emptyᵣ D₁) (ne₌ M D′ neM K≡M) =
---   ⊥-elim (Empty≢ne neM (whrDet* (red D₁ , Emptyₙ) (red D′ , ne neM)))
--- goodCases (ne′ K D neK K≡K) (Unitᵣ D₁) (ne₌ M D′ neM K≡M) =
---  ⊥-elim (Unit≢ne neM (whrDet* (red D₁ , Unitₙ) (red D′ , ne neM)))
-goodCases (ne′ K D neK K≡K) (Bᵣ′ W F G D₁ ⊢F ⊢G A≡A [F] [G] G-ext) (ne₌ M D′ neM K≡M) =
-  ⊥-elim (B≢ne W neM (whrDet* (red D₁ , ⟦ W ⟧ₙ) (red D′ , ne neM)))
-goodCases (ne′ K D neK K≡K) (ϝᵣ mε A⇒B αB [A]t [A]f)  (ne₌ M D′ neM K≡M) =
-  ⊥-elim (ne≢αne neM αB (whrDet* (red D′ , ne neM) (red A⇒B , αₙ αB)))
+goodCases (ne neA) [B] A≡B = goodCasesNe neA [B] A≡B
 
 
 -- Π ≡ _
