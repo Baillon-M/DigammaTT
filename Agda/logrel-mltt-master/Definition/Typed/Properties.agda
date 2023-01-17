@@ -422,3 +422,12 @@ redU (univ x) = redU*Term′ PE.refl x
 redU* : Γ / lε ⊢ A ⇒* U → A PE.≡ U
 redU* (id x) = PE.refl
 redU* (x ⇨ A⇒*U) rewrite redU* A⇒*U = ⊥-elim (redU x)
+
+
+-- Backτ↘ : ∀ {Γ l} {t : Term n} {u u' A A' m mε} {lε : ⊢ₗ l}
+--          → Γ / (⊢ₗ• l lε m Btrue mε) ⊢ t ↘ u ∷ A
+--          → Γ / (⊢ₗ• l lε m Bfalse mε) ⊢ t ↘ u' ∷ A'
+--          → ∃₂ (λ A'' u'' → Γ / lε ⊢ t ↘ u'' ∷ A'')
+-- Backτ↘ {A = A} (t⇒u , uₙ ) (t⇒u' , uₙ') = {!!} , {!!} , {!!}
+-- Backτ↘ {A = A} (id {t = t} [t] , tₙ ) ((t⇒u ⇨ d) , tₙ') = {!!}
+-- Backτ↘ ( t⇒u ⇨ d , uₙ ) = {!!}
