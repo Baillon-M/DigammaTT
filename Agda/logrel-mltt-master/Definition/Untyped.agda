@@ -313,8 +313,8 @@ InLConInLConNat e1 e2 (InThere l inl m b') = InThereNat l (InLConInLConNat e1 e2
 ≤ₗ-add n b l' f< inl' t u  (InHere n b t=n u=m l) rewrite u=m rewrite t=n = InLConNatInLCon inl'
 ≤ₗ-add n b l' f< inl' t u  (InThere l inl m b) = f< _ _ inl
 
-≤ₗ-rev : ∀ {l l' m b} → _≤ₗ_ (addₗ m b l) l' → l ≤ₗ l'
-≤ₗ-rev {l = l} {m = m} {b = b} f t u inl = f t u (InThere l inl m b)
+≤ₗ-rev-l : ∀ {l l' m b} → (addₗ m b l) ≤ₗ l' → l ≤ₗ l'
+≤ₗ-rev-l {l = l} {m = m} {b = b} f t u inl = f t u (InThere l inl m b)
 
 Suc≠0 : ∀ n → (1+ n) PE.≡ 0 → PE.⊥
 Suc≠0 n ()
@@ -380,6 +380,18 @@ NotInLConNotInLCon _ _ (addₗ n b l) (NotInThere l notlε n b notn) (InThere l 
 NotInLCon≤ₗ : ∀ {l l'} {t : Term n} {m b} → ((addₗ m b l) ≤ₗ l') → NotInLCon t l' → t PE.≡ (natToTerm n m) → PE.⊥
 NotInLCon≤ₗ f≤ notinl e = NotInLConNotInLCon _ _ _ notinl (f≤ _ _ (InHere _ _ e PE.refl _))
 
+≤ₗ-rev-r : ∀ {l l' m b} → l ≤ₗ (addₗ m b l') → NotInLConNat m l → l ≤ₗ l'
+≤ₗ-rev-r {m = m} {b = b} f< nε n b' inl with f< n b' inl
+≤ₗ-rev-r {m = m} {b = b} f< nε n b' inl | InHere m b PE.refl PE.refl l' =
+  PE.⊥-elim (NotInLConNotInLCon _ _ _ (NotInLConNatNotInLCon _ _ _ nε PE.refl) inl)
+≤ₗ-rev-r {m = m} {b = b} f< nε n b' inl | InThere l' inl' _ _ = inl'
+
+≤εEq : ∀ {l} (≤ε : l ≤ₗ εₗ) → l PE.≡ εₗ
+≤εEq {l = εₗ} ≤ε = PE.refl
+≤εEq {l = addₗ m b l} ≤ε with (≤ε {n = 0} _ _ (InHere m b PE.refl PE.refl l))
+≤εEq {l = addₗ n b l} ≤ε | ()
+
+
 decidEqNat : ∀ (n m : Nat) → (n PE.≡ m) ⊎ (n PE.≡ m → PE.⊥)
 decidEqNat 0 0 = inj₁ PE.refl
 decidEqNat (1+ n) 0 = inj₂ (Suc≠0 n)
@@ -387,6 +399,8 @@ decidEqNat 0 (1+ m) = inj₂ λ e → Suc≠0 m (PE.sym e)
 decidEqNat (1+ n) (1+ m) with decidEqNat n m 
 decidEqNat (1+ n) (1+ m) | inj₁ e rewrite e = inj₁ PE.refl
 decidEqNat (1+ n) (1+ m) | inj₂ neq = inj₂ λ e → neq (Suc= n m e)
+
+
 
 decidEqTrueNat :  ∀ (t u : Term n) (tε : TrueNat t) (uε : TrueNat u) → (t PE.≡ u) ⊎ (DifferentTrueNat t u)
 decidEqTrueNat zero zero Truezero Truezero = inj₁ PE.refl
@@ -420,6 +434,15 @@ decidInLConNat (addₗ m b γ) t | inj₂ k with decidInLConNat γ t
 decidInLConNat (addₗ m b' γ) t | inj₂ k | inj₁ (inj₁ j) = inj₁ (inj₁ (InThereNat _ j _ _)) -- inj₁ (inj₁ (InThere γ j m b'))
 decidInLConNat (addₗ m b' γ) t | inj₂ k | inj₁ (inj₂ j) = inj₁ (inj₂ (InThereNat _ j _ _)) -- inj₁ (inj₂ (InThere γ j m b'))
 decidInLConNat (addₗ m b γ) t | inj₂ k | inj₂ j = inj₂ (NotInThereNat _ j _ _ (DifferentDifferentNat _ _ λ e → k (PE.sym e))) -- inj₂ (NotInThere γ j m b k)
+
+
+BackNotInLConNat≤ : ∀ {m l l'} (≤ε : l ≤ₗ l') → NotInLConNat m l' → NotInLConNat m l
+BackNotInLConNat≤ {m = m} {l = l} f< notinl' with  decidInLConNat l m
+BackNotInLConNat≤ {m = m} {l = l} f< notinl' | inj₁ (inj₁ inl) =
+  PE.⊥-elim (NotInLConNotInLCon {n = 0} _ _ _ (NotInLConNatNotInLCon _ _ _ notinl' PE.refl) (f< _ _ (InLConNatInLCon inl)))
+BackNotInLConNat≤ {m = m} {l = l} f< notinl' | inj₁ (inj₂ inl) = 
+  PE.⊥-elim (NotInLConNotInLCon {n = 0} _ _ _ (NotInLConNatNotInLCon _ _ _ notinl' PE.refl) (f< _ _ (InLConNatInLCon inl)))
+BackNotInLConNat≤ {m = m} {l = l} f< notinl' | inj₂ notinl = notinl
 
 
 InLConTrueNat : ∀ {n} (t : Term n) b l → InLCon t b l → TrueNat t

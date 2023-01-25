@@ -8,6 +8,7 @@ open import Definition.Typed
 open import Tools.Empty using (⊥; ⊥-elim)
 open import Tools.Nat
 open import Tools.Product
+import Tools.Sum as TS
 import Tools.PropositionalEquality as PE
 
 private
@@ -100,6 +101,41 @@ wfEq (trans A≡B B≡C) = wfEq A≡B
 wfEq (Π-cong F F≡H G≡E) = wf F
 wfEq (Σ-cong F x₁ x₂) = wf F
 wfEq (ϝ-cong l r) = ϝ (wfEq l) (wfEq r)
+
+
+-- -- Convertible terms are well-typed
+
+-- wtConv : Γ / lε ⊢ t ≡ u ∷ A → (Γ / lε ⊢ t ∷ A) × (Γ / lε ⊢ u ∷ A)
+-- wtConv (refl t) = t , t
+-- wtConv (sym x) = {!!}
+-- wtConv (trans x x₁) =
+--   let ⊢t , ⊢u = wtConv x
+--       ⊢t' , ⊢u' = wtConv x₁ in ⊢t , ⊢u'
+-- wtConv (conv x x₁) = let ⊢t , ⊢u = (wtConv x) in conv ⊢t x₁ , conv ⊢u x₁
+-- wtConv (Π-cong x x₁ x₂) =
+--   let ⊢t , ⊢u = wtConv x₁
+--       ⊢t' , ⊢u' = wtConv x₂ in (Πⱼ ⊢t ▹ ⊢t') , (Πⱼ ⊢u ▹ {!!})
+-- wtConv (Σ-cong x x₁ x₂) = {!!} 
+-- wtConv (app-cong x x₁) = {!!} 
+-- wtConv (β-red x x₁ x₂) = {!!}
+-- wtConv (η-eq x x₁ x₂ x₃) = {!!}
+-- wtConv (fst-cong x x₁ x₂) = {!!}
+-- wtConv (snd-cong x x₁ x₂) = {!!}
+-- wtConv (Σ-β₁ x x₁ x₂ x₃) = {!!}
+-- wtConv (Σ-β₂ x x₁ x₂ x₃) = {!!}
+-- wtConv (Σ-η x x₁ x₂ x₃ x₄ x₅) = {!!}
+-- wtConv (suc-cong x) = {!!}
+-- wtConv (natrec-cong x x₁ x₂ x₃) = {!!}
+-- wtConv (natrec-zero x x₁ x₂) = {!!}
+-- wtConv (natrec-suc x x₁ x₂ x₃) = {!!}
+-- wtConv (boolrec-cong x x₁ x₂ x₃) = {!!}
+-- wtConv (boolrec-true x x₁ x₂) = {!!}
+-- wtConv (boolrec-false x x₁ x₂) = {!!}
+-- --  wtConv (Emptyrec-cong x x₁) = ?
+-- --  wtConv (η-unit x x₁) = ?
+-- wtConv (α-cong x) = {!!}
+-- wtConv (ϝ-cong g d) = {!!}
+-- wtConv (α-conv x tε) = {!!}
 
 
 -- Reduction is a subset of conversion
@@ -321,12 +357,17 @@ whrDetTerm  (boolrec-false x x₁ x₂) (boolrec-subst x₃ x₄ x₅ d′) = �
 whrDetTerm  (boolrec-true x x₁ x₂) (boolrec-true x₃ x₄ x₅) = PE.refl
 whrDetTerm  (boolrec-false x x₁ x₂) (boolrec-false x₃ x₄ x₅) = PE.refl
 whrDetTerm  (α-subst d) (α-subst d′) rewrite whrDetTerm  d d′ = PE.refl
-whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n (InHere _ _ t=m u=b _)) (α-red ⊢n' (InHere _ _ t=m' u=b' _)) = PE.trans u=b (PE.sym u=b')
-whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n (InHere _ _ t=m u=b _)) (α-red ⊢n' (InThere _ inl' _ _)) = ⊥-elim (NotInLConNotInLCon _ _ _ (NotInLConNatNotInLCon _ _ _ nε t=m) inl')
-whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n' (InThere _ inl' _ _))  (α-red ⊢n (InHere _ _ t=m u=b _)) = ⊥-elim (NotInLConNotInLCon _ _ _ (NotInLConNatNotInLCon _ _ _ nε t=m) inl')
+whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n (InHere _ _ t=m u=b _)) (α-red ⊢n' (InHere _ _ t=m' u=b' _)) =
+  PE.trans u=b (PE.sym u=b')
+whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n (InHere _ _ t=m u=b _)) (α-red ⊢n' (InThere _ inl' _ _)) =
+  ⊥-elim (NotInLConNotInLCon _ _ _ (NotInLConNatNotInLCon _ _ _ nε t=m) inl')
+whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n' (InThere _ inl' _ _))  (α-red ⊢n (InHere _ _ t=m u=b _)) =
+  ⊥-elim (NotInLConNotInLCon _ _ _ (NotInLConNatNotInLCon _ _ _ nε t=m) inl')
 whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n (InThere _ inl _ _)) (α-red ⊢n' (InThere  _ inl' _ _)) = InLConUnique _ _ _ _ lε inl inl'
-whrDetTerm {l = addₗ m b l}  (α-red ⊢n inl) (α-subst d′)  =  ⊥-elim (whnfRedTerm d′ (naturalWhnf (TrueNatNatural (InLConTrueNat _ _ _ inl))))
-whrDetTerm {l = addₗ m b l} (α-subst d′) (α-red ⊢n inl) = ⊥-elim (whnfRedTerm d′ (naturalWhnf (TrueNatNatural (InLConTrueNat _ _ _ inl))))
+whrDetTerm {l = addₗ m b l}  (α-red ⊢n inl) (α-subst d′)  =
+  ⊥-elim (whnfRedTerm d′ (naturalWhnf (TrueNatNatural (InLConTrueNat _ _ _ inl))))
+whrDetTerm {l = addₗ m b l} (α-subst d′) (α-red ⊢n inl) =
+  ⊥-elim (whnfRedTerm d′ (naturalWhnf (TrueNatNatural (InLConTrueNat _ _ _ inl))))
 
 
 whrDet : (d : Γ / lε ⊢ A ⇒ B) (d′ : Γ / lε ⊢ A ⇒ B′) → B PE.≡ B′
@@ -370,6 +411,7 @@ idRed:*: A = [ A , A , id A ]
 
 idRedTerm:*: : Γ / lε ⊢ t ∷ A → Γ / lε ⊢ t :⇒*: t ∷ A
 idRedTerm:*: t = [ t , t , id t ]
+
 
 -- U cannot be a term
 
@@ -423,11 +465,99 @@ redU* : Γ / lε ⊢ A ⇒* U → A PE.≡ U
 redU* (id x) = PE.refl
 redU* (x ⇨ A⇒*U) rewrite redU* A⇒*U = ⊥-elim (redU x)
 
+mutual 
+  ConvUTerm-r : ∀ {l} {lε : ⊢ₗ l} {C}
+                → Γ / lε ⊢ A ≡ B ∷ C
+                → B PE.≡ U
+                → PE.⊥
+  ConvUTerm-r (conv x x₁) PE.refl = ConvUTerm-r x PE.refl
+  ConvUTerm-r (refl x₁) PE.refl = UnotInA x₁
+  ConvUTerm-r (sym x₁) x = ConvUTerm-l x₁ x
+  ConvUTerm-r (trans x₁ x₂) x = ConvUTerm-r x₂ x
+  ConvUTerm-r (β-red x₁ x₂ x₃) x = UnotInA[t] x x₃ x₂
+  ConvUTerm-r (η-eq x₁ x₂ x₃ x₄) PE.refl = UnotInA x₃
+  ConvUTerm-r (Σ-β₁ x₁ x₂ x₃ x₄) PE.refl = UnotInA x₃
+  ConvUTerm-r (Σ-β₂ x₁ x₂ x₃ x₄) PE.refl = UnotInA x₄
+  ConvUTerm-r (Σ-η x₁ x₂ x₃ x₄ x₅ x₆) PE.refl = UnotInA x₄
+  ConvUTerm-r (natrec-zero x₁ x₂ x₃) PE.refl = UnotInA x₂
+  ConvUTerm-r (boolrec-true x₁ x₂ x₃) PE.refl = UnotInA x₂
+  ConvUTerm-r (boolrec-false x₁ x₂ x₃) PE.refl = UnotInA x₃
+  ConvUTerm-r (ϝ-cong x₁ x₂) PE.refl = ConvUTerm-r x₁ PE.refl 
+  ConvUTerm-r (α-conv x₁ tε) PE.refl with InLConTrueBool _ _ _ tε
+  ConvUTerm-r (α-conv x₁ tε) PE.refl | ()
 
--- Backτ↘ : ∀ {Γ l} {t : Term n} {u u' A A' m mε} {lε : ⊢ₗ l}
---          → Γ / (⊢ₗ• l lε m Btrue mε) ⊢ t ↘ u ∷ A
---          → Γ / (⊢ₗ• l lε m Bfalse mε) ⊢ t ↘ u' ∷ A'
---          → ∃₂ (λ A'' u'' → Γ / lε ⊢ t ↘ u'' ∷ A'')
--- Backτ↘ {A = A} (t⇒u , uₙ ) (t⇒u' , uₙ') = {!!} , {!!} , {!!}
--- Backτ↘ {A = A} (id {t = t} [t] , tₙ ) ((t⇒u ⇨ d) , tₙ') = {!!}
--- Backτ↘ ( t⇒u ⇨ d , uₙ ) = {!!}
+  ConvUTerm-l : ∀ {l} {lε : ⊢ₗ l} {C}
+                → Γ / lε ⊢ A ≡ B ∷ C
+                → A PE.≡ U
+                → PE.⊥
+  ConvUTerm-l (conv x x₁) PE.refl = ConvUTerm-l x PE.refl
+  ConvUTerm-l (refl x₁) PE.refl = UnotInA x₁
+  ConvUTerm-l (sym x₁) x = ConvUTerm-r x₁ x
+  ConvUTerm-l (trans x₁ x₂) x = ConvUTerm-l x₁ x
+  ConvUTerm-l (η-eq x₁ x₂ x₃ x₄) PE.refl = UnotInA x₂
+  ConvUTerm-l (Σ-η x₁ x₂ x₃ x₄ x₅ x₆) PE.refl = UnotInA x₃
+  ConvUTerm-l (ϝ-cong x₁ x₂) PE.refl = ConvUTerm-l x₁ PE.refl 
+
+mutual 
+  ConvU-l : ∀ {l} {lε : ⊢ₗ l}
+              → Γ / lε ⊢ A ≡ B
+               → B PE.≡ U
+            → A PE.≡ U
+  ConvU-l (refl ⊢Γ) PE.refl = PE.refl
+  ConvU-l (univ x) PE.refl = ⊥-elim (ConvUTerm-r x PE.refl)
+  ConvU-l (sym x) PE.refl = ConvU-r x PE.refl
+  ConvU-l (trans x x₁) PE.refl = ConvU-l x (ConvU-l x₁ PE.refl)
+  ConvU-l (ϝ-cong x x₁) PE.refl = ConvU-l x PE.refl
+
+  ConvU-r : ∀ {l} {lε : ⊢ₗ l}
+                → Γ / lε ⊢ A ≡ B
+               → A PE.≡ U
+              → B PE.≡ U
+  ConvU-r (refl ⊢Γ) PE.refl = PE.refl
+  ConvU-r (univ x) PE.refl = ⊥-elim (ConvUTerm-l x PE.refl)
+  ConvU-r (sym x) PE.refl = ConvU-l x PE.refl
+  ConvU-r (trans x x₁) PE.refl = ConvU-r x₁ (ConvU-r x PE.refl)
+  ConvU-r (ϝ-cong x x₁) PE.refl = ConvU-r x PE.refl
+
+
+-- BackτRed : ∀ {l t u A A' m b mε} {lε : ⊢ₗ l}
+--   (d : Γ / (⊢ₗ• l lε m b mε) ⊢ t ⇒ u ∷ A)
+--   → (⊢t : Γ / lε ⊢ t ∷ A')
+--   → (Γ / lε ⊢ t ⇒ u ∷ A') TS.⊎ (αNeutral {lε = lε} m t)
+-- BackτRed (conv t⇒u A≡B) ⊢t = BackτRed t⇒u ⊢t
+-- BackτRed t⇒u (conv ⊢t A≡B) with BackτRed t⇒u ⊢t
+-- BackτRed t⇒u (conv ⊢t A≡B) | TS.inj₁ t⇒u' = TS.inj₁ (conv t⇒u' A≡B)
+-- BackτRed t⇒u (conv ⊢t A≡B) | TS.inj₂ αt = TS.inj₂ αt
+-- BackτRed (app-subst d x) (⊢t ∘ⱼ ⊢a) with BackτRed d ⊢t
+-- BackτRed (app-subst d x) (⊢t ∘ⱼ ⊢a) | TS.inj₁ t⇒u' = TS.inj₁ (app-subst t⇒u' ⊢a)
+-- BackτRed (app-subst d x) (⊢t ∘ⱼ ⊢a) | TS.inj₂ αt = TS.inj₂ (∘ₙ αt)
+-- BackτRed (β-red x x₁ x₂) ((lamⱼ ⊢F ⊢t) ∘ⱼ ⊢a) = TS.inj₁ (β-red ⊢F ⊢t ⊢a)
+-- BackτRed (β-red x x₁ x₂) (conv ⊢t A≡B ∘ⱼ ⊢a) with BackτRed (β-red x x₁ x₂) ({!!} ∘ⱼ ⊢a)
+-- BackτRed (β-red x x₁ x₂) (conv ⊢t A≡B ∘ⱼ ⊢a) | TS.inj₁ t⇒u' = {!!}
+-- BackτRed (β-red x x₁ x₂) (conv ⊢t A≡B ∘ⱼ ⊢a) | TS.inj₂ αt = {!!}
+-- BackτRed (β-red x x₁ x₂) (ϝⱼ ⊢t ⊢t₁ ∘ⱼ ⊢a) = TS.inj₁ (β-red {!!} {!!} ⊢a)
+-- BackτRed (fst-subst x x₁ d) (fstⱼ ⊢F ⊢G ⊢t) with BackτRed d ⊢t
+-- BackτRed (fst-subst x x₁ d) (fstⱼ ⊢F ⊢G ⊢t) | TS.inj₁ t⇒u' = TS.inj₁ (fst-subst ⊢F ⊢G t⇒u')
+-- BackτRed (fst-subst x x₁ d) (fstⱼ ⊢F ⊢G ⊢t) | TS.inj₂ αt = TS.inj₂ (fstₙ αt)
+-- BackτRed (snd-subst x x₁ d) (sndⱼ ⊢F ⊢G ⊢t) with BackτRed d ⊢t
+-- BackτRed (snd-subst x x₁ d) (sndⱼ ⊢F ⊢G ⊢t) | TS.inj₁ t⇒u' = TS.inj₁ (snd-subst ⊢F ⊢G t⇒u')
+-- BackτRed (snd-subst x x₁ d) (sndⱼ ⊢F ⊢G ⊢t) | TS.inj₂ αt = TS.inj₂ (sndₙ αt)
+-- BackτRed (Σ-β₁ x x₁ x₂ x₃) (fstⱼ ⊢F ⊢G (prodⱼ _ _ ⊢t ⊢u)) = TS.inj₁ (Σ-β₁ ⊢F ⊢G ⊢t ⊢u)
+-- BackτRed (Σ-β₂ x x₁ x₂ x₃) (sndⱼ ⊢F ⊢G (prodⱼ _ _ ⊢t ⊢u)) = TS.inj₁ (Σ-β₂ ⊢F ⊢G ⊢t ⊢u)
+-- BackτRed (natrec-subst x x₁ x₂ d) ⊢t = {!!}
+-- BackτRed (natrec-zero x x₁ x₂) ⊢t = {!!}
+-- BackτRed (natrec-suc x x₁ x₂ x₃) ⊢t = {!!}
+-- BackτRed (boolrec-subst x x₁ x₂ d) ⊢t = {!!}
+-- BackτRed (boolrec-true x x₁ x₂) ⊢t = {!!}
+-- BackτRed (boolrec-false x x₁ x₂) ⊢t = {!!}
+-- BackτRed (α-subst d) ⊢t = {!!}
+-- BackτRed (α-red x x₁) ⊢t = {!!}
+-- BackτRed t⇒u (ϝⱼ ⊢t ⊢t₁) = {!!}
+
+-- -- Backτ↘ : ∀ {Γ l} {t : Term n} {u u' A A' m mε} {lε : ⊢ₗ l}
+-- --          → Γ / (⊢ₗ• l lε m Btrue mε) ⊢ t ↘ u ∷ A
+-- --          → Γ / (⊢ₗ• l lε m Bfalse mε) ⊢ t ↘ u' ∷ A'
+-- --          → ∃₂ (λ A'' u'' → Γ / lε ⊢ t ↘ u'' ∷ A'')
+-- -- Backτ↘ {A = A} (t⇒u , uₙ ) (t⇒u' , uₙ') = {!!} , {!!} , {!!}
+-- -- Backτ↘ {A = A} (id {t = t} [t] , tₙ ) ((t⇒u ⇨ d) , tₙ') = {!!}
+-- -- Backτ↘ ( t⇒u ⇨ d , uₙ ) = {!!}

@@ -444,8 +444,8 @@ mutual
 --            → ⊢ Γ / lε
 --   ConBack f<  ε = ε
 --   ConBack f<  (⊢Γ ∙ ⊢A) = ConBack f< ⊢Γ ∙ TyBack f< ⊢A
---   ConBack f< (ϝ {n = n} g d) =
---     ϝ {n = n} (ConBack (≤ₗ-add _ _ _ (λ m b inl → InThere _ (f< m b inl) _ _) (InHereNat _)) g)
+--   ConBack f< (ϝ {n = n} {nε = nε} g d) =
+--     ϝ {n = n} {nε = BackNotInLConNat≤ f< nε } (ConBack (≤ₗ-add _ _ _ (λ m b inl → InThere _ (f< m b inl) _ _) (InHereNat _)) g)
 --               (ConBack (≤ₗ-add _ _ _ (λ m b inl → InThere _ (f< m b inl) _ _) (InHereNat _)) d)
 
 --   TyBack : ∀ {l l' : LCon} {A} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} (≤ε : l ≤ₗ l')
@@ -458,39 +458,42 @@ mutual
 -- --  TyBack f<  (Unitⱼ ⊢Γ) = Unitⱼ (ConBack f<  ⊢Γ)
 --   TyBack f<  (Πⱼ A ▹ B) = Πⱼ TyBack f<  A ▹ TyBack f<  B
 --   TyBack f<  (Σⱼ A ▹ B) = Σⱼ TyBack f<  A ▹ TyBack f<  B
---   TyBack f<  (univ u) = univ (TermBack f< u)
---   TyBack f<  (ϝⱼ g d) =
---     ϝⱼ (TyBack (≤ₗ-add _ _ _ (λ m b inl → InThere _ (f< m b inl) _ _) (InHereNat _)) g)
+--   TyBack f<  (univ u) = let (A' , ⊢t) = TermBack f< u
+--                           in {!!} -- univ (TermBack f< u)
+--   TyBack f<  (ϝⱼ {nε = nε} g d) =
+--     ϝⱼ {nε = BackNotInLConNat≤ f< nε }
+--        (TyBack (≤ₗ-add _ _ _ (λ m b inl → InThere _ (f< m b inl) _ _) (InHereNat _)) g)
 --        (TyBack (≤ₗ-add _ _ _ (λ m b inl → InThere _ (f< m b inl) _ _) (InHereNat _)) d)
   
 --   TermBack : ∀ {l l' : LCon} {t A} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} (≤ε : l ≤ₗ l')
 --            → Γ / lε' ⊢ t ∷ A
---            → Γ / lε ⊢ t ∷ A
---   TermBack f<  (ℕⱼ ⊢Γ) = ℕⱼ (ConBack f<  ⊢Γ)
---   TermBack f<  (𝔹ⱼ ⊢Γ) = 𝔹ⱼ (ConBack f<  ⊢Γ)
--- --  TermBack f<  (Emptyⱼ ⊢Γ) = Emptyⱼ (ConBack f<  ⊢Γ)
--- --  TermBack f<  (Unitⱼ ⊢Γ) = Unitⱼ (ConBack f<  ⊢Γ)
---   TermBack f<  (Πⱼ A ▹ B) = Πⱼ TermBack f<  A ▹ TermBack f<  B
---   TermBack f<  (Σⱼ A ▹ B) = Σⱼ TermBack f<  A ▹ TermBack f<  B
---   TermBack f<  (var ⊢Γ x) = var (ConBack f<  ⊢Γ) x
---   TermBack f<  (lamⱼ ⊢F x) = lamⱼ (TyBack f<  ⊢F) (TermBack f<  x)
---   TermBack f<  (t ∘ⱼ u) = TermBack f<  t ∘ⱼ TermBack f<  u
---   TermBack f<  (prodⱼ x x₁ x₂ x₃) = prodⱼ (TyBack f<  x) (TyBack f<  x₁) (TermBack f<  x₂) (TermBack f<  x₃)
---   TermBack f<  (fstⱼ x x₁ x₂) = fstⱼ (TyBack f<  x) (TyBack f<  x₁) (TermBack f<  x₂)
---   TermBack f<  (sndⱼ x x₁ x₂) = sndⱼ (TyBack f<  x) (TyBack f<  x₁) (TermBack f<  x₂)
---   TermBack f<  (zeroⱼ ⊢Γ) = zeroⱼ (ConBack f<  ⊢Γ)
---   TermBack f<  (sucⱼ ⊢n) = sucⱼ (TermBack f<  ⊢n)
---   TermBack f<  (natrecⱼ x x₁ x₂ x₃) = natrecⱼ (TyBack f<  x) (TermBack f<  x₁) (TermBack f<  x₂) (TermBack f<  x₃)
---   TermBack f<  (trueⱼ ⊢Γ) = trueⱼ (ConBack f<  ⊢Γ)
---   TermBack f<  (falseⱼ ⊢Γ) = falseⱼ (ConBack f<  ⊢Γ)
---   TermBack f<  (boolrecⱼ x x₁ x₂ x₃) = boolrecⱼ (TyBack f<  x) (TermBack f<  x₁) (TermBack f<  x₂) (TermBack f<  x₃)
--- --  TermBack f<  (Emptyrecⱼ x x₁) = Emptyrecⱼ (TyBack f<  x) (TermBack f<  x₁)
--- --  TermBack f<  (starⱼ ⊢Γ) = starⱼ (ConBack f<  ⊢Γ)
---   TermBack f<  (conv x x₁) = {!!}
---   TermBack f<  (αⱼ x) = αⱼ (TermBack f< x)
---   TermBack f<  (ϝⱼ g d) = 
---     ϝⱼ (TermBack (≤ₗ-add _ _ _ (λ m b inl → InThere _ (f< m b inl) _ _) (InHereNat _)) g)
---        (TermBack (≤ₗ-add _ _ _ (λ m b inl → InThere _ (f< m b inl) _ _) (InHereNat _)) d)
+--            → ∃ (λ A' → Γ / lε ⊢ t ∷ A')
+--   TermBack f<  (ℕⱼ ⊢Γ) = {!!} --  ℕⱼ (ConBack f<  ⊢Γ)
+--   TermBack f<  (𝔹ⱼ ⊢Γ) = {!!} --  𝔹ⱼ (ConBack f<  ⊢Γ)
+-- --  TermBack f<  (Emptyⱼ ⊢Γ) = ? --  Emptyⱼ (ConBack f<  ⊢Γ)
+-- --  TermBack f<  (Unitⱼ ⊢Γ) = ? --  Unitⱼ (ConBack f<  ⊢Γ)
+--   TermBack f<  (Πⱼ A ▹ B) = {!!} --  Πⱼ TermBack f<  A ▹ TermBack f<  B
+--   TermBack f<  (Σⱼ A ▹ B) = {!!} --  Σⱼ TermBack f<  A ▹ TermBack f<  B
+--   TermBack f<  (var ⊢Γ x) = {!!} --  var (ConBack f<  ⊢Γ) x
+--   TermBack f<  (lamⱼ ⊢F x) = {!!} --  lamⱼ (TyBack f<  ⊢F) (TermBack f<  x)
+--   TermBack f<  (t ∘ⱼ u) = {!!} --  TermBack f<  t ∘ⱼ TermBack f<  u
+--   TermBack f<  (prodⱼ x x₁ x₂ x₃) = {!!} --  prodⱼ (TyBack f<  x) (TyBack f<  x₁) (TermBack f<  x₂) (TermBack f<  x₃)
+--   TermBack f<  (fstⱼ x x₁ x₂) = {!!} --  fstⱼ (TyBack f<  x) (TyBack f<  x₁) (TermBack f<  x₂)
+--   TermBack f<  (sndⱼ x x₁ x₂) = {!!} --  sndⱼ (TyBack f<  x) (TyBack f<  x₁) (TermBack f<  x₂)
+--   TermBack f<  (zeroⱼ ⊢Γ) = {!!} --  zeroⱼ (ConBack f<  ⊢Γ)
+--   TermBack f<  (sucⱼ ⊢n) = {!!} --  sucⱼ (TermBack f<  ⊢n)
+--   TermBack f<  (natrecⱼ x x₁ x₂ x₃) = {!!} --  natrecⱼ (TyBack f<  x) (TermBack f<  x₁) (TermBack f<  x₂) (TermBack f<  x₃)
+--   TermBack f<  (trueⱼ ⊢Γ) = {!!} --  trueⱼ (ConBack f<  ⊢Γ)
+--   TermBack f<  (falseⱼ ⊢Γ) = {!!} --  falseⱼ (ConBack f<  ⊢Γ)
+--   TermBack f<  (boolrecⱼ x x₁ x₂ x₃) = {!!} --  boolrecⱼ (TyBack f<  x) (TermBack f<  x₁) (TermBack f<  x₂) (TermBack f<  x₃)
+-- --  TermBack f<  (Emptyrecⱼ x x₁) = ? --  Emptyrecⱼ (TyBack f<  x) (TermBack f<  x₁)
+-- --  TermBack f<  (starⱼ ⊢Γ) = ? --  starⱼ (ConBack f<  ⊢Γ)
+--   TermBack f<  (conv x x₁) = {!!} --  let help = TermBack f< x in {!!}
+--   TermBack f<  (αⱼ x) = {!!} --  αⱼ (TermBack f< x)
+--   TermBack f<  (ϝⱼ {nε = nε} g d) = {!!} --  
+--     -- ϝⱼ {nε = BackNotInLConNat≤ f< nε }
+--      --  (TermBack (≤ₗ-add _ _ _ (λ m b inl → InThere _ (f< m b inl) _ _) (InHereNat _)) g)
+--     --   (TermBack (≤ₗ-add _ _ _ (λ m b inl → InThere _ (f< m b inl) _ _) (InHereNat _)) d)
 
 NatToℕ : ∀ m {l : LCon} {lε : ⊢ₗ l} → ⊢ Γ / lε → Γ / lε ⊢ (natToTerm _ m) ∷ ℕ
 NatToℕ 0 ⊢Γ = zeroⱼ ⊢Γ
@@ -643,13 +646,6 @@ mutual
               → Γ / (⊢ₗ• l lε n b nbε) ⊢ t ≡ u ∷ A
 τConvTerm lε n b nbε t≡u = ConvTerm≤ (λ n b inl → InThere _ inl _ _) t≡u
 
--- -- ConvU : ∀ lε → Γ / lε ⊢ A ≡ U
--- --             → A PE.≡ U
--- -- ConvU lε (reflε ⊢Γ) = PE.refl
--- -- ConvU lε (univ x) = {!!}
--- -- ConvU lε (sym x) = {!!}
--- -- ConvU lε (trans x x₁) = {!!}
--- -- ConvU lε (ϝ-cong x x₁) = {!!}
 
 -- mutual
 --   τCon-rev : ∀ lε n b

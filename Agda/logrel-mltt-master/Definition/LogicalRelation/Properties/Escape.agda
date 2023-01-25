@@ -96,52 +96,54 @@ RedLog (ϝᵣ mε [ ⊢A , ⊢B , D ] αB  tB fB) [ ⊢A' , ⊢B' , D' ] =
     (RedLog tB (τwfRed* ([ ⊢A' , ⊢B' , D' ]))) 
     (RedLog fB (τwfRed* ([ ⊢A' , ⊢B' , D' ])))
 
-AntiRedConvℕ : ∀ {A B C} k ([C] : Γ / lε ⊩ℕ C) (C≡B :  Γ / lε ⊩⟨ k ⟩ C ≡ B / ℕᵣ [C]) →  Γ / lε ⊢ A :⇒*: B
-             →  Γ / lε ⊩⟨ k ⟩ C ≡ A / ℕᵣ [C]
-AntiRedConvℕ k [C] (⊩ℕ≡ _ B B⇒ℕ) [ ⊢A' , ⊢B , D' ] = ⊩ℕ≡ _ _ (⇒*-comp D' B⇒ℕ)
-AntiRedConvℕ k [C] (ϝ⊩ℕ≡ mε B⇒B' αB' tC≡B fC≡B) A⇒B =
- ϝ⊩ℕ≡ mε (:⇒:*-comp A⇒B B⇒B') αB'
-   (AntiRedConvℕ k (τwfRed* [C]) tC≡B (τwfRed* A⇒B))
-   (AntiRedConvℕ k (τwfRed* [C]) fC≡B (τwfRed* A⇒B))
+-- AntiRedConvℕ : ∀ {A B C} k ([C] : Γ / lε ⊩ℕ C) (C≡B :  Γ / lε ⊩⟨ k ⟩ C ≡ B / ℕᵣ [C]) →  Γ / lε ⊢ A :⇒*: B
+--              →  Γ / lε ⊩⟨ k ⟩ C ≡ A / ℕᵣ [C]
+-- AntiRedConvℕ k [C] (⊩ℕ≡ _ B B⇒ℕ) [ ⊢A' , ⊢B , D' ] = ⊩ℕ≡ _ _ (⇒*-comp D' B⇒ℕ)
+-- AntiRedConvℕ k [C] (ϝ⊩ℕ≡ mε B⇒B' αB' tC≡B fC≡B) A⇒B =
+--  ϝ⊩ℕ≡ mε (:⇒:*-comp A⇒B B⇒B') αB'
+--    (AntiRedConvℕ k (τwfRed* [C]) tC≡B (τwfRed* A⇒B))
+--    (AntiRedConvℕ k (τwfRed* [C]) fC≡B (τwfRed* A⇒B))
    
-AntiRedConv𝔹 : ∀ {A B C} k ([C] : Γ / lε ⊩𝔹 C) (C≡B :  Γ / lε ⊩⟨ k ⟩ C ≡ B / 𝔹ᵣ [C]) →  Γ / lε ⊢ A :⇒*: B
-             →  Γ / lε ⊩⟨ k ⟩ C ≡ A / 𝔹ᵣ [C]
-AntiRedConv𝔹 k [C] (⊩𝔹≡ _ B B⇒𝔹) [ ⊢A' , ⊢B , D' ] = ⊩𝔹≡ _ _ (⇒*-comp D' B⇒𝔹)
-AntiRedConv𝔹 k [C] (ϝ⊩𝔹≡ mε B⇒B' αB' tC≡B fC≡B) A⇒B =
- ϝ⊩𝔹≡ mε (:⇒:*-comp A⇒B B⇒B') αB'
-  (AntiRedConv𝔹 k (τwfRed* [C]) tC≡B (τwfRed* A⇒B))
-  (AntiRedConv𝔹 k (τwfRed* [C]) fC≡B (τwfRed* A⇒B))
+-- AntiRedConv𝔹 : ∀ {A B C} k ([C] : Γ / lε ⊩𝔹 C) (C≡B :  Γ / lε ⊩⟨ k ⟩ C ≡ B / 𝔹ᵣ [C]) →  Γ / lε ⊢ A :⇒*: B
+--              →  Γ / lε ⊩⟨ k ⟩ C ≡ A / 𝔹ᵣ [C]
+-- AntiRedConv𝔹 k [C] (⊩𝔹≡ _ B B⇒𝔹) [ ⊢A' , ⊢B , D' ] = ⊩𝔹≡ _ _ (⇒*-comp D' B⇒𝔹)
+-- AntiRedConv𝔹 k [C] (ϝ⊩𝔹≡ mε B⇒B' αB' tC≡B fC≡B) A⇒B =
+--  ϝ⊩𝔹≡ mε (:⇒:*-comp A⇒B B⇒B') αB'
+--   (AntiRedConv𝔹 k (τwfRed* [C]) tC≡B (τwfRed* A⇒B))
+--   (AntiRedConv𝔹 k (τwfRed* [C]) fC≡B (τwfRed* A⇒B))
 
-AntiRedConvNe : ∀ {A B C} k ([C] : Γ / lε ⊩ne C) (C≡B :  Γ / lε ⊩⟨ k ⟩ C ≡ B / ne [C]) →  Γ / lε ⊢ A :⇒*: B
-             →  Γ / lε ⊩⟨ k ⟩ C ≡ A / ne [C]
-AntiRedConvNe k (ne K D neK K≡K) (ne₌ [A] _ D' neM M≡M) A⇒B = ne₌ _ _ ([ ⊢A-red A⇒B , ⊢B-red D' , ⇒*-comp (red A⇒B) (red D') ]) neM M≡M
-AntiRedConvNe k (ne K D neK K≡K) (ϝ⊩ne≡ mε {[A]t = [C]t} {[A]f = [C]f} B⇒B' αB tC≡B fC≡B) A⇒B =
-  ϝ⊩ne≡ mε (:⇒:*-comp A⇒B B⇒B') αB
-    (AntiRedConvNe k [C]t tC≡B (τwfRed* A⇒B))
-    (AntiRedConvNe k [C]f fC≡B (τwfRed* A⇒B))
+-- AntiRedConvNe : ∀ {A B C} k ([C] : Γ / lε ⊩ne C) (C≡B :  Γ / lε ⊩⟨ k ⟩ C ≡ B / ne [C]) →  Γ / lε ⊢ A :⇒*: B
+--              →  Γ / lε ⊩⟨ k ⟩ C ≡ A / ne [C]
+-- AntiRedConvNe k (ne K D neK K≡K) (ne₌ [A] _ D' neM M≡M) A⇒B = ne₌ _ _ ([ ⊢A-red A⇒B , ⊢B-red D' , ⇒*-comp (red A⇒B) (red D') ]) neM M≡M
+-- AntiRedConvNe k (ne K D neK K≡K) (ϝ⊩ne≡ mε {[A]t = [C]t} {[A]f = [C]f} B⇒B' αB tC≡B fC≡B) A⇒B =
+--   ϝ⊩ne≡ mε (:⇒:*-comp A⇒B B⇒B') αB
+--     (AntiRedConvNe k [C]t tC≡B (τwfRed* A⇒B))
+--     (AntiRedConvNe k [C]f fC≡B (τwfRed* A⇒B))
 
-AntiRedConvW : ∀ {A B C} k W ([C] : Γ / lε ⊩′⟨ k ⟩B⟨ W ⟩ C) (C≡B :  Γ / lε ⊩⟨ k ⟩ C ≡ B / Bᵣ W [C]) →  Γ / lε ⊢ A :⇒*: B
-             →  Γ / lε ⊩⟨ k ⟩ C ≡ A / Bᵣ W [C]
-AntiRedConvW k W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (B₌ _ _ _ _ _ _ _ _ _ F' G' D' B≡C [F≡F'] [G≡G']) A⇒B =
-  B₌ F G D ⊢F ⊢G A≡A [F] [G] G-ext _ _ (⇒*-comp (red A⇒B) D') B≡C [F≡F'] [G≡G']
-AntiRedConvW k W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Bϝ [C] B⇒B' αB' [C]t [C]f tB≡C fB≡C) A⇒B =
-  Bϝ [C] (:⇒:*-comp A⇒B B⇒B') αB' [C]t [C]f
-    (AntiRedConvW k W [C]t tB≡C (τwfRed* A⇒B))
-    (AntiRedConvW k W [C]f fB≡C (τwfRed* A⇒B)) -- ([ ⊢A-red A⇒B , ⊢B-red B⇒B' , ⇒*-comp (red A⇒B) (red B⇒B') ]) αB' [C]t [C]f (AntiRedConvW k W [C]t tB≡C (τwfRed* (idRed:*: (⊢B-red B⇒B')))) (AntiRedConvW k W [C]f fB≡C (τwfRed* (idRed:*: (⊢B-red B⇒B'))))
+-- AntiRedConvW : ∀ {A B C} k W ([C] : Γ / lε ⊩′⟨ k ⟩B⟨ W ⟩ C) (C≡B :  Γ / lε ⊩⟨ k ⟩ C ≡ B / Bᵣ W [C]) →  Γ / lε ⊢ A :⇒*: B
+--              →  Γ / lε ⊩⟨ k ⟩ C ≡ A / Bᵣ W [C]
+-- AntiRedConvW k W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (B₌ _ _ _ _ _ _ _ _ _ F' G' D' B≡C [F≡F'] [G≡G']) A⇒B =
+--   B₌ F G D ⊢F ⊢G A≡A [F] [G] G-ext _ _ (⇒*-comp (red A⇒B) D') B≡C [F≡F'] [G≡G']
+-- AntiRedConvW k W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) (Bϝ [C] B⇒B' αB' [C]t [C]f tB≡C fB≡C) A⇒B =
+--   Bϝ [C] (:⇒:*-comp A⇒B B⇒B') αB' [C]t [C]f
+--     (AntiRedConvW k W [C]t tB≡C (τwfRed* A⇒B))
+--     (AntiRedConvW k W [C]f fB≡C (τwfRed* A⇒B)) -- ([ ⊢A-red A⇒B , ⊢B-red B⇒B' , ⇒*-comp (red A⇒B) (red B⇒B') ]) αB' [C]t [C]f (AntiRedConvW k W [C]t tB≡C (τwfRed* (idRed:*: (⊢B-red B⇒B')))) (AntiRedConvW k W [C]f fB≡C (τwfRed* (idRed:*: (⊢B-red B⇒B'))))
 
 
 AntiRedConvLog : ∀ {k A B C} ([C] :  Γ / lε ⊩⟨ k ⟩ C) (C≡B :  Γ / lε ⊩⟨ k ⟩ C ≡ B / [C]) →  Γ / lε ⊢ A :⇒*: B
              →  Γ / lε ⊩⟨ k ⟩ C ≡ A / [C]
-AntiRedConvLog (Uᵣ′ k′ k< ⊢Γ) B≡U A⇒B rewrite B≡U = redU* (red A⇒B)
-AntiRedConvLog {k = k} (ℕᵣ [C]) B≡ℕ D = AntiRedConvℕ k [C] B≡ℕ D
-AntiRedConvLog {k = k} (𝔹ᵣ [C]) B≡𝔹 D = AntiRedConv𝔹 k [C] B≡𝔹 D
+AntiRedConvLog (Uᵣ′ k′ k< ⊢Γ) (⊩¹≡U B B≡U) A⇒B rewrite B≡U = ⊩¹≡U B (redU* (red A⇒B)) --redU* (red A⇒B)
+AntiRedConvLog {k = k} (ℕᵣ [C]) (⊩¹≡ℕ _ B≡ℕ) D = ⊩¹≡ℕ [C] (⇒*-comp (red D) B≡ℕ) -- AntiRedConvℕ k [C] B≡ℕ D
+AntiRedConvLog {k = k} (𝔹ᵣ [C]) (⊩¹≡𝔹 _ B≡𝔹) D = ⊩¹≡𝔹 [C] (⇒*-comp (red D) B≡𝔹) -- AntiRedConv𝔹 k [C] B≡𝔹 D
 -- AntiRedConvLog (Emptyᵣ x₁) C≡B D = ⇒*-comp (red D) C≡B
 -- AntiRedConvLog (Unitᵣ x₁) C≡B D = ⇒*-comp (red D) C≡B
-AntiRedConvLog {k = k} (ne neC) B≡C A⇒B = AntiRedConvNe k neC B≡C A⇒B
-AntiRedConvLog {k = k} (Bᵣ W [C]) B≡C A⇒B = AntiRedConvW k W [C] B≡C A⇒B
-AntiRedConvLog (emb 0<1 [A]) C≡B D = AntiRedConvLog [A] C≡B D
-AntiRedConvLog (ϝᵣ { B = D } mε C⇒D αD [D]t [D]f) ( tC≡B , fC≡B ) A⇒B =
-  AntiRedConvLog [D]t tC≡B (τwfRed* A⇒B) , AntiRedConvLog [D]f fC≡B (τwfRed* A⇒B)
+AntiRedConvLog {k = k} (ne neC) (⊩¹≡ne _ (ne₌ M D' neM K≡M)) A⇒B = ⊩¹≡ne neC (ne₌ M (:⇒:*-comp A⇒B D') neM K≡M) -- AntiRedConvNe k neC B≡C A⇒B
+AntiRedConvLog {k = k} (Bᵣ W [C]) (⊩¹≡B W _ (B₌ F' G' D' A≡B [F≡F'] [G≡G'])) A⇒B = ⊩¹≡B W [C] (B₌ F' G' (⇒*-comp (red A⇒B) D') A≡B [F≡F'] [G≡G']) 
+AntiRedConvLog (emb 0<1 [A]) (⊩¹≡emb j< [A] C≡B) D = ⊩¹≡emb 0<1 [A] (AntiRedConvLog [A] C≡B D) --AntiRedConvLog [A] C≡B D
+AntiRedConvLog [A] (⊩¹≡ϝ-l {mε = mε} A⇒A' αA' tA fA tA≡B fA≡B) A⇒B =
+  ⊩¹≡ϝ-l {mε = mε} A⇒A' αA' tA fA (AntiRedConvLog tA tA≡B (τwfRed* A⇒B)) (AntiRedConvLog fA fA≡B (τwfRed* A⇒B))
+AntiRedConvLog [A] (⊩¹≡ϝ-r {mε = mε} B⇒B' αB' [A] tA fA tA≡B fA≡B) A⇒B =
+  ⊩¹≡ϝ-r {mε = mε} (:⇒:*-comp A⇒B B⇒B') αB' [A] tA fA (AntiRedConvLog tA tA≡B (τwfRed* A⇒B)) (AntiRedConvLog fA fA≡B (τwfRed* A⇒B))
 
 
 TyLogU : ∀ {l : LCon} {lε : ⊢ₗ l} {k}
@@ -180,23 +182,20 @@ escape (emb 0<1 A) = escape A
 -- Reducible type equality respect the equality relation.
 
 reflEqAux : ∀ {k A B} ([B] :  Γ / lε ⊩⟨ k ⟩ B) →  Γ / lε ⊢ A :⇒*: B →  Γ / lε ⊩⟨ k ⟩ B ≡ A / [B]
-reflEqAux (Uᵣ′ k′ k< ⊢Γ) [ ⊢A , ⊢B' , D' ] rewrite redU* D' = PE.refl
-reflEqAux (ℕᵣ [ ⊢B , ⊢ℕ , D ]) [ ⊢A , ⊢B' , D' ] = ⊩ℕ≡ _ _ (red ( [ ⊢A , ⊢ℕ , ⇒*-comp D' D ] ))
-reflEqAux (𝔹ᵣ [ ⊢B , ⊢𝔹 , D ]) [ ⊢A , ⊢B' , D' ] = ⊩𝔹≡ _ _ (red ( [ ⊢A , ⊢𝔹 , ⇒*-comp D' D ] ))
+reflEqAux (Uᵣ′ k′ k< ⊢Γ) [ ⊢A , ⊢B' , D' ] rewrite redU* D' = ⊩¹≡U (Uᵣ k′ k< ⊢Γ) PE.refl -- PE.refl
+reflEqAux (ℕᵣ D) D' = ⊩¹≡ℕ D (⇒*-comp (red D') (red D)) -- ⊩ℕ≡ _ _ (red ( [ ⊢A , ⊢ℕ , ⇒*-comp D' D ] ))
+reflEqAux (𝔹ᵣ D) D' = ⊩¹≡𝔹 D (⇒*-comp (red D') (red D)) -- ⊩𝔹≡ _ _ (red ( [ ⊢A , ⊢𝔹 , ⇒*-comp D' D ] ))
 -- reflEqAux (Emptyᵣ [ ⊢B , ⊢Empty , D ]) [ ⊢A , ⊢B' , D' ] = ⇒*-comp D' D
 -- reflEqAux (Unitᵣ [ ⊢B , ⊢Empty , D ]) [ ⊢A , ⊢B' , D' ] = ⇒*-comp D' D
-reflEqAux (ne (ne K [ ⊢A' , ⊢K , D ] neK K≡K)) [ ⊢A , ⊢B , D' ] = ne₌ _ _ [ ⊢A , ⊢K , ⇒*-comp D' D ] neK K≡K
-reflEqAux (Bᵣ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) [ ⊢A , ⊢B , D' ] =
-  B₌ F G D ⊢F ⊢G A≡A [F] [G] G-ext _ _ (⇒*-comp D' (red D)) A≡A
-    (λ {m} {_} {_} {l'} {≤ε} {lε'} ρ Δ → reflEqAux ([F] ρ Δ) (idRed:*: (Definition.Typed.Weakening.wk ρ Δ (Ty≤ ≤ε ⊢F))))
-    λ {m} {ρ} {_} {a} {l'} {≤ε} {lε'} [ρ] ⊢Δ [a] → reflEqAux ([G] [ρ] ⊢Δ [a]) (idRed:*: (escape ([G] [ρ] ⊢Δ [a])))
---  B₌ F G D ⊢F ⊢G A≡A [F] [G] G-ext _ _ (⇒*-comp D' (red D)) A≡A
---    (λ {m} {_} {_} {l'} {≤ε} {lε'} ρ Δ → reflEqAux ([F] ρ Δ) (idRed:*: (Definition.Typed.Weakening.wk ρ Δ (Ty≤ ≤ε ⊢F))))
---    λ {m} {ρ} {_} {a} {l'} {≤ε} {lε'} [ρ] ⊢Δ [a] → reflEqAux ([G] [ρ] ⊢Δ [a]) {!!}
-reflEqAux (emb 0<1 [A]) D = reflEqAux [A] D
+reflEqAux (ne (ne K D neK K≡K)) D' = ⊩¹≡ne (ne K D neK K≡K) (ne₌ K (:⇒:*-comp D' D) neK K≡K) --  ne₌ _ _ [ ⊢A , ⊢K , ⇒*-comp D' D ] neK K≡K
+reflEqAux (Bᵣ W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)) D' =
+  ⊩¹≡B W (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
+    (B₌ F G (⇒*-comp (red D') (red D)) A≡A
+      (λ {m} {_} {_} {l'} {≤ε} {lε'} ρ Δ → reflEqAux ([F] ρ Δ) (idRed:*: (escape ([F] {≤ε = ≤ε} ρ Δ))))
+      λ {m} {ρ} {_} {a} {l'} {≤ε} {lε'} [ρ] ⊢Δ [a] → reflEqAux ([G] [ρ] ⊢Δ [a]) (idRed:*: (escape ([G] [ρ] ⊢Δ [a])))) 
+reflEqAux (emb 0<1 [A]) D = ⊩¹≡emb 0<1 [A] (reflEqAux [A] D) -- reflEqAux [A] D
 reflEqAux (ϝᵣ {B = B} mε A⇒B αB [B]t [B]f) D' =
-  reflEqAux [B]t (τwfRed* D') , reflEqAux [B]f (τwfRed* D')
-  -- reflEqAux [B]₁ ([ τTy _ _ _ _ ⊢A' , τTy _ _ _ _ ⊢B , ⇒*-comp (τRed* D') (τRed* D) ])
+  ⊩¹≡ϝ-l A⇒B αB [B]t [B]f (reflEqAux [B]t (τwfRed* D')) (reflEqAux [B]f (τwfRed* D'))
 
 
 
@@ -204,18 +203,19 @@ reflEqAux (ϝᵣ {B = B} mε A⇒B αB [B]t [B]f) D' =
 escapeEq : ∀ {k A B} → ([A] : Γ / lε ⊩⟨ k ⟩ A)
             → Γ / lε ⊩⟨ k ⟩ A ≡ B / [A]
             → Γ / lε ⊢ A ≅ B
-escapeEq (Uᵣ′ k′ k< ⊢Γ) PE.refl = ≅-Urefl ⊢Γ
-escapeEq {k = k} (ℕᵣ D) A=B  = LogRel.escapeEqℕ k (logRelRec _) D A=B
-escapeEq {k = k} (𝔹ᵣ D) A=B  = LogRel.escapeEq𝔹 k (logRelRec _) D A=B
+escapeEq (Uᵣ′ k′ k< ⊢Γ) (⊩¹≡U _ A=B) rewrite A=B = ≅-Urefl ⊢Γ
+escapeEq {k = k} (ℕᵣ D) (⊩¹≡ℕ _ A=B)  = LogRel.escapeEqℕ k (logRelRec _) D A=B
+escapeEq {k = k} (𝔹ᵣ D) (⊩¹≡𝔹 _ A=B)  = LogRel.escapeEq𝔹 k (logRelRec _) D A=B
 -- escapeEq (Emptyᵣ [ ⊢A , ⊢B , D ]) D′ = ≅-red D D′ Emptyₙ Emptyₙ (≅-Emptyrefl (wf ⊢A))
 -- escapeEq (Unitᵣ [ ⊢A , ⊢B , D ]) D′ = ≅-red D D′ Unitₙ Unitₙ (≅-Unitrefl (wf ⊢A))
-escapeEq {k = k} (ne neA) A=B = LogRel.escapeEqNe k (logRelRec _) neA A=B
+escapeEq {k = k} (ne neA) (⊩¹≡ne _ A=B) = LogRel.escapeEqNe k (logRelRec _) neA A=B
 escapeEq {k = k} (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-             A=B = LogRel.escapeEqB k (logRelRec _) (Bᵣ _ _ D ⊢F ⊢G A≡A [F] [G] G-ext) A=B
+             (⊩¹≡B W _ A=B) = LogRel.escapeEqB k (logRelRec _) (Bᵣ _ _ D ⊢F ⊢G A≡A [F] [G] G-ext) A=B
   -- ≅-red (red D) D′ ⟦ W ⟧ₙ ⟦ W ⟧ₙ A≡B
-escapeEq (emb 0<1 A) A≡B = escapeEq A A≡B
-escapeEq (ϝᵣ mε [ ⊢A , ⊢B , D ] αB  tB fB) ( x , y ) =
-  (≅-ϝ (escapeEq tB x) (escapeEq fB y))
+escapeEq (emb 0<1 A) (⊩¹≡emb 0<1 _ A≡B) = escapeEq A A≡B
+escapeEq (ϝᵣ mε D αB  tB fB) (⊩¹≡ϝ-l _ _ _ _ tA=B fA=B) =
+  ≅-ϝ (escapeEq tB tA=B) (escapeEq fB fA=B) 
+escapeEq [A] (⊩¹≡ϝ-r B⇒B' αB' _ tA fA tA≡B fA≡B) = ≅-ϝ (escapeEq tA tA≡B) (escapeEq fA fA≡B)
 
 -- Reducible terms are well-formed.
 escapeTerm : ∀ {k A t} → ([A] : Γ / lε ⊩⟨ k ⟩ A)
@@ -224,6 +224,7 @@ escapeTerm : ∀ {k A t} → ([A] : Γ / lε ⊩⟨ k ⟩ A)
 escapeTerm (Uᵣ′ k′ k< ⊢Γ) (Uₜ A [ ⊢t , ⊢u , d ] typeA A≡A [A]) = ⊢t
 escapeTerm (ℕᵣ D) (ℕₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
   conv ⊢t (sym (subset* (red D)))
+escapeTerm (ℕᵣ x) (ℕϝ tt ft) = conv {!!} (sym (subset* (red x)))
 escapeTerm (𝔹ᵣ D) (𝔹ₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
   conv ⊢t (sym (subset* (red D)))
 -- escapeTerm (Emptyᵣ D) (Emptyₜ e [ ⊢t , ⊢u , d ] t≡t prop) =
