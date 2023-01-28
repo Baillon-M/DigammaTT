@@ -101,6 +101,12 @@ record EqRelSet : Set₁ where
            → Whnf {l} {lε} b′
            → Γ / lε ⊢ a′ ≅ b′ ∷ B
            → Γ / lε ⊢ a  ≅ b  ∷ A
+           
+    ≅ₜ-red₂ : Γ / lε ⊢ A ⇒* B
+           → Γ / lε ⊢ a ⇒* a′ ∷ B
+           → Γ / lε ⊢ b ⇒* b′ ∷ B
+           → Γ / lε ⊢ a′ ≅ b′ ∷ B
+           → Γ / lε ⊢ a  ≅ b  ∷ A
 
     -- Universe type reflexivity
     ≅-Urefl   : ⊢ Γ / lε → Γ / lε ⊢ U ≅ U
@@ -175,7 +181,7 @@ record EqRelSet : Set₁ where
            → Γ / lε ⊢ f ∷ Π F ▹ G
            → Γ / lε ⊢ g ∷ Π F ▹ G
            → Function {_} {l} {lε} f
-           → Function {_} {l} {lε}g
+           → Function {_} {l} {lε} g
            → Γ ∙ F / lε ⊢ wk1 f ∘ var x0 ≅ wk1 g ∘ var x0 ∷ G
            → Γ / lε ⊢ f ≅ g ∷ Π F ▹ G
 
