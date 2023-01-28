@@ -89,16 +89,13 @@ mutual
                    with whrDet* (red D₁ , ne neK₁) (red D , ne neK)
   irrelevanceTermT (ne (ne K D neK K≡K) (ne .K D₁ neK₁ K≡K₁) A≡B) (neₜ k d nf)
     | PE.refl = neₜ k d nf
-  irrelevanceTermT (ne (ne K D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁) A≡B) (neϝ tk fk)
-                   with whrDet* (red D₁ , ne neK₁) (red D , ne neK)
-  irrelevanceTermT (ne (ne K D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁) A≡B) (neϝ tk fk) 
-    | PE.refl = neϝ tk fk
   irrelevanceTermT {Γ = Γ} {lε = lε} {t = t} (Bᵥ BΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                                       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) A≡B)
-                   (Πₜ ⊢f f≡f [f] [f]₁) =
+                   (Πₜ f d funcF f≡f [f] [f]₁) =
     let ΠFG≡ΠF₁G₁   = whrDet* (red D , Πₙ) (red D₁ , Πₙ)
         F≡F₁ , G≡G₁ = B-PE-injectivity BΠ ΠFG≡ΠF₁G₁
-    in  Πₜ (PE.subst (λ x → Γ / lε ⊢ t ∷ x) ΠFG≡ΠF₁G₁ ⊢f) (PE.subst (λ x → Γ / lε ⊢ t ≅ t ∷ x) ΠFG≡ΠF₁G₁ f≡f)
+    in  Πₜ f (PE.subst (λ x → Γ / lε ⊢ t :⇒*: f ∷ x) ΠFG≡ΠF₁G₁ d) funcF
+           (PE.subst (λ x → Γ / lε ⊢ f ≅ f ∷ x) ΠFG≡ΠF₁G₁ f≡f)
            (λ {_} {ρ} {Δ} {a} {b} {l'} {≤ε : _ ≤ₗ l'} [ρ] ⊢Δ [a]₁ [b]₁ [a≡b]₁ →
               let [a]   = irrelevanceTerm′ (PE.cong (wk ρ) (PE.sym F≡F₁))
                                            ([F]₁ [ρ] ⊢Δ) ([F] {_} {l'} {≤ε} [ρ] ⊢Δ) [a]₁
@@ -238,21 +235,21 @@ mutual
   irrelevanceEqTermT (𝔹ᵥ D D′ A≡B) t≡u = t≡u
 --   irrelevanceEqTermT (Emptyᵥ D D′) t≡u = t≡u
 --   irrelevanceEqTermT (Unitᵥ D D′) t≡u = t≡u
-  irrelevanceEqTermT (ne (ne K D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁) A≡B) ne=
+  irrelevanceEqTermT (ne (ne K D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁) A≡B) (neₜ₌ k m d d′ nf)
                      with whrDet* (red D₁ , ne neK₁) (red D , ne neK)
   irrelevanceEqTermT (ne (ne K D neK K≡K) (ne .K D₁ neK₁ K≡K₁) A≡B) (neₜ₌ k m d d′ nf)
     | PE.refl = neₜ₌ k m d d′ nf
-  irrelevanceEqTermT (ne (ne K D neK K≡K) (ne .K D₁ neK₁ K≡K₁) A≡B) (ne₌ϝ tk≡k' fk≡k')
-    | PE.refl = ne₌ϝ tk≡k' fk≡k'
   irrelevanceEqTermT {Γ = Γ} {lε = lε} {t = t} {u = u}
                      (Bᵥ BΠ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                             (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁) A≡B)
-                     (Πₜ₌ f≡g [f] [g] [f≡g]) =
+                     (Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g]) =
     let ΠFG≡ΠF₁G₁   = whrDet* (red D , Πₙ) (red D₁ , Πₙ)
         F≡F₁ , G≡G₁ = B-PE-injectivity BΠ ΠFG≡ΠF₁G₁
         [A]         = Bᵣ′ BΠ F G D ⊢F ⊢G A≡A [F] [G] G-ext
         [A]₁        = Bᵣ′ BΠ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁
-    in  Πₜ₌ (PE.subst (λ x → Γ / lε ⊢ t ≅ u ∷ x) ΠFG≡ΠF₁G₁ f≡g)
+    in  Πₜ₌ f g (PE.subst (λ x → Γ / lε ⊢ t :⇒*: f ∷ x) ΠFG≡ΠF₁G₁ d)
+            (PE.subst (λ x → Γ / lε ⊢ u :⇒*: g ∷ x) ΠFG≡ΠF₁G₁ d′) funcF funcG
+            (PE.subst (λ x → Γ / lε ⊢ f ≅ g ∷ x) ΠFG≡ΠF₁G₁ f≡g)
             (irrelevanceTerm [A] [A]₁ [f]) (irrelevanceTerm [A] [A]₁ [g])
             (λ {_} {ρ} {_} {_} {l'} {≤ε : _ ≤ₗ l'} [ρ] ⊢Δ [a]₁ →
                let [a] = irrelevanceTerm′ (PE.cong (wk ρ) (PE.sym F≡F₁))

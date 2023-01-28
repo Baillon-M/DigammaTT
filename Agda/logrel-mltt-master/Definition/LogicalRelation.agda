@@ -575,40 +575,41 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     -- Term reducibility of Π-type
     _/_⊩¹Π_∷_/_ : {ℓ : Nat} (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t A : Term ℓ) ([A] : Γ / lε ⊩¹B⟨ BΠ ⟩ A) → Set
     _/_⊩¹Π_∷_/_ {ℓ} Γ {l} lε t A (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
-           (Γ / lε ⊢ t ∷ Π F ▹ G
-            × Γ / lε ⊢ t ≅ t ∷ Π F ▹ G
+      ∃ λ f → Γ / lε ⊢ t :⇒*: f ∷ Π F ▹ G
+            × Function {_} {_} {lε} f
+            × Γ / lε ⊢ f ≅ f ∷ Π F ▹ G
             × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a b} {l' : LCon} {≤ε : l ≤ₗ l'} {lε' : ⊢ₗ l'}
               ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε')
               ([a] : Δ / lε' ⊩¹ a ∷ U.wk ρ F / [F] {_} {l'} {≤ε} {lε'} [ρ] ⊢Δ)
-              ([b] : Δ / lε' ⊩¹ b ∷ U.wk ρ F / [F] {_} {l'} {≤ε} {lε'} [ρ] ⊢Δ)
-              ([a≡b] : Δ / lε' ⊩¹ a ≡ b ∷ U.wk ρ F / [F] {_} {l'} {≤ε} {lε'} [ρ] ⊢Δ)
-              → Δ / lε' ⊩¹ U.wk ρ t ∘ a ≡ U.wk ρ t ∘ b ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
+              ([b] : Δ / lε' ⊩¹ b ∷ U.wk ρ F / [F]  {_} {l'} {≤ε} {lε'} [ρ] ⊢Δ)
+              ([a≡b] : Δ / lε' ⊩¹ a ≡ b ∷ U.wk ρ F / [F]  {_} {l'} {≤ε} {lε'} [ρ] ⊢Δ)
+              → Δ / lε' ⊩¹ U.wk ρ f ∘ a ≡ U.wk ρ f ∘ b ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
             × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a} {l' : LCon} {≤ε : l ≤ₗ l'} {lε' : ⊢ₗ l'}
               → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε')
               → ([a] : Δ / lε' ⊩¹ a ∷ U.wk ρ F / [F] {_} {l'} {≤ε} {lε'} [ρ] ⊢Δ)
-              → Δ / lε' ⊩¹ U.wk ρ t ∘ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a]))
+              → Δ / lε' ⊩¹ U.wk ρ f ∘ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
               {- NOTE(WN): Last 2 fields could be refactored to a single forall.
                            But touching this definition is painful, so only do it
                            if you have to change it anyway. -}
     -- Issue: Agda complains about record use not being strictly positive.
     --        Therefore we have to use ×
 
-
     -- Term equality of Π-type
     _/_⊩¹Π_≡_∷_/_ : {ℓ : Nat} (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t u A : Term ℓ) ([A] : Γ / lε ⊩¹B⟨ BΠ ⟩ A) → Set
     _/_⊩¹Π_≡_∷_/_  {ℓ} Γ {l} lε t u A [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
-      -- ∃₂ λ f g → Γ / lε ⊢ t :⇒*: f ∷ Π F ▹ G
-      --         × Γ / lε ⊢ u :⇒*: g ∷ Π F ▹ G
-      --         × Function {_} {_} {lε} f
-      --         × Function {_} {_} {lε} g
-               Γ / lε ⊢ t ≅ u ∷ Π F ▹ G
+      ∃₂ λ f g → Γ / lε ⊢ t :⇒*: f ∷ Π F ▹ G
+               × Γ / lε ⊢ u :⇒*: g ∷ Π F ▹ G
+               × Function {_} {_} {lε} f
+               × Function {_} {_} {lε} g
+               × Γ / lε ⊢ f ≅ g ∷ Π F ▹ G
                × Γ / lε ⊩¹Π t ∷ A / [A]
                × Γ / lε ⊩¹Π u ∷ A / [A]
                × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a} {l' : LCon} {≤ε : l ≤ₗ l'} {lε' : ⊢ₗ l'}
                  ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε')
                  ([a] : Δ / lε' ⊩¹ a ∷ U.wk ρ F / [F] {_} {l'} {≤ε} {lε'} [ρ] ⊢Δ)
-                 → Δ / lε' ⊩¹ U.wk ρ t ∘ a ≡ U.wk ρ u ∘ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
+                 → Δ / lε' ⊩¹ U.wk ρ f ∘ a ≡ U.wk ρ g ∘ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
     -- Issue: Same as above.
+
 
     -- Term reducibility of Σ-type
     _/_⊩¹Σ_∷_/_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t A : Term ℓ) ([A] : Γ / lε ⊩¹B⟨ BΣ ⟩ A) → Set
@@ -630,8 +631,8 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
                × Γ / lε ⊩¹Σ t ∷ A / [A]
                × Γ / lε ⊩¹Σ u ∷ A / [A]
                × (Σ (Γ / lε ⊩¹ fst p ∷ U.wk id F / [F] {_} {_} {λ n l inl → inl} {lε} id (wf ⊢F)) λ [fstp]
-                    → Γ / lε ⊩¹ fst r ∷ U.wk id F / [F] {_} {_} {λ n l inl → inl} {lε} id (wf ⊢F)
-                    × Γ / lε ⊩¹ fst p ≡ fst r ∷ U.wk id F /  [F] {_} {_} {λ n l inl → inl} {lε} id (wf ⊢F)
+                    → Γ / lε ⊩¹ fst r ∷ U.wk id F / [F] {_} {_} {λ n b inl → inl} {lε} id (wf ⊢F)
+                    × Γ / lε ⊩¹ fst p ≡ fst r ∷ U.wk id F / [F] {_} {_} {λ n b inl → inl} {lε} id (wf ⊢F)
                     × Γ / lε ⊩¹ snd p ≡ snd r ∷ U.wk (lift id) G [ fst p ] / [G] id (wf ⊢F) [fstp])
 
     -- Logical relation definition
@@ -784,22 +785,6 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
   escapeEqℕ {A = A} {B = B} A⇒ℕ B⇒ℕ = ≅-trans (≅-red (red A⇒ℕ) (id (⊢B-red A⇒ℕ)) ℕₙ ℕₙ (≅-ℕrefl (wf (⊢B-red A⇒ℕ))))
                               (whescapeEqℕ (wf (⊢B-red A⇒ℕ)) (eqℕeqℕ {A = A} {B = B} B⇒ℕ))
 
-  escapeTermℕ : ∀ {t}
-                 → Γ / lε ⊩ℕ t ∷ℕ
-                 → Γ / lε ⊢ t ∷ ℕ
-  escapeTermℕ (ℕₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
-              ⊢t
-  escapeTermℕ (ℕϝ tt ft) = ϝⱼ (escapeTermℕ tt) (escapeTermℕ ft)
-
-  escapeTermEqℕ : ∀ {t u}
-                 → Γ / lε ⊩ℕ t ≡ u ∷ℕ
-                 → Γ / lε ⊢ t ≅ u ∷ ℕ
-  escapeTermEqℕ (ℕₜ₌ b b′ d d′ b≡b′ prop) =
-    let natK , natK′ = split prop
-    in
-    ≅ₜ-red (id (ℕⱼ (wfTerm (⊢t-redₜ d)))) (redₜ d) (redₜ d′) ℕₙ (naturalWhnf natK) (naturalWhnf natK′) b≡b′
-  escapeTermEqℕ (ℕ₌ϝ tt≡u ft≡u) = ≅ₜ-ϝ (escapeTermEqℕ tt≡u) (escapeTermEqℕ ft≡u)
-  
   escapeEqNe : ∀ {A B} → ([A] : Γ / lε  ⊩ne A)
             → Γ / lε ⊩ne A ≡ B / [A]
             → Γ / lε ⊢ A ≅ B
@@ -809,12 +794,7 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
 --    ≅-ϝ (escapeEqNe _ tC≡B) (escapeEqNe _ fC≡B) -- (≅-trans (≅-sym (≅-red (red D) (id (⊢B-red D)) (ne neK) (ne neK) (~-to-≅ K≡K)))
         --       (≅-ϝ (escapeEqNe _ tC≡B) (escapeEqNe _ fC≡B)))
 
-  escapeTermNe : ∀ {A t} → ([A] : Γ / lε  ⊩ne A)
-                 → Γ / lε ⊩ne t ∷ A / [A]
-                 → Γ / lε ⊢ t ∷ A
-  escapeTermNe (ne K D neK K≡K) (neₜ k d nf) = conv (⊢t-redₜ d) (sym (subset* (red D)))
-  escapeTermNe neA (neϝ tt ft) = ϝⱼ (escapeTermNe _ tt) (escapeTermNe _ ft)
-  
+
   escapeTermEqNe : ∀ {A t u} → ([A] : Γ / lε  ⊩ne A)
                  → Γ / lε ⊩ne t ≡ u ∷ A / [A]
                  → Γ / lε ⊢ t ≅ u ∷ A
@@ -868,26 +848,13 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
             → Γ / lε ⊢ A ≅ B
   escapeEq𝔹 {A = A} {B = B} A⇒𝔹 B⇒𝔹 = ≅-trans (≅-red (red A⇒𝔹) (id (⊢B-red A⇒𝔹)) 𝔹ₙ 𝔹ₙ (≅-𝔹refl (wf (⊢B-red A⇒𝔹))))
                               (whescapeEq𝔹 (wf (⊢B-red A⇒𝔹)) (eq𝔹eq𝔹 {A = A} {B = B} B⇒𝔹))
-  escapeTerm𝔹 : ∀ {t}
-                 → Γ / lε ⊩𝔹 t ∷𝔹
-                 → Γ / lε ⊢ t ∷ 𝔹
-  escapeTerm𝔹 (𝔹ₜ n [ ⊢t , ⊢u , d ] t≡t prop) = ⊢t
-  escapeTerm𝔹 (𝔹ϝ tt ft) = ϝⱼ (escapeTerm𝔹 tt) (escapeTerm𝔹 ft)
-  
-  escapeTermEq𝔹 : ∀ {t u}
-                 → Γ / lε ⊩𝔹 t ≡ u ∷𝔹
-                 → Γ / lε ⊢ t ≅ u ∷ 𝔹
-  escapeTermEq𝔹 (𝔹ₜ₌ b b′ d d′ b≡b′ prop) =
-    let boolK , boolK′ = bsplit prop
-    in
-    ≅ₜ-red (id (𝔹ⱼ (wfTerm (⊢t-redₜ d)))) (redₜ d) (redₜ d′) 𝔹ₙ (booleanWhnf boolK) (booleanWhnf boolK′) b≡b′
-  escapeTermEq𝔹 (𝔹₌ϝ tt≡u ft≡u) = ≅ₜ-ϝ (escapeTermEq𝔹 tt≡u) (escapeTermEq𝔹 ft≡u)
 
+    
 open LogRel public using (Uᵣ; ℕᵣ; 𝔹ᵣ ; ne; Bᵣ; B₌; emb; Uₜ; Uₜ₌ ; ϝᵣ ; ⊩¹≡U ; ⊩¹≡ℕ ; ⊩¹≡𝔹 ; ⊩¹≡ne ; ⊩¹≡B ; ⊩¹≡ϝ-l ; ⊩¹≡ϝ-r ; ⊩¹≡emb)
 
 -- Patterns for the non-records of Π
-pattern Πₜ ⊢f f≡f [f] [f]₁ = ⊢f , f≡f , [f] , [f]₁
-pattern Πₜ₌ f≡g [f] [g] [f≡g] = f≡g , [f] , [g] , [f≡g]
+pattern Πₜ f d funcF f≡f [f] [f]₁ = f , d , funcF , f≡f , [f] , [f]₁
+pattern Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g] = f , g , d , d′ , funcF , funcG , f≡g , [f] , [g] , [f≡g]
 pattern Σₜ p d pProd p≅p [fst] [snd] = p , d , pProd , p≅p , ([fst] , [snd])
 pattern Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] [fstp] [fstr] [fst≡] [snd≡] = p , r , d , d′ , pProd , rProd , p≅r , [t] , [u] , ([fstp] , [fstr] , [fst≡] , [snd≡])
 

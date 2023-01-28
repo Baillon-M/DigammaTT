@@ -222,16 +222,20 @@ escapeTerm : ∀ {k A t} → ([A] : Γ / lε ⊩⟨ k ⟩ A)
               → Γ / lε ⊩⟨ k ⟩ t ∷ A / [A]
               → Γ / lε ⊢ t ∷ A
 escapeTerm (Uᵣ′ k′ k< ⊢Γ) (Uₜ A [ ⊢t , ⊢u , d ] typeA A≡A [A]) = ⊢t
-escapeTerm {k = k} (ℕᵣ D) ⊢t = conv (LogRel.escapeTermℕ k (logRelRec _) ⊢t) (sym (subset* (red D)))
-escapeTerm {k = k} (𝔹ᵣ D) ⊢t = conv (LogRel.escapeTerm𝔹 k (logRelRec _) ⊢t) (sym (subset* (red D)))
+escapeTerm (ℕᵣ D) (ℕₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
+  conv ⊢t (sym (subset* (red D)))
+escapeTerm (ℕᵣ x) (ℕϝ tt ft) = conv {!!} (sym (subset* (red x)))
+escapeTerm (𝔹ᵣ D) (𝔹ₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
+  conv ⊢t (sym (subset* (red D)))
 -- escapeTerm (Emptyᵣ D) (Emptyₜ e [ ⊢t , ⊢u , d ] t≡t prop) =
 --   conv ⊢t (sym (subset* (red D)))
 -- escapeTerm (Unitᵣ D) (Unitₜ e [ ⊢t , ⊢u , d ] prop) =
 --   conv ⊢t (sym (subset* (red D)))
-escapeTerm {k = k} (ne neA) net = LogRel.escapeTermNe k (logRelRec _) neA net
+escapeTerm (ne′ K D neK K≡K) (neₜ k [ ⊢t , ⊢u , d ] nf) =
+  conv ⊢t (sym (subset* (red D)))
 escapeTerm (Bᵣ′ BΠ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-               (Πₜ ⊢f f≡f [f] [f]₁) =
-  conv ⊢f (sym (subset* (red D)))
+               (Πₜ f [ ⊢t , ⊢u , d ] funcF f≡f [f] [f]₁) =
+  conv ⊢t (sym (subset* (red D)))
 escapeTerm (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                (Σₜ p [ ⊢t , ⊢u , d ] pProd p≅p [fst] [snd]) =
   conv ⊢t (sym (subset* (red D)))
@@ -246,10 +250,14 @@ escapeTermEq : ∀ {k A t u} → ([A] : Γ / lε ⊩⟨ k ⟩ A)
                 → Γ / lε ⊢ t ≅ u ∷ A
 escapeTermEq (Uᵣ′ k′ k< ⊢Γ) (Uₜ₌ A B d d′ typeA typeB A≡B [A] [B] [A≡B]) =
   ≅ₜ-red (id (Uⱼ ⊢Γ)) (redₜ d) (redₜ d′) Uₙ (typeWhnf typeA) (typeWhnf typeB) A≡B
-escapeTermEq {k = k} (ℕᵣ D) t≡u =
-  ≅-conv (LogRel.escapeTermEqℕ k (logRelRec _) t≡u) (sym (subset* (red D)))
-escapeTermEq {k = k} (𝔹ᵣ D) t≡u =
-  ≅-conv (LogRel.escapeTermEq𝔹 k (logRelRec _) t≡u) (sym (subset* (red D)))
+escapeTermEq (ℕᵣ D) (ℕₜ₌ k k′ d d′ k≡k′ prop) =
+  let natK , natK′ = split prop
+  in  ≅ₜ-red (red D) (redₜ d) (redₜ d′) ℕₙ
+             (naturalWhnf natK) (naturalWhnf natK′) k≡k′
+escapeTermEq (𝔹ᵣ D) (𝔹ₜ₌ k k′ d d′ k≡k′ prop) =
+  let boolK , boolK′ = bsplit prop
+  in  ≅ₜ-red (red D) (redₜ d) (redₜ d′) 𝔹ₙ
+             (booleanWhnf boolK) (booleanWhnf boolK′) k≡k′
 -- escapeTermEq (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ k≡k′ prop) =
 --   let natK , natK′ = esplit prop
 --   in  ≅ₜ-red (red D) (redₜ d) (redₜ d′) Emptyₙ
@@ -260,8 +268,8 @@ escapeTermEq {k = k} (𝔹ᵣ D) t≡u =
 --   in  ≅-conv t≅u (sym A≡Unit)
 escapeTermEq {k = k} (ne neA) t=u = LogRel.escapeTermEqNe k (logRelRec _) neA t=u
 escapeTermEq (Bᵣ′ BΠ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
-                 (Πₜ₌ f≡g [f] [g] [f≡g]) =
-  ≅-conv f≡g (sym (subset* (red D))) -- ≅ₜ-red (red D) (redₜ d) (redₜ d′) Πₙ (functionWhnf funcF) (functionWhnf funcG) f≡g
+                 (Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g]) =
+  ≅ₜ-red (red D) (redₜ d) (redₜ d′) Πₙ (functionWhnf funcF) (functionWhnf funcG) f≡g
 escapeTermEq (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
                  (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] [fstp] [fstr] [fst≡] [snd≡]) =
   ≅ₜ-red (red D) (redₜ d) (redₜ d′) Σₙ (productWhnf pProd) (productWhnf rProd) p≅r

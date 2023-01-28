@@ -867,7 +867,6 @@ RedPerm* ((univ d) ⇨ d') = univ (RedTermPerm d) ⇨ RedPerm* d'
 τRed*Term (id d) = id (τTerm _ _ _ _ d)
 τRed*Term (d ⇨ d') = τRedTerm d ⇨ τRed*Term d'
 
-
 -- Type reduction to whnf
 _/_⊢_↘_ : (Γ : Con Term n) → {l : LCon} → (lε : ⊢ₗ l) → Term n → Term n → Set
 Γ / lε ⊢ A ↘ B = Γ / lε ⊢ A ⇒* B × Whnf {_} {lε} B
