@@ -895,6 +895,7 @@ record _/_⊢_:⇒*:_ (Γ : Con Term n) {l : LCon} (lε : ⊢ₗ l) (A B : Term 
     ⊢B : Γ / lε ⊢ B
     D  : Γ / lε ⊢ A ⇒* B
 
+
 wfRed≤* : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {A B}
              → l ≤ₗ l'
              → Γ / lε ⊢ A :⇒*: B
@@ -925,6 +926,17 @@ record _/_⊢_:⇒*:_∷_ (Γ : Con Term n) {l : LCon} (lε : ⊢ₗ l) (t u A :
     d  : Γ / lε ⊢ t ⇒* u ∷ A
 
 open _/_⊢_:⇒*:_∷_ using () renaming (d to redₜ; ⊢t to ⊢t-redₜ; ⊢u to ⊢u-redₜ) public
+
+wfRedTerm≤* : ∀ {l l' : LCon} {lε : ⊢ₗ l} {lε' : ⊢ₗ l'} {t u A}
+             → l ≤ₗ l'
+             → Γ / lε ⊢ t :⇒*: u ∷ A
+             → Γ / lε' ⊢ t :⇒*: u ∷ A
+wfRedTerm≤* f< [ ⊢t , ⊢u , d ] = [ Term≤ f< ⊢t , Term≤ f< ⊢u , RedTerm≤* f< d ]
+
+τwfRed*Term : ∀ {l : LCon} {lε : ⊢ₗ l} {t u A n b nε}
+             → Γ / lε ⊢ t :⇒*: u ∷ A
+             → Γ / (⊢ₗ• l lε n b nε) ⊢ t :⇒*: u ∷ A
+τwfRed*Term d = wfRedTerm≤* (λ n b inl → InThere _ inl _ _) d
 
 -- Well-formed substitutions.
 data _/_⊢ˢ_∷_ (Δ : Con Term m) {l : LCon} (lε : ⊢ₗ l) : (σ : Subst m n) (Γ : Con Term n) → Set where

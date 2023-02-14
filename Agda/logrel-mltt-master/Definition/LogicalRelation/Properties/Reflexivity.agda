@@ -76,8 +76,8 @@ reflEqTerm𝔹 (𝔹ϝ tn fn) = 𝔹₌ϝ (reflEqTerm𝔹 tn) (reflEqTerm𝔹 fn
 reflEqTerm : ∀ {k A t} ([A] : Γ / lε ⊩⟨ k ⟩ A)
            → Γ / lε ⊩⟨ k ⟩ t ∷ A / [A]
            → Γ / lε ⊩⟨ k ⟩ t ≡ t ∷ A / [A]
-reflEqTerm (Uᵣ′ ⁰ 0<1 ⊢Γ) (Uₜ A d typeA A≡A [A]) =
-  Uₜ₌ A A d d typeA typeA A≡A [A] [A] (reflEq [A])
+reflEqTerm (Uᵣ′ ⁰ 0<1 ⊢Γ) (Uₜ ⊢t t≡t [A]) =
+  Uₜ₌ ⊢t ⊢t t≡t [A] [A] (reflEq [A])
 reflEqTerm (ℕᵣ D) ⊢t = reflEqTermℕ ⊢t
 reflEqTerm (𝔹ᵣ D) ⊢t = reflEqTerm𝔹 ⊢t
 -- reflEqTerm (Emptyᵣ D) (Emptyₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
@@ -95,4 +95,4 @@ reflEqTerm (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d pPro
     (reflEqTerm ([F] id (wf ⊢F)) [fst])
     (reflEqTerm ([G] id (wf ⊢F) [fst]) [snd])
 reflEqTerm (emb 0<1 [A]) t = reflEqTerm [A] t
-reflEqTerm (ϝᵣ mε ([ ⊢A , ⊢B , D ]) αB tA fA) ( x , y ) = reflEqTerm tA x , reflEqTerm fA y 
+reflEqTerm (ϝᵣ mε tA fA) ( x , y ) = reflEqTerm tA x , reflEqTerm fA y 

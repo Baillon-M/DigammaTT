@@ -265,7 +265,6 @@ _/_⊩𝔹_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A : Term ℓ) →
 
 -- Boolean type equality
 
--- Natural number type equality
 _/_⊩𝔹_≡_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (A B : Term ℓ) → Set
 Γ / lε ⊩𝔹 A ≡ B = Γ / lε ⊢ B ⇒* 𝔹
 
@@ -464,23 +463,33 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     constructor Uₜ
     open LogRelKit (rec j<)
     field
-      A     : Term ℓ
-      d     : Γ / lε ⊢ t :⇒*: A ∷ U
-      typeA : Type {_} {l} {lε} A
-      A≡A   : Γ / lε ⊢ A ≅ A ∷ U
+     -- A     : Term ℓ
+     -- d     : Γ / lε ⊢ t :⇒*: A ∷ U
+     -- typeA : Type {_} {l} {lε} A
+     -- A≡A   : Γ / lε ⊢ A ≅ A ∷ U
+      ⊢t : Γ / lε ⊢ t ∷ U
+      t≡t   : Γ / lε ⊢ t ≅ t ∷ U
       [t]   : Γ / lε ⊩ t
+
+
+--     Uϝ : ∀ {m mε}
+--         → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩¹U t ∷U/ j<
+--         → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩¹U t ∷U/ j<
+--         → Γ / lε ⊩¹U t ∷U/ j<
 
   -- Universe term equality
   record _/_⊩¹U_≡_∷U/_ {j′} (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t u : Term ℓ) (j< : j′ < j) : Set where
     constructor Uₜ₌
     open LogRelKit (rec j<)
     field
-      A B   : Term ℓ
-      d     : Γ / lε ⊢ t :⇒*: A ∷ U
-      d′    : Γ / lε ⊢ u :⇒*: B ∷ U
-      typeA : Type {_} {l} {lε} A
-      typeB : Type {_} {l} {lε} B
-      A≡B   : Γ / lε ⊢ A ≅ B ∷ U
+--       A B   : Term ℓ
+--       d     : Γ / lε ⊢ t :⇒*: A ∷ U
+--       d′    : Γ / lε ⊢ u :⇒*: B ∷ U
+--       typeA : Type {_} {l} {lε} A
+--       typeB : Type {_} {l} {lε} B
+      ⊢t : Γ / lε ⊢ t ∷ U
+      ⊢u : Γ / lε ⊢ u ∷ U
+      t≡u   : Γ / lε ⊢ t ≅ u ∷ U
       [t]   : Γ / lε ⊩ t
       [u]   : Γ / lε ⊩ u
       [t≡u] : Γ / lε ⊩ t ≡ u / [t]
@@ -645,9 +654,7 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
       Bᵣ  : ∀ {A} W → Γ / lε ⊩¹B⟨ W ⟩ A → Γ / lε ⊩¹ A
       emb : ∀ {A j′} (j< : j′ < j) (let open LogRelKit (rec j<))
             ([A] : Γ / lε ⊩ A) → Γ / lε ⊩¹ A
-      ϝᵣ  : ∀ {A B m} mε   → Γ / lε ⊢ A :⇒*: B
-                           → αNeutral {l} {lε} m B
-                           → Γ / (⊢ₗ• l lε m Btrue mε)     ⊩¹ A
+      ϝᵣ  : ∀ {A m} mε   → Γ / (⊢ₗ• l lε m Btrue mε)     ⊩¹ A
                            → Γ / (⊢ₗ• l lε m Bfalse mε)    ⊩¹ A
                            → Γ / lε ⊩¹ A
 
@@ -659,11 +666,7 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     --    Γ / lε ⊩¹ A ≡ B / Emptyᵣ D = Γ / lε ⊩Empty A ≡ B
       ⊩¹≡ne : ∀ {A B} neA → Γ / lε ⊩ne A ≡ B / neA → Γ / lε ⊩¹ A ≡ B / ne neA
       ⊩¹≡B : ∀ {A B} W BA → Γ / lε ⊩¹B⟨ W ⟩ A ≡ B / BA → Γ / lε ⊩¹ A ≡ B / Bᵣ W BA 
-      ⊩¹≡ϝ-l : ∀ {A A' B m mε} (A⇒A' : Γ / lε ⊢ A :⇒*: A') (αA')
-               (tA : Γ / (⊢ₗ• l lε m Btrue mε) ⊩¹ A) (fA : Γ / (⊢ₗ• l lε m Bfalse mε) ⊩¹ A)
-             → Γ / _ ⊩¹ A ≡ B / tA → Γ / _ ⊩¹ A ≡ B / fA
-             → Γ / lε ⊩¹ A ≡ B / ϝᵣ {m = m} mε A⇒A' αA' tA fA
-      ⊩¹≡ϝ-r : ∀ {A B B' m mε} (B⇒B' : Γ / lε ⊢ B :⇒*: B') (αB' : αNeutral {l} {lε} m B') [A]
+      ⊩¹≡ϝ : ∀ {A B m mε} [A]
                (tA : Γ / (⊢ₗ• l lε m Btrue mε) ⊩¹ A) (fA : Γ / (⊢ₗ• l lε m Bfalse mε) ⊩¹ A)
              → Γ / _ ⊩¹ A ≡ B / tA → Γ / _ ⊩¹ A ≡ B / fA
              → Γ / lε ⊩¹ A ≡ B / [A]
@@ -679,7 +682,7 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     Γ / lε ⊩¹ t ∷ A / ne neA = Γ / lε ⊩ne t ∷ A / neA
     Γ / lε ⊩¹ t ∷ A / Bᵣ BΠ ΠA  = Γ / lε ⊩¹Π t ∷ A / ΠA
     Γ / lε ⊩¹ t ∷ A / Bᵣ BΣ ΣA  = Γ / lε ⊩¹Σ t ∷ A / ΣA
-    Γ / lε ⊩¹ t ∷ A / ϝᵣ _ _ _ tB fB = (Γ / _ ⊩¹ t ∷ _ / tB) × (Γ / _ ⊩¹ t ∷ _ / fB)
+    Γ / lε ⊩¹ t ∷ A / ϝᵣ _ tB fB = (Γ / _ ⊩¹ t ∷ _ / tB) × (Γ / _ ⊩¹ t ∷ _ / fB)
     Γ / lε ⊩¹ t ∷ A / emb j< [A] = Γ / lε ⊩ t ∷ A / [A]
       where open LogRelKit (rec j<)
 
@@ -692,7 +695,7 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     Γ / lε ⊩¹ t ≡ u ∷ A / ne neA = Γ / lε ⊩ne t ≡ u ∷ A / neA
     Γ / lε ⊩¹ t ≡ u ∷ A / Bᵣ BΠ ΠA = Γ / lε ⊩¹Π t ≡ u ∷ A / ΠA
     Γ / lε ⊩¹ t ≡ u ∷ A / Bᵣ BΣ ΣA  = Γ / lε ⊩¹Σ t ≡ u ∷ A / ΣA
-    Γ / lε ⊩¹ t ≡ u ∷ A / ϝᵣ _ _ _ tB fB = (Γ / _ ⊩¹ t ≡ u ∷ _ / tB) × (Γ / _ ⊩¹ t ≡ u ∷ _ / fB)
+    Γ / lε ⊩¹ t ≡ u ∷ A / ϝᵣ _ tB fB = (Γ / _ ⊩¹ t ≡ u ∷ _ / tB) × (Γ / _ ⊩¹ t ≡ u ∷ _ / fB)
     Γ / lε ⊩¹ t ≡ u ∷ A / emb j< [A] = Γ / lε ⊩ t ≡ u ∷ A / [A]
       where open LogRelKit (rec j<)
 
@@ -883,7 +886,7 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     ≅ₜ-red (id (𝔹ⱼ (wfTerm (⊢t-redₜ d)))) (redₜ d) (redₜ d′) 𝔹ₙ (booleanWhnf boolK) (booleanWhnf boolK′) b≡b′
   escapeTermEq𝔹 (𝔹₌ϝ tt≡u ft≡u) = ≅ₜ-ϝ (escapeTermEq𝔹 tt≡u) (escapeTermEq𝔹 ft≡u)
 
-open LogRel public using (Uᵣ; ℕᵣ; 𝔹ᵣ ; ne; Bᵣ; B₌; emb; Uₜ; Uₜ₌ ; ϝᵣ ; ⊩¹≡U ; ⊩¹≡ℕ ; ⊩¹≡𝔹 ; ⊩¹≡ne ; ⊩¹≡B ; ⊩¹≡ϝ-l ; ⊩¹≡ϝ-r ; ⊩¹≡emb)
+open LogRel public using (Uᵣ; ℕᵣ; 𝔹ᵣ ; ne; Bᵣ; B₌; emb; Uₜ; Uₜ₌ ; ϝᵣ ; ⊩¹≡U ; ⊩¹≡ℕ ; ⊩¹≡𝔹 ; ⊩¹≡ne ; ⊩¹≡B ; ⊩¹≡ϝ ; ⊩¹≡emb)
 
 -- Patterns for the non-records of Π
 pattern Πₜ ⊢f f≡f [f] [f]₁ = ⊢f , f≡f , [f] , [f]₁
