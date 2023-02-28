@@ -109,6 +109,15 @@ MaxLess (≤-s k<m) (≤-s l<n) = ≤-s (MaxLess k<m l<n)
 ≤₊ : ∀ {k l m n} → k ≤ m → l ≤ n → (k + l) ≤ (m + n)
 ≤₊ {l = l} k<m l<n = ≤-trans (≤₊-trans-l l k<m) (≤₊-trans-r _ l<n)
 
+≤₊-assoc-l : ∀ {l m n} → (l + (m + n)) ≤ (l + m + n)
+≤₊-assoc-l {l = zero} = ≤-refl _
+≤₊-assoc-l {l = 1+ l} = ≤-s (≤₊-assoc-l {l = l})
+
+≤₊-assoc-r : ∀ {l m n} → (l + m + n) ≤ (l + (m + n))
+≤₊-assoc-r {l = zero} = ≤-refl _
+≤₊-assoc-r {l = 1+ l} = ≤-s (≤₊-assoc-r {l = l})
+
+
 
 ≤-pred : ∀ {n m} → (1+ n) ≤ (1+ m) → n ≤ m
 ≤-pred (≤-s n<m) = n<m

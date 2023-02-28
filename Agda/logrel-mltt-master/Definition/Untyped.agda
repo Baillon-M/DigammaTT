@@ -313,6 +313,12 @@ InLConInLConNat e1 e2 (InThere l inl m b') = InThereNat l (InLConInLConNat e1 e2
 ≤ₗ-add n b l' f< inl' t u  (InHere n b t=n u=m l) rewrite u=m rewrite t=n = InLConNatInLCon inl'
 ≤ₗ-add n b l' f< inl' t u  (InThere l inl m b) = f< _ _ inl
 
+≤ₗ-add-r : ∀ {l l' n b} → l ≤ₗ l' → l ≤ₗ (addₗ n b l')
+≤ₗ-add-r f< n b nε = InThere _ (f< n b nε) _ _
+
+≤ₗ-add-b : ∀ {l l' n b} → l ≤ₗ l' → (addₗ n b l) ≤ₗ (addₗ n b l')
+≤ₗ-add-b f< = ≤ₗ-add _ _ _ (≤ₗ-add-r f<) (InHereNat _)
+
 ≤ₗ-rev-l : ∀ {l l' m b} → (addₗ m b l) ≤ₗ l' → l ≤ₗ l'
 ≤ₗ-rev-l {l = l} {m = m} {b = b} f t u inl = f t u (InThere l inl m b)
 
