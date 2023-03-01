@@ -612,8 +612,9 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
       ∃ λ p → Γ / lε ⊢ t :⇒*: p ∷ Σ F ▹ G
             × Product p
             × Γ / lε ⊢ p ≅ p ∷ Σ F ▹ G
-            × (Σ (Γ / lε ⊩¹ fst p ∷ U.wk id F / [F] {_} {_} {λ n l inl → inl} {lε} id (wf ⊢F)) λ [fst]
-                 → Γ / lε ⊩¹ snd p ∷ U.wk (lift id) G [ fst p ] / [G] id (wf ⊢F) [fst])
+            × (Σ (Γ / lε ⊩¹ fst p ∷ U.wk id F / [F] id (wf ⊢F)) λ [fst]
+                 → (let (N , [G]₂) = [G] [ρ] ⊢Δ [a] in
+                   Γ / lε ⊩¹ snd p ∷ U.wk (lift id) G [ fst p ] / [G] id (wf ⊢F) [fst])
 
     -- Term equality of Σ-type
     _/_⊩¹Σ_≡_∷_/_ : (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t u A : Term ℓ) ([A] : Γ / lε ⊩¹B⟨ BΣ ⟩ A) → Set
