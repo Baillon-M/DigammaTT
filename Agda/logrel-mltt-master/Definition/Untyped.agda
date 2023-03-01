@@ -224,6 +224,10 @@ TrueBboolToTerm : ∀ (n : Nat) (b : Bbool) → TrueBool (BboolToTerm n b)
 TrueBboolToTerm n Btrue = Truetrue
 TrueBboolToTerm n Bfalse = Truefalse
 
+sizeₗ : LCon → Nat
+sizeₗ εₗ = 0
+sizeₗ (addₗ n b l) = 1+ (sizeₗ l)
+
 
 data InLCon {n : Nat} (t u : Term n) : LCon → Set
   where

@@ -101,10 +101,6 @@ data _/_⊩ne_∷_/_ (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t A : Term
           (d   : Γ / lε ⊢ t :⇒*: k ∷ K)
           (nf  : Γ / lε ⊩neNf k ∷ K)
           → Γ / lε ⊩ne t ∷ A / (ne K D neK K≡K)
-  neϝ : ∀ {m mε [A] [A]t [A]f}
-          → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩ne t ∷ A / [A]t
-          → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩ne t ∷ A / [A]f
-          → Γ / lε ⊩ne t ∷ A / [A]
                                
 -- record _/_⊩neNf_≡_∷_ (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (k m A : Term ℓ) : Set where
 --   inductive
@@ -141,10 +137,6 @@ data _/_⊩ne_≡_∷_/_ (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (t u A 
            (d′  : Γ / lε ⊢ u :⇒*: m ∷ K)
            (nf  : Γ / lε ⊩neNf k ≡ m ∷ K)
        → Γ / lε ⊩ne t ≡ u ∷ A / (ne K D neK K≡K)
-  ne₌ϝ : ∀ {m mε [A] [A]t [A]f}
-           → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩ne t ≡ u ∷ A / [A]t
-           → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩ne t ≡ u ∷ A / [A]f
-           → Γ / lε ⊩ne t ≡ u ∷ A / [A]
   
 -- Reducibility of αNeutrals:
 
@@ -194,10 +186,6 @@ mutual
           (n≡n : Γ / lε ⊢ n ≅ n ∷ ℕ)
           (prop : Natural-prop Γ lε n)
           → Γ / lε ⊩ℕ t ∷ℕ
-   ℕϝ : ∀ {m mε}
-          → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩ℕ t ∷ℕ
-          → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩ℕ t ∷ℕ
-          → Γ / lε ⊩ℕ t ∷ℕ
 
   -- WHNF property of natural number terms
   data Natural-prop (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) : (n : Term ℓ) → Set where
@@ -220,11 +208,7 @@ mutual
       (k≡k′ : Γ / lε ⊢ k ≅ k′ ∷ ℕ)
       (prop : [Natural]-prop Γ lε k k′)
       → Γ / lε ⊩ℕ t ≡ u ∷ℕ
-    ℕ₌ϝ : ∀ {t u : Term ℓ} {m mε}
-      → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩ℕ t ≡ u ∷ℕ
-      → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩ℕ t ≡ u ∷ℕ
-      → Γ / lε ⊩ℕ t ≡ u ∷ℕ
-
+      
   -- WHNF property of Natural number term equality
   data [Natural]-prop (Γ : Con Term ℓ) : ∀ {l : LCon} (lε : ⊢ₗ l) (n n′ : Term ℓ) → Set where
     sucᵣ  : ∀ {l : LCon} {lε : ⊢ₗ l} {n n′} → Γ / lε ⊩ℕ n ≡ n′ ∷ℕ → [Natural]-prop Γ lε (suc n) (suc n′)
@@ -286,10 +270,6 @@ mutual
           (n≡n : Γ / lε ⊢ b ≅ b ∷ 𝔹)
           (prop : Boolean-prop Γ lε b)
         → Γ / lε ⊩𝔹 t ∷𝔹
-   𝔹ϝ : ∀ {m mε}
-        → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩𝔹 t ∷𝔹
-        → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩𝔹 t ∷𝔹
-        → Γ / lε ⊩𝔹 t ∷𝔹
 
   -- WHNF property of boolean terms
   data Boolean-prop (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) : (b : Term ℓ) → Set where
@@ -310,10 +290,6 @@ mutual
            (d′ : Γ / lε ⊢ u :⇒*: b′ ∷ 𝔹)
            (b≡b′ : Γ / lε ⊢ b ≅ b′ ∷ 𝔹)
            (prop : [Boolean]-prop Γ lε b b′)
-           → Γ / lε ⊩𝔹 t ≡ u ∷𝔹
-   𝔹₌ϝ : ∀ {m mε}
-           → Γ / (⊢ₗ• l lε m Btrue mε)  ⊩𝔹 t ≡ u ∷𝔹
-           → Γ / (⊢ₗ• l lε m Bfalse mε) ⊩𝔹 t ≡ u ∷𝔹
            → Γ / lε ⊩𝔹 t ≡ u ∷𝔹
            
   -- WHNF property of Natural number term equality
@@ -510,17 +486,20 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
         ⊢F : Γ / lε ⊢ F
         ⊢G : Γ ∙ F / lε ⊢ G
         A≡A : Γ / lε ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ F ▹ G
-        [F] : ∀ {m} {l' : LCon} {≤ε : l  ≤ₗ l'} {lε' : ⊢ₗ l'} {ρ : Wk m ℓ} {Δ : Con Term m} → ρ ∷ Δ ⊆ Γ → ⊢ Δ / lε' → Δ / lε' ⊩¹ U.wk ρ F
-        [G] : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a : Term m} {l' : LCon} {≤ε : l ≤ₗ l'} {lε' : ⊢ₗ l'}
-            → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε')
-            → Δ / lε' ⊩¹ a ∷ U.wk ρ F / [F] {_} {l'} {≤ε} [ρ] ⊢Δ
-            → Δ / lε' ⊩¹ U.wk (lift ρ) G [ a ]
-        G-ext : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a b} {l' : LCon} {≤ε : l ≤ₗ l'} {lε' : ⊢ₗ l'}
-              → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε')
-              → ([a] : Δ / lε' ⊩¹ a ∷ U.wk ρ F / [F] {_} {l'} {≤ε} [ρ] ⊢Δ)
-              → ([b] : Δ / lε' ⊩¹ b ∷ U.wk ρ F / [F] {_} {l'} {≤ε} [ρ] ⊢Δ)
-              → Δ / lε' ⊩¹ a ≡ b ∷ U.wk ρ F / [F] {_} {l'} {≤ε} [ρ] ⊢Δ      
-              → Δ / lε' ⊩¹ U.wk (lift ρ) G [ a ] ≡ U.wk (lift ρ) G [ b ] / [G] [ρ] ⊢Δ [a]
+        [F] : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} → ρ ∷ Δ ⊆ Γ → ⊢ Δ / lε → Δ / lε ⊩¹ U.wk ρ F
+        [G] : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a : Term m}
+            → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε)
+            → Δ / lε ⊩¹ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ
+            → ∃ (λ (N : Nat) → ∀ {l' : LCon} (≤ε : l ≤ₗ l') (lε' : ⊢ₗ l') → N ≤ (sizeₗ l')
+              → Δ / lε' ⊩¹ U.wk (lift ρ) G [ a ])
+        G-ext : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a b}
+              → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε)
+              → ([a] : Δ / lε ⊩¹ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
+              → ([b] : Δ / lε ⊩¹ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
+              → Δ / lε ⊩¹ a ≡ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ      
+              → (let (N , [G']) = [G] [ρ] ⊢Δ [a] in
+                (∀ {l' : LCon} (≤ε : l ≤ₗ l') (lε' : ⊢ₗ l') (N<s : N ≤ (sizeₗ l'))
+                   → Δ / lε' ⊩¹ U.wk (lift ρ) G [ a ] ≡ U.wk (lift ρ) G [ b ] / [G'] ≤ε lε' N<s))
       
 
     -- B-type equality
@@ -534,13 +513,15 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
         G′     : Term (1+ ℓ)
         D′     : Γ / lε ⊢ B ⇒* ⟦ W ⟧ F′ ▹ G′
         A≡B    : Γ / lε ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ F′ ▹ G′
-        [F≡F′] : {m : Nat} {ρ : Wk m ℓ} {Δ : Con Term m}  {l' : LCon} {≤ε : l ≤ₗ l'} {lε' : ⊢ₗ l'}
-                        → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε')
-                        → Δ / lε' ⊩¹ U.wk ρ F ≡ U.wk ρ F′ / [F] {_} {l'} {≤ε} [ρ] ⊢Δ
-        [G≡G′] : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a}  {l' : LCon} {≤ε : l ≤ₗ l'} {lε' : ⊢ₗ l'}
-                       → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε')
-                       → ([a] : Δ / lε' ⊩¹ a ∷ U.wk ρ F / [F] {_} {l'} {≤ε} [ρ] ⊢Δ)
-                       → Δ / lε' ⊩¹ U.wk (lift ρ) G [ a ] ≡ U.wk (lift ρ) G′ [ a ] / [G] [ρ] ⊢Δ [a]
+        [F≡F′] : {m : Nat} {ρ : Wk m ℓ} {Δ : Con Term m}
+                        → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε)
+                        → Δ / lε ⊩¹ U.wk ρ F ≡ U.wk ρ F′ / [F] [ρ] ⊢Δ
+        [G≡G′] : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a} 
+                       → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε)
+                       → ([a] : Δ / lε ⊩¹ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
+                       → (let (N , [G]₂) = [G] [ρ] ⊢Δ [a] in
+                         (∀ {l' : LCon} (≤ε : l ≤ₗ l') (lε' : ⊢ₗ l') (N<s : N ≤ (sizeₗ l'))
+                            → Δ / lε' ⊩¹ U.wk (lift ρ) G [ a ] ≡ U.wk (lift ρ) G′ [ a ] / [G]₂ ≤ε lε' N<s))
 
 --     data _/_⊩¹B⟨_⟩_≡_/_ (Γ : Con Term ℓ) {l : LCon} (lε : ⊢ₗ l) (W : BindingType) (A B : Term ℓ) : ∀ ([A] : Γ / lε ⊩¹B⟨ W ⟩ A) → Set
 --       where
@@ -586,16 +567,20 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     _/_⊩¹Π_∷_/_ {ℓ} Γ {l} lε t A (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) =
            (Γ / lε ⊢ t ∷ Π F ▹ G
             × Γ / lε ⊢ t ≅ t ∷ Π F ▹ G
-            × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a b} {l' : LCon} {≤ε : l ≤ₗ l'} {lε' : ⊢ₗ l'}
-              ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε')
-              ([a] : Δ / lε' ⊩¹ a ∷ U.wk ρ F / [F] {_} {l'} {≤ε} {lε'} [ρ] ⊢Δ)
-              ([b] : Δ / lε' ⊩¹ b ∷ U.wk ρ F / [F] {_} {l'} {≤ε} {lε'} [ρ] ⊢Δ)
-              ([a≡b] : Δ / lε' ⊩¹ a ≡ b ∷ U.wk ρ F / [F] {_} {l'} {≤ε} {lε'} [ρ] ⊢Δ)
-              → Δ / lε' ⊩¹ U.wk ρ t ∘ a ≡ U.wk ρ t ∘ b ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
-            × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a} {l' : LCon} {≤ε : l ≤ₗ l'} {lε' : ⊢ₗ l'}
-              → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε')
-              → ([a] : Δ / lε' ⊩¹ a ∷ U.wk ρ F / [F] {_} {l'} {≤ε} {lε'} [ρ] ⊢Δ)
-              → Δ / lε' ⊩¹ U.wk ρ t ∘ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a]))
+            × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a b}
+              ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε)
+              ([a] : Δ / lε ⊩¹ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
+              ([b] : Δ / lε ⊩¹ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
+              ([a≡b] : Δ / lε ⊩¹ a ≡ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
+              → (let (N , [G]₂) = [G] [ρ] ⊢Δ [a] in
+                (∀ {l' : LCon} (≤ε : l ≤ₗ l') (lε' : ⊢ₗ l') (N<s : N ≤ (sizeₗ l'))
+                   → Δ / lε' ⊩¹ U.wk ρ t ∘ a ≡ U.wk ρ t ∘ b ∷ U.wk (lift ρ) G [ a ] / [G]₂ ≤ε lε' N<s)))
+            × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a}
+              → ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε)
+              → ([a] : Δ / lε ⊩¹ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
+              → (let (N , [G]₂) = [G] [ρ] ⊢Δ [a] in
+                (∀ {l' : LCon} (≤ε : l ≤ₗ l') (lε' : ⊢ₗ l') (N<s : N ≤ (sizeₗ l'))
+                → Δ / lε' ⊩¹ U.wk ρ t ∘ a ∷ U.wk (lift ρ) G [ a ] / [G]₂ ≤ε lε' N<s))))
               {- NOTE(WN): Last 2 fields could be refactored to a single forall.
                            But touching this definition is painful, so only do it
                            if you have to change it anyway. -}
@@ -613,10 +598,12 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
                Γ / lε ⊢ t ≅ u ∷ Π F ▹ G
                × Γ / lε ⊩¹Π t ∷ A / [A]
                × Γ / lε ⊩¹Π u ∷ A / [A]
-               × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a} {l' : LCon} {≤ε : l ≤ₗ l'} {lε' : ⊢ₗ l'}
-                 ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε')
-                 ([a] : Δ / lε' ⊩¹ a ∷ U.wk ρ F / [F] {_} {l'} {≤ε} {lε'} [ρ] ⊢Δ)
-                 → Δ / lε' ⊩¹ U.wk ρ t ∘ a ≡ U.wk ρ u ∘ a ∷ U.wk (lift ρ) G [ a ] / [G] [ρ] ⊢Δ [a])
+               × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a}
+                 ([ρ] : ρ ∷ Δ ⊆ Γ) (⊢Δ : ⊢ Δ / lε)
+                 ([a] : Δ / lε ⊩¹ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
+                 → (let (N , [G]₂) = [G] [ρ] ⊢Δ [a] in
+                   (∀ {l' : LCon} (≤ε : l ≤ₗ l') (lε' : ⊢ₗ l') (N<s : N ≤ (sizeₗ l'))
+                     → Δ / lε' ⊩¹ U.wk ρ t ∘ a ≡ U.wk ρ u ∘ a ∷ U.wk (lift ρ) G [ a ] / [G]₂ ≤ε lε' N<s)))
     -- Issue: Same as above.
 
     -- Term reducibility of Σ-type
@@ -792,8 +779,7 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
                  → Γ / lε ⊢ t ∷ ℕ
   escapeTermℕ (ℕₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
               ⊢t
-  escapeTermℕ (ℕϝ tt ft) = ϝⱼ (escapeTermℕ tt) (escapeTermℕ ft)
-
+  
   escapeTermEqℕ : ∀ {t u}
                  → Γ / lε ⊩ℕ t ≡ u ∷ℕ
                  → Γ / lε ⊢ t ≅ u ∷ ℕ
@@ -801,7 +787,6 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     let natK , natK′ = split prop
     in
     ≅ₜ-red (id (ℕⱼ (wfTerm (⊢t-redₜ d)))) (redₜ d) (redₜ d′) ℕₙ (naturalWhnf natK) (naturalWhnf natK′) b≡b′
-  escapeTermEqℕ (ℕ₌ϝ tt≡u ft≡u) = ≅ₜ-ϝ (escapeTermEqℕ tt≡u) (escapeTermEqℕ ft≡u)
   
   escapeEqNe : ∀ {A B} → ([A] : Γ / lε  ⊩ne A)
             → Γ / lε ⊩ne A ≡ B / [A]
@@ -816,7 +801,6 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
                  → Γ / lε ⊩ne t ∷ A / [A]
                  → Γ / lε ⊢ t ∷ A
   escapeTermNe (ne K D neK K≡K) (neₜ k d nf) = conv (⊢t-redₜ d) (sym (subset* (red D)))
-  escapeTermNe neA (neϝ tt ft) = ϝⱼ (escapeTermNe _ tt) (escapeTermNe _ ft)
   
   escapeTermEqNe : ∀ {A t u} → ([A] : Γ / lε  ⊩ne A)
                  → Γ / lε ⊩ne t ≡ u ∷ A / [A]
@@ -825,7 +809,6 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
                      (neₜ₌ k m d d′ (neNfₜ₌ neT neU t≡u)) =
                  ≅ₜ-red (red D) (redₜ d) (redₜ d′) (ne neK) (ne neT) (ne neU)
                  (~-to-≅ₜ t≡u)
-  escapeTermEqNe (ne K D neK K≡K) (ne₌ϝ tk fk) = ≅ₜ-ϝ (escapeTermEqNe _ tk) (escapeTermEqNe _ fk)
 --  escapeTermEqNe (ne K D neK K≡K)
 --                    (neₜ₌ k m d d′ (⊩neNfϝ-l {[A]t = [A]t} {[A]f = [A]f} αk (neNfₜ nem ⊢m m≡m) tkm fkm)) =
 --                    ≅ₜ-red (red D) (redₜ d) (redₜ d′) (ne neK) (αₙ αk) (ne nem)
@@ -849,7 +832,6 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
              → Γ / lε ⊩ne t ≡ t ∷ A / [A]
   reflEqTermNe (ne K D neK K≡K) (neₜ k d (neNfₜ neK₁ ⊢k k≡k)) =
              neₜ₌ k k d d (neNfₜ₌ neK₁ neK₁ k≡k)
-  reflEqTermNe (ne K D neK K≡K) (neϝ tk fk) = ne₌ϝ (reflEqTermNe _ tk) (reflEqTermNe _ fk) 
 --  reflEqTermNe (ne K D neK K≡K) (neₜ k d (neNfϝ {[A]t = [A]t} ⊢k αk tk fk)) =
 --    neₜ₌ k k d d (⊩neNfϝ-l αk (neNfϝ ⊢k αk tk fk) (reflEqTermNe [A]t tk) (reflEqTermNe _ fk))
 
@@ -875,7 +857,6 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
                  → Γ / lε ⊩𝔹 t ∷𝔹
                  → Γ / lε ⊢ t ∷ 𝔹
   escapeTerm𝔹 (𝔹ₜ n [ ⊢t , ⊢u , d ] t≡t prop) = ⊢t
-  escapeTerm𝔹 (𝔹ϝ tt ft) = ϝⱼ (escapeTerm𝔹 tt) (escapeTerm𝔹 ft)
   
   escapeTermEq𝔹 : ∀ {t u}
                  → Γ / lε ⊩𝔹 t ≡ u ∷𝔹
@@ -884,7 +865,6 @@ module LogRel (j : TypeLevel) (rec : ∀ {j′} → j′ < j → LogRelKit) wher
     let boolK , boolK′ = bsplit prop
     in
     ≅ₜ-red (id (𝔹ⱼ (wfTerm (⊢t-redₜ d)))) (redₜ d) (redₜ d′) 𝔹ₙ (booleanWhnf boolK) (booleanWhnf boolK′) b≡b′
-  escapeTermEq𝔹 (𝔹₌ϝ tt≡u ft≡u) = ≅ₜ-ϝ (escapeTermEq𝔹 tt≡u) (escapeTermEq𝔹 ft≡u)
 
 open LogRel public using (Uᵣ; ℕᵣ; 𝔹ᵣ ; ne; Bᵣ; B₌; emb; Uₜ; Uₜ₌ ; ϝᵣ ; ⊩¹≡U ; ⊩¹≡ℕ ; ⊩¹≡𝔹 ; ⊩¹≡ne ; ⊩¹≡B ; ⊩¹≡ϝ ; ⊩¹≡emb)
 
