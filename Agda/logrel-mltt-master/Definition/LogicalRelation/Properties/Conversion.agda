@@ -42,13 +42,13 @@ irrelevanceEqR′ PE.refl p A≡B = A≡B
 
 TermLogWhnf : ∀ {k A t} [A]
              → Γ / lε ⊩⟨ k ⟩  t ∷ A / [A]
-             → ∃ (λ u → Whnf {lε = lε} u × Γ / lε ⊢ t :⇒*: u ∷ A)
+             → ∃ (λ u → Whnf {l = l} u × Γ / lε ⊢ t :⇒*: u ∷ A)
 TermLogWhnf [A] tA = {!!}
              
 
 test :  ∀ {k A t t' n nε} [A] [A]t [A]f
              → Γ / lε ⊢ t :⇒*: t' ∷ A
-             → Whnf {lε = lε} t'
+             → Whnf {l = l} t'
              → Γ / ⊢ₗ• l lε n Btrue nε ⊩⟨ k ⟩  t ∷ A / [A]t
              → Γ / ⊢ₗ• l lε n Bfalse nε ⊩⟨ k ⟩  t ∷ A / [A]f
              → Γ / lε ⊩⟨ k ⟩  t ∷ A / [A]
@@ -72,7 +72,8 @@ test {Γ = Γ} (Bᵣ′ BΠ F G D ⊢F ⊢G A≡A [F] [G] G-ext)
      (Bᵣ′ BΠ F G fD f⊢F f⊢G fA≡A f[F] f[G] fG-ext) t⇒t' lamₙ
      (tf , td , tFun , tf≡f , tprop1 , tprop2)
      (ff , fd , fFun , ff≡f , fprop1 , fprop2)
-       | PE.refl | PE.refl | PE.refl | PE.refl  = tf , (conv:*: t⇒t' (subset* (red D)) , (lamₙ , (≅ₜ-ϝ tf≡f ff≡f ,
+       | PE.refl | PE.refl | PE.refl | PE.refl  =
+       tf , (conv:*: t⇒t' (subset* (red D)) , (lamₙ , (≅ₜ-ϝ tf≡f ff≡f ,
          ((λ {m : Nat} {ρ} {Δ} {a} {b} {l' : LCon} {≤ε} {lε' : ⊢ₗ l'}
                [ρ] (⊢Δ : ⊢ Δ / lε') [a] [b] [a≡b] →
                {!!}) ,

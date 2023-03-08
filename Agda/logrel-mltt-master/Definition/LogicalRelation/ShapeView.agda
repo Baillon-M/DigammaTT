@@ -301,12 +301,12 @@ data ShapeView (Γ : Con Term n) :
   Bᵥ : ∀ {l} {lε} {A B k k′} W BA BB BA≡B
     → ShapeView Γ {l} {lε} k k′ A B (Bᵣ W BA) (Bᵣ W BB) (⊩¹≡B W BA BA≡B)
   ϝᵣ-l : ∀ {l lε n nε} {k k' A A' B} (A⇒A' : Γ / lε ⊢ A :⇒*: A') αA [B] [A]t [A]f [B]t [B]f tA≡B fA≡B
-       → ShapeView Γ {_} {⊢ₗ• l lε n Btrue nε} k k' A B [A]t [B]t tA≡B
-       → ShapeView Γ {_} {⊢ₗ• l lε n Bfalse nε} k k' A B [A]f [B]f fA≡B
+       → ShapeView Γ {_} {⊢ₗ• l lε n Btrue nε} k k' A' B [A]t [B]t tA≡B
+       → ShapeView Γ {_} {⊢ₗ• l lε n Bfalse nε} k k' A' B [A]f [B]f fA≡B
        → ShapeView Γ {l} {lε} k k' A B (ϝᵣ nε A⇒A' αA [A]t [A]f) [B] (⊩¹≡ϝ-l A⇒A' αA [A]t [A]f tA≡B fA≡B)
   ϝᵣ-r : ∀ {l lε n nε} {k k' A B B'} (B⇒B' B⇒B'' : Γ / lε ⊢ B :⇒*: B') αB αB' [A] [A]t [A]f [B]t [B]f tA≡B fA≡B
-       → ShapeView Γ {_} {⊢ₗ• l lε n Btrue nε} k k' A B [A]t [B]t tA≡B
-       → ShapeView Γ {_} {⊢ₗ• l lε n Bfalse nε} k k' A B [A]f [B]f fA≡B
+       → ShapeView Γ {_} {⊢ₗ• l lε n Btrue nε} k k' A B' [A]t [B]t tA≡B
+       → ShapeView Γ {_} {⊢ₗ• l lε n Bfalse nε} k k' A B' [A]f [B]f fA≡B
        → ShapeView Γ {l} {lε} k k' A B [A] (ϝᵣ nε B⇒B' αB [B]t [B]f) (⊩¹≡ϝ-r B⇒B'' αB' [A] [A]t [A]f tA≡B fA≡B)
   emb⁰¹ : ∀ {l} {lε} {A B k p q A≡B}
         → ShapeView Γ {l} {lε} ⁰ k A B p q A≡B
@@ -1746,20 +1746,20 @@ data ShapeView₃ (Γ : Con Term n) : ∀ {l : LCon} {lε : ⊢ₗ l} k k′ k�
     → ShapeView₃ Γ {l} {lε}  k k′ k″ A B C (Bᵣ W BA) (Bᵣ W BB) (Bᵣ W BC) (⊩¹≡B W BA BA≡B) (⊩¹≡B W BB BB≡C)
   ϝᵣ-l : ∀ {l lε n nε} {k k' k'' A A' B C} (A⇒A' : Γ / lε ⊢ A :⇒*: A') αA [B] [C] [A]t [A]f [B]t [B]f [C]t [C]f
            B≡C tA≡B fA≡B tB≡C fB≡C 
-         → ShapeView₃ Γ {_} {⊢ₗ• l lε n Btrue nε}  k k' k'' A B C [A]t [B]t [C]t tA≡B tB≡C
-         → ShapeView₃ Γ {_} {⊢ₗ• l lε n Bfalse nε} k k' k'' A B C [A]f [B]f [C]f fA≡B fB≡C
-         → ShapeView₃ Γ {l} {lε}                  k k' k'' A  B C (ϝᵣ nε A⇒A' αA [A]t [A]f) [B] [C]
+         → ShapeView₃ Γ {_} {⊢ₗ• l lε n Btrue nε}  k k' k'' A' B C [A]t [B]t [C]t tA≡B tB≡C
+         → ShapeView₃ Γ {_} {⊢ₗ• l lε n Bfalse nε} k k' k'' A' B C [A]f [B]f [C]f fA≡B fB≡C
+         → ShapeView₃ Γ {l} {lε}                  k k' k'' A B C (ϝᵣ nε A⇒A' αA [A]t [A]f) [B] [C]
                                                                       (⊩¹≡ϝ-l A⇒A' αA [A]t [A]f tA≡B fA≡B) B≡C
   ϝᵣ-m : ∀ {l lε n nε} {k k' k'' A B B' C} (B⇒B' : Γ / lε ⊢ B :⇒*: B') αB [A] [C] [A]t [A]f [B]t [B]f [C]t [C]f
            A≡B tA≡B fA≡B tB≡C fB≡C
-         → ShapeView₃ Γ {_} {⊢ₗ• l lε n Btrue nε}  k k' k'' A B C [A]t [B]t [C]t tA≡B tB≡C
-         → ShapeView₃ Γ {_} {⊢ₗ• l lε n Bfalse nε} k k' k'' A B C [A]f [B]f [C]f fA≡B fB≡C
-         → ShapeView₃ Γ {l} {lε}                  k k' k'' A B  C [A] (ϝᵣ nε B⇒B' αB [B]t [B]f) [C] A≡B
+         → ShapeView₃ Γ {_} {⊢ₗ• l lε n Btrue nε}  k k' k'' A B' C [A]t [B]t [C]t tA≡B tB≡C
+         → ShapeView₃ Γ {_} {⊢ₗ• l lε n Bfalse nε} k k' k'' A B' C [A]f [B]f [C]f fA≡B fB≡C
+         → ShapeView₃ Γ {l} {lε}                  k k' k'' A B C [A] (ϝᵣ nε B⇒B' αB [B]t [B]f) [C] A≡B
                                                                       (⊩¹≡ϝ-l B⇒B' αB [B]t [B]f tB≡C fB≡C)
   ϝᵣ-r : ∀ {l lε n nε} {k k' k'' A B C C'} (C⇒C' : Γ / lε ⊢ C :⇒*: C') αC [A] [B] [A]t [A]f [B]t [B]f [C]t [C]f
            A≡B tA≡B fA≡B tB≡C fB≡C
-         → ShapeView₃ Γ {_} {⊢ₗ• l lε n Btrue nε}  k k' k'' A B C [A]t [B]t [C]t tA≡B tB≡C
-         → ShapeView₃ Γ {_} {⊢ₗ• l lε n Bfalse nε} k k' k'' A B C [A]f [B]f [C]f fA≡B fB≡C
+         → ShapeView₃ Γ {_} {⊢ₗ• l lε n Btrue nε}  k k' k'' A B C' [A]t [B]t [C]t tA≡B tB≡C
+         → ShapeView₃ Γ {_} {⊢ₗ• l lε n Bfalse nε} k k' k'' A B C' [A]f [B]f [C]f fA≡B fB≡C
          → ShapeView₃ Γ {l} {lε}                  k k' k'' A B C  [A]  [B] (ϝᵣ nε C⇒C' αC [C]t [C]f) A≡B
                                                                       (⊩¹≡ϝ-r C⇒C' αC [B] [B]t [B]f tB≡C fB≡C)
   emb⁰¹¹ : ∀ {l} {lε}  {A B C k k′ p q r A≡B B≡C}
