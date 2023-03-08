@@ -25,7 +25,7 @@ private
 
 wfContext : ⊢ (Γ ∙ A) / lε → ⊢ Γ / lε
 wfContext (⊢Γ ∙ F′) = ⊢Γ
-wfContext (ϝ l r) = ϝ (wfContext l) (wfContext r)
+-- wfContext (ϝ l r) = ϝ (wfContext l) (wfContext r)
 
 wfTerm : Γ / lε ⊢ t ∷ A → ⊢ Γ / lε
 wfTerm (ℕⱼ ⊢Γ) = ⊢Γ
@@ -35,7 +35,7 @@ wfTerm (Πⱼ F ▹ G) = wfTerm F
 wfTerm (var ⊢Γ x₁) = ⊢Γ
 wfTerm (lamⱼ F t) with wfTerm t
 wfTerm (lamⱼ F t) | (⊢Γ ∙ F′) = ⊢Γ
-wfTerm (lamⱼ F t) | ϝ l r = ϝ (wfContext l) (wfContext r)
+-- wfTerm (lamⱼ F t) | ϝ l r = ϝ (wfContext l) (wfContext r)
 wfTerm (g ∘ⱼ a) = wfTerm a
 wfTerm (zeroⱼ ⊢Γ) = ⊢Γ
 wfTerm (sucⱼ n) = wfTerm n
@@ -52,7 +52,9 @@ wfTerm (trueⱼ x) = x
 wfTerm (falseⱼ x) = x
 wfTerm (boolrecⱼ F z s b) = wfTerm b
 wfTerm (αⱼ x) = wfTerm x
-wfTerm (ϝⱼ l r) = ϝ (wfTerm l) (wfTerm r)
+wfTerm (ϝⱼ-A ⊢Γ αA g d) = ⊢Γ
+wfTerm (ϝⱼ-t ⊢Γ αt g d) = ⊢Γ --wf ⊢A
+-- wfTerm (ϝⱼ l r) = ϝ (wfTerm l) (wfTerm r)
 
 wf : Γ / lε ⊢ A → ⊢ Γ / lε
 wf (ℕⱼ ⊢Γ) = ⊢Γ
@@ -63,7 +65,8 @@ wf (Πⱼ F ▹ G) = wf F
 wf (Σⱼ F ▹ G) = wf F
 wf (univ A) = wfTerm A
 wf (𝔹ⱼ x) = x
-wf (ϝⱼ l r) = ϝ (wf l) (wf r)
+wf (ϝⱼ ⊢Γ αA l r) = ⊢Γ
+-- wf (ϝⱼ l r) = ϝ (wf l) (wf r)
 
 wfEqTerm : Γ / lε ⊢ t ≡ u ∷ A → ⊢ Γ / lε
 wfEqTerm (refl t) = wfTerm t
@@ -90,7 +93,7 @@ wfEqTerm (boolrec-cong F≡F′ t≡t′ f≡f′ b≡b′) = wfEqTerm t≡t′
 wfEqTerm (boolrec-true F t f) = wfTerm t
 wfEqTerm (boolrec-false F t f) = wfTerm f
 wfEqTerm (α-cong x) = wfEqTerm x
-wfEqTerm (ϝ-cong l r) = ϝ (wfEqTerm l) (wfEqTerm r)
+wfEqTerm (ϝ-cong ⊢Γ αt l r) = ⊢Γ --  ϝ (wfEqTerm l) (wfEqTerm r)
 wfEqTerm (α-conv x tε) = wfTerm x
 
 wfEq : Γ / lε ⊢ A ≡ B → ⊢ Γ / lε
@@ -100,14 +103,14 @@ wfEq (sym A≡B) = wfEq A≡B
 wfEq (trans A≡B B≡C) = wfEq A≡B
 wfEq (Π-cong F F≡H G≡E) = wf F
 wfEq (Σ-cong F x₁ x₂) = wf F
-wfEq (ϝ-cong l r) = ϝ (wfEq l) (wfEq r)
+-- wfEq (ϝ-cong αt l r) = ? -- ϝ (wfEq l) (wfEq r)
 
 
 -- -- Convertible terms are well-typed
 
 -- wtConv : Γ / lε ⊢ t ≡ u ∷ A → (Γ / lε ⊢ t ∷ A) × (Γ / lε ⊢ u ∷ A)
 -- wtConv (refl t) = t , t
--- wtConv (sym x) = {!!}
+-- wtConv (sym x) = let ⊢u , ⊢t = wtConv x in ⊢t , ⊢u
 -- wtConv (trans x x₁) =
 --   let ⊢t , ⊢u = wtConv x
 --       ⊢t' , ⊢u' = wtConv x₁ in ⊢t , ⊢u'
@@ -134,7 +137,7 @@ wfEq (ϝ-cong l r) = ϝ (wfEq l) (wfEq r)
 -- --  wtConv (Emptyrec-cong x x₁) = ?
 -- --  wtConv (η-unit x x₁) = ?
 -- wtConv (α-cong x) = {!!}
--- wtConv (ϝ-cong g d) = {!!}
+-- wtConv (ϝ-cong αt g d) = {!!}
 -- wtConv (α-conv x tε) = {!!}
 
 
@@ -216,18 +219,21 @@ mutual
 --  noNe (Emptyrecⱼ A ⊢e) (Emptyrecₙ neT) = noNe ⊢e neT
   noNe (boolrecⱼ F ⊢t ⊢f ⊢x) (boolrecₙ neT) = noNe ⊢x neT
   noNe (αⱼ ⊢t) (αₙ cneT) = noContainsNe ⊢t cneT
-  noNe (ϝⱼ ⊢l ⊢r) neT = noNe ⊢l neT
+  noNe (ϝⱼ-A ⊢Γ αA g d) x = noNe g x
+  noNe (ϝⱼ-t ⊢Γ αt g d) x = noNe g x
+  -- noNe (ϝⱼ ⊢l ⊢r) neT = noNe ⊢l neT
 
   noContainsNe : ∀ {l : LCon} {lε : ⊢ₗ l} → ε / lε ⊢ t ∷ A → ContainsNeutral t → ⊥
   noContainsNe ⊢t (ncontn neT) = noNe ⊢t neT
   noContainsNe (sucⱼ ⊢t) (Scontn cneT) = noContainsNe ⊢t cneT
   noContainsNe (conv  ⊢t x) (Scontn cneT) = noContainsNe ⊢t (Scontn cneT)
-  noContainsNe (ϝⱼ ⊢l ⊢r) (Scontn cneT) = noContainsNe ⊢l (Scontn cneT)
+  noContainsNe (ϝⱼ-A ⊢Γ αA ⊢l ⊢r) (Scontn cneT) = noContainsNe ⊢l (Scontn cneT)
+  noContainsNe (ϝⱼ-t ⊢Γ αt ⊢l ⊢r) (Scontn cneT) = noContainsNe ⊢l (Scontn cneT)
 
 --Neutrals do not weak head reduce
 
 mutual
-  αneRedTerm : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → (d : Γ / lε ⊢ t ⇒ u ∷ A) (n : αNeutral {l} {lε} m t) → ⊥
+  αneRedTerm : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → (d : Γ / lε ⊢ t ⇒ u ∷ A) (n : αNeutral {l} m t) → ⊥
   αneRedTerm (conv d x) n = αneRedTerm d n
   αneRedTerm (app-subst d x) (∘ₙ n) = αneRedTerm d n
   αneRedTerm (β-red x x₁ x₂) (∘ₙ ())
@@ -271,7 +277,7 @@ mutual
   ContainsNeRedTerm d (ncontn neT) = neRedTerm d neT
   ContainsNeRedTerm d (Scontn n) = whnfRedTerm d sucₙ
   
-  whnfRedTerm : ∀ {l : LCon} {lε : ⊢ₗ l} → (d : Γ / lε ⊢ t ⇒ u ∷ A) (w : Whnf {l} {lε} t) → ⊥
+  whnfRedTerm : ∀ {l : LCon} {lε : ⊢ₗ l} → (d : Γ / lε ⊢ t ⇒ u ∷ A) (w : Whnf {l} t) → ⊥
   whnfRedTerm (conv d x) w = whnfRedTerm d w
   whnfRedTerm (app-subst d x) (ne (∘ₙ x₁)) = neRedTerm d x₁
   whnfRedTerm (β-red x x₁ x₂) (ne (∘ₙ ()))
@@ -296,10 +302,10 @@ neRed (univ x) N = neRedTerm x N
 -- Whnfs do not weak head reduce
 
 
-whnfRed : (d : Γ / lε ⊢ A ⇒ B) (w : Whnf {l} {lε} A) → ⊥
+whnfRed : ∀ {l} {lε : ⊢ₗ l} (d : Γ / lε ⊢ A ⇒ B) (w : Whnf {l} A) → ⊥
 whnfRed (univ x) w = whnfRedTerm x w
 
-whnfRed*Term : (d : Γ / lε ⊢ t ⇒* u ∷ A) (w : Whnf {l} {lε} t) → t PE.≡ u
+whnfRed*Term : ∀ {l} {lε : ⊢ₗ l} (d : Γ / lε ⊢ t ⇒* u ∷ A) (w : Whnf {l} t) → t PE.≡ u
 whnfRed*Term (id x) Uₙ = PE.refl
 whnfRed*Term (id x) Πₙ = PE.refl
 whnfRed*Term (id x) Σₙ = PE.refl
@@ -320,7 +326,7 @@ whnfRed*Term (id x) falseₙ = PE.refl
 whnfRed*Term (id d) (αₙ αn) = PE.refl
 whnfRed*Term (x ⇨ d) (αₙ αn) = ⊥-elim (αneRedTerm x αn)
 
-whnfRed* : (d : Γ / lε ⊢ A ⇒* B) (w : Whnf {l} {lε} A) → A PE.≡ B
+whnfRed* :  ∀ {l} {lε : ⊢ₗ l} (d : Γ / lε ⊢ A ⇒* B) (w : Whnf {l} A) → A PE.≡ B
 whnfRed* (id x) w = PE.refl
 whnfRed* (x ⇨ d) w = ⊥-elim (whnfRed x w)
 
@@ -417,8 +423,9 @@ idRedTerm:*: t = [ t , t , id t ]
 
 UnotInA : ∀ {l} {lε : ⊢ₗ l} → Γ / lε ⊢ U ∷ A → ⊥
 UnotInA (conv U∷U x) = UnotInA U∷U
-UnotInA (ϝⱼ g d) = UnotInA g
-  
+UnotInA (ϝⱼ-A ⊢Γ αA g d) = UnotInA g
+UnotInA (ϝⱼ-t ⊢Γ αt g d) = UnotInA g
+
 UnotInA[t] : ∀ {l} {lε : ⊢ₗ l} → t [ a ] PE.≡ U
          → Γ / lε ⊢ a ∷ A
          → Γ ∙ A / lε ⊢ t ∷ B
@@ -435,7 +442,8 @@ UnotInA[t] () x₁ (sucⱼ x₂)
 UnotInA[t] () x₁ (natrecⱼ x₂ x₃ x₄ x₅)
 -- UnotInA[t] () x₁ (Emptyrecⱼ x₂ x₃)
 UnotInA[t] x x₁ (conv x₂ x₃) = UnotInA[t] x x₁ x₂
-UnotInA[t] t≡u ⊢a (ϝⱼ g d) = UnotInA[t] t≡u (τTerm _ _ _ _ ⊢a) g -- UnotInA[t] t≡u (τTerm _ _ _ ⊢a) g
+UnotInA[t] t≡u ⊢a (ϝⱼ-A ⊢Γ αA g d) = UnotInA[t] t≡u (τTerm _ _ _ _ ⊢a) g -- UnotInA[t] t≡u (τTerm _ _ _ ⊢a) g
+UnotInA[t] t≡u ⊢a (ϝⱼ-t ⊢Γ αt g d) = UnotInA[t] t≡u (τTerm _ _ _ _ ⊢a) g -- UnotInA[t] t≡u (τTerm _ _ _ ⊢a) g
 
   
 redU*Term′ : U′ PE.≡ U → Γ / lε ⊢ A ⇒ U′ ∷ B → ⊥
@@ -482,7 +490,7 @@ mutual
   ConvUTerm-r (natrec-zero x₁ x₂ x₃) PE.refl = UnotInA x₂
   ConvUTerm-r (boolrec-true x₁ x₂ x₃) PE.refl = UnotInA x₂
   ConvUTerm-r (boolrec-false x₁ x₂ x₃) PE.refl = UnotInA x₃
-  ConvUTerm-r (ϝ-cong x₁ x₂) PE.refl = ConvUTerm-r x₁ PE.refl 
+  ConvUTerm-r (ϝ-cong ⊢Γ αt x₁ x₂) PE.refl = ConvUTerm-r x₁ PE.refl 
   ConvUTerm-r (α-conv x₁ tε) PE.refl with InLConTrueBool _ _ _ tε
   ConvUTerm-r (α-conv x₁ tε) PE.refl | ()
 
@@ -496,7 +504,7 @@ mutual
   ConvUTerm-l (trans x₁ x₂) x = ConvUTerm-l x₁ x
   ConvUTerm-l (η-eq x₁ x₂ x₃ x₄) PE.refl = UnotInA x₂
   ConvUTerm-l (Σ-η x₁ x₂ x₃ x₄ x₅ x₆) PE.refl = UnotInA x₃
-  ConvUTerm-l (ϝ-cong x₁ x₂) PE.refl = ConvUTerm-l x₁ PE.refl 
+  ConvUTerm-l (ϝ-cong ⊢Γ αt x₁ x₂) PE.refl = ConvUTerm-l x₁ PE.refl 
 
 mutual 
   ConvU-l : ∀ {l} {lε : ⊢ₗ l}
@@ -507,7 +515,7 @@ mutual
   ConvU-l (univ x) PE.refl = ⊥-elim (ConvUTerm-r x PE.refl)
   ConvU-l (sym x) PE.refl = ConvU-r x PE.refl
   ConvU-l (trans x x₁) PE.refl = ConvU-l x (ConvU-l x₁ PE.refl)
-  ConvU-l (ϝ-cong x x₁) PE.refl = ConvU-l x PE.refl
+  -- ConvU-l (ϝ-cong x x₁) PE.refl = ConvU-l x PE.refl
 
   ConvU-r : ∀ {l} {lε : ⊢ₗ l}
                 → Γ / lε ⊢ A ≡ B
@@ -517,7 +525,7 @@ mutual
   ConvU-r (univ x) PE.refl = ⊥-elim (ConvUTerm-l x PE.refl)
   ConvU-r (sym x) PE.refl = ConvU-l x PE.refl
   ConvU-r (trans x x₁) PE.refl = ConvU-r x₁ (ConvU-r x PE.refl)
-  ConvU-r (ϝ-cong x x₁) PE.refl = ConvU-r x PE.refl
+  -- ConvU-r (ϝ-cong x x₁) PE.refl = ConvU-r x PE.refl
 
 
 -- BackτRed : ∀ {l t u A A' m b mε} {lε : ⊢ₗ l}

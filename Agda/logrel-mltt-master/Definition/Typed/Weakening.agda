@@ -58,8 +58,8 @@ wkIndex (lift ρ) ⊢Δ here =
   in  PE.subst (λ x → n ∷ x ∈ G)
                (wk1-wk≡lift-wk1 _ _)
                here
-wkIndex (step ρ) (ϝ g d) i = wkIndex (step ρ) g i
-wkIndex (lift ρ) (ϝ g d) (there i) = wkIndex (lift ρ) g (there i)
+-- wkIndex (step ρ) (ϝ g d) i = wkIndex (step ρ) g i
+-- wkIndex (lift ρ) (ϝ g d) (there i) = wkIndex (lift ρ) g (there i)
 
 mutual
   wk : ∀ {l} {lε : ⊢ₗ l} → ρ ∷ Δ ⊆ Γ →
@@ -75,7 +75,9 @@ mutual
                        in  Σⱼ ρF ▹ (wk (lift ρ) (⊢Δ ∙ ρF) G)
   wk ρ ⊢Δ (univ A) = univ (wkTerm ρ ⊢Δ A)
   wk ρ ⊢Δ (𝔹ⱼ ⊢Γ) = 𝔹ⱼ ⊢Δ
-  wk ρ ⊢Δ (ϝⱼ g d) = ϝⱼ (wk ρ (τCon _ _ _ _ ⊢Δ) g) (wk ρ (τCon _ _ _ _ ⊢Δ) d)
+  wk ρ ⊢Δ (ϝⱼ ⊢Γ αA g d) = ϝⱼ ⊢Δ (αwkNeutral _ αA) (wk ρ (τCon _ _ _ _ ⊢Δ) g) (wk ρ (τCon _ _ _ _ ⊢Δ) d)
+  
+  -- wk ρ ⊢Δ (ϝⱼ g d) = ϝⱼ (wk ρ (τCon _ _ _ _ ⊢Δ) g) (wk ρ (τCon _ _ _ _ ⊢Δ) d)
   
   wkTerm : ∀ {l} {lε : ⊢ₗ l} {Δ : Con Term m} {ρ : Wk m n} → ρ ∷ Δ ⊆ Γ →
          let ρA = U.wk ρ A
@@ -135,7 +137,8 @@ mutual
                       (PE.subst (λ x → _ / _ ⊢ _ ∷ x) (wk-β G) (wkTerm [ρ] ⊢Δ ⊢f))
                       (wkTerm [ρ] ⊢Δ ⊢n))
   wkTerm ρ ⊢Δ (αⱼ a) = αⱼ (wkTerm ρ ⊢Δ a)
-  wkTerm ρ ⊢Δ (ϝⱼ g d) = ϝⱼ (wkTerm ρ (τCon _ _ _ _ ⊢Δ) g) (wkTerm ρ (τCon _ _ _ _ ⊢Δ) d)
+  wkTerm ρ ⊢Δ (ϝⱼ-A ⊢Γ αA g d) = ϝⱼ-A ⊢Δ (αwkNeutral _ αA) (wkTerm ρ (τCon _ _ _ _ ⊢Δ) g) (wkTerm ρ (τCon _ _ _ _ ⊢Δ) d)
+  wkTerm ρ ⊢Δ (ϝⱼ-t ⊢Γ αt g d) = ϝⱼ-t ⊢Δ (αwkNeutral _ αt) (wkTerm ρ (τCon _ _ _ _ ⊢Δ) g) (wkTerm ρ (τCon _ _ _ _ ⊢Δ) d)
   
   wkEq : ∀ {l} {lε : ⊢ₗ l} → ρ ∷ Δ ⊆ Γ →
        let ρA = U.wk ρ A
@@ -151,7 +154,7 @@ mutual
   wkEq ρ ⊢Δ (Σ-cong F F≡H G≡E) = let ρF = wk ρ ⊢Δ F
                                  in  Σ-cong ρF (wkEq ρ ⊢Δ F≡H)
                                                (wkEq (lift ρ) (⊢Δ ∙ ρF) G≡E)
-  wkEq ρ ⊢Δ (ϝ-cong g d) = ϝ-cong (wkEq ρ (τCon _ _ _ _ ⊢Δ) g) (wkEq ρ (τCon _ _ _ _ ⊢Δ) d)
+  -- wkEq ρ ⊢Δ (ϝ-cong g d) = ϝ-cong (wkEq ρ (τCon _ _ _ _ ⊢Δ) g) (wkEq ρ (τCon _ _ _ _ ⊢Δ) d)
   
   wkEqTerm : {l : LCon} {lε : ⊢ₗ l} {Δ : Con Term m} {ρ : Wk m n} → ρ ∷ Δ ⊆ Γ →
            let ρA = U.wk ρ A
@@ -296,7 +299,8 @@ mutual
                                     (wk-β F)
                                     (wkTerm [ρ] ⊢Δ ⊢f)))
   wkEqTerm {l = l} {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (α-cong x₂) = α-cong (wkEqTerm [ρ] ⊢Δ x₂)
-  wkEqTerm {l = l} {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (ϝ-cong g d) = ϝ-cong (wkEqTerm [ρ] (τCon _ _ _ _ ⊢Δ) g) (wkEqTerm [ρ] (τCon _ _ _ _ ⊢Δ) d)
+  wkEqTerm {l = l} {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (ϝ-cong ⊢Γ αt g d) =
+    ϝ-cong ⊢Δ (αwkNeutral ρ αt) (wkEqTerm [ρ] (τCon _ _ _ _ ⊢Δ) g) (wkEqTerm [ρ] (τCon _ _ _ _ ⊢Δ) d)
   wkEqTerm {l = l} {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (α-conv ⊢t tε) = α-conv (wkTerm [ρ] ⊢Δ ⊢t) (wkInLCon l ρ tε)
   
 

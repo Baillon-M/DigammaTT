@@ -88,17 +88,29 @@ record EqRelSet : Set₁ where
     -- Weak head expansion
     ≅-red : Γ / lε ⊢ A ⇒* A′
           → Γ / lε ⊢ B ⇒* B′
-          → Whnf {l} {lε} A′
-          → Whnf {l} {lε} B′
+          → Whnf {l} A′
+          → Whnf {l} B′
           → Γ / lε ⊢ A′ ≅ B′
           → Γ / lε ⊢ A  ≅ B
 
     ≅ₜ-red : Γ / lε ⊢ A ⇒* B
            → Γ / lε ⊢ a ⇒* a′ ∷ B
            → Γ / lε ⊢ b ⇒* b′ ∷ B
-           → Whnf {l} {lε} B
-           → Whnf {l} {lε} a′
-           → Whnf {l} {lε} b′
+           → Whnf {l} B
+           → Whnf {l} a′
+           → Whnf {l} b′
+           → Γ / lε ⊢ a′ ≅ b′ ∷ B
+           → Γ / lε ⊢ a  ≅ b  ∷ A
+
+    -- Weak head expansion
+    ≅-red₂ : Γ / lε ⊢ A ⇒* A′
+          → Γ / lε ⊢ B ⇒* B′
+          → Γ / lε ⊢ A′ ≅ B′
+          → Γ / lε ⊢ A  ≅ B
+
+    ≅ₜ-red₂ : Γ / lε ⊢ A ⇒* B
+           → Γ / lε ⊢ a ⇒* a′ ∷ B
+           → Γ / lε ⊢ b ⇒* b′ ∷ B
            → Γ / lε ⊢ a′ ≅ b′ ∷ B
            → Γ / lε ⊢ a  ≅ b  ∷ A
 
@@ -174,8 +186,8 @@ record EqRelSet : Set₁ where
            → Γ / lε ⊢ F
            → Γ / lε ⊢ f ∷ Π F ▹ G
            → Γ / lε ⊢ g ∷ Π F ▹ G
-           → Function {_} {l} {lε} f
-           → Function {_} {l} {lε}g
+           → Function {_} {l} f
+           → Function {_} {l} g
            → Γ ∙ F / lε ⊢ wk1 f ∘ var x0 ≅ wk1 g ∘ var x0 ∷ G
            → Γ / lε ⊢ f ≅ g ∷ Π F ▹ G
 
@@ -185,8 +197,8 @@ record EqRelSet : Set₁ where
           → Γ ∙ F / lε ⊢ G
           → Γ / lε ⊢ p ∷ Σ F ▹ G
           → Γ / lε ⊢ r ∷ Σ F ▹ G
-          → Product p
-          → Product r
+          → Product {_} {l} p
+          → Product {_} {l} r
           → Γ / lε ⊢ fst p ≅ fst r ∷ F
           → Γ / lε ⊢ snd p ≅ snd r ∷ G [ fst p ]
           → Γ / lε ⊢ p ≅ r ∷ Σ F ▹ G

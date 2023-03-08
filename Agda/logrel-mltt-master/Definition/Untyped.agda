@@ -313,6 +313,9 @@ InLConInLConNat e1 e2 (InThere l inl m b') = InThereNat l (InLConInLConNat e1 e2
 ≤ₗ-add n b l' f< inl' t u  (InHere n b t=n u=m l) rewrite u=m rewrite t=n = InLConNatInLCon inl'
 ≤ₗ-add n b l' f< inl' t u  (InThere l inl m b) = f< _ _ inl
 
+≤ₗ-add-r : ∀ {l n b l'} → l ≤ₗ l' → l ≤ₗ (addₗ n b l')
+≤ₗ-add-r f< n b inl = InThere _ (f< _ _ inl) _ _
+
 ≤ₗ-rev-l : ∀ {l l' m b} → (addₗ m b l) ≤ₗ l' → l ≤ₗ l'
 ≤ₗ-rev-l {l = l} {m = m} {b = b} f t u inl = f t u (InThere l inl m b)
 
@@ -535,17 +538,17 @@ mutual
     Scontn    : ContainsNeutral t → ContainsNeutral (suc t)
 
 
-data αNeutral {l : LCon} {lε : ⊢ₗ l} : ∀ (m : Nat) → Term n → Set where
+data αNeutral {l : LCon} : ∀ (m : Nat) → Term n → Set where
   αₙ-base   : ∀ (m : Nat) {t : Term n} → t PE.≡ natToTerm _ m → NotInLConNat m l → αNeutral m (α t)
-  ∘ₙ        : ∀ {m} → αNeutral {l} {lε} m t   → αNeutral m (t ∘ u)
-  fstₙ      : ∀ {m} → αNeutral {l} {lε} m t   → αNeutral m (fst t)
-  sndₙ      : ∀ {m} → αNeutral {l} {lε} m t   → αNeutral m (snd t)
-  natrecₙ   : ∀ {m} → αNeutral {l} {lε} m v   → αNeutral m (natrec G t u v)
-  boolrecₙ  : ∀ {m} → αNeutral {l} {lε} m v   → αNeutral m (boolrec G t u v)
+  ∘ₙ        : ∀ {m} → αNeutral {l} m t   → αNeutral m (t ∘ u)
+  fstₙ      : ∀ {m} → αNeutral {l} m t   → αNeutral m (fst t)
+  sndₙ      : ∀ {m} → αNeutral {l} m t   → αNeutral m (snd t)
+  natrecₙ   : ∀ {m} → αNeutral {l} m v   → αNeutral m (natrec G t u v)
+  boolrecₙ  : ∀ {m} → αNeutral {l} m v   → αNeutral m (boolrec G t u v)
 --  Emptyrecₙ : ∀ {m} → αNeutral {l} {lε} m t   → αNeutral m (Emptyrec A t)
-  αₙ-rec    : ∀ {m} → αNeutral {l} {lε} m t   → αNeutral m (α t)
+  αₙ-rec    : ∀ {m} → αNeutral {l} m t   → αNeutral m (α t)
 
-BackταNeutral : ∀ {l : LCon} {lε : ⊢ₗ l} {m n b nbε} → αNeutral {_} {⊢ₗ• l lε n b nbε} m t → αNeutral {l} {lε} m t
+BackταNeutral : ∀ {l : LCon} {m n b} → αNeutral {addₗ n b l} m t → αNeutral {l} m t
 BackταNeutral (αₙ-base m tε (NotInThereNat l notinl n b t≠n)) = αₙ-base m tε notinl
 BackταNeutral (αₙ-rec tε) = αₙ-rec (BackταNeutral tε)
 BackταNeutral (∘ₙ d) = ∘ₙ (BackταNeutral d)
@@ -555,7 +558,7 @@ BackταNeutral (natrecₙ d) = natrecₙ (BackταNeutral d)
 BackταNeutral (boolrecₙ d) = boolrecₙ (BackταNeutral d)
 -- BackταNeutral (Emptyrecₙ d) = Emptyrecₙ (BackταNeutral d)
 
-αNeNotIn : ∀ {l l' lε lε' m} {t : Term n} → NotInLConNat m l' → αNeutral {l} {lε} m t → αNeutral {l'} {lε'} m t
+αNeNotIn : ∀ {l l' m} {t : Term n} → NotInLConNat m l' → αNeutral {l} m t → αNeutral {l'} m t
 αNeNotIn notl' (αₙ-base m e notl) = αₙ-base m e notl'
 αNeNotIn notl' (αₙ-rec tε) = αₙ-rec (αNeNotIn notl' tε)
 αNeNotIn notl' (∘ₙ d) = ∘ₙ (αNeNotIn notl' d)
@@ -572,7 +575,7 @@ NoTrueNatConNe : ∀ (t : Term n) → TrueNat t → ContainsNeutral t → PE.⊥
 NoTrueNatConNe _ (Truesuc tε) (Scontn tcontn) = NoTrueNatConNe _ tε tcontn
 NoTrueNatConNe _ tε (ncontn net) = NoTrueNatNe _ tε net
 
-NoTrueNatαNe : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → (t : Term n) → TrueNat t → αNeutral {l} {lε} m t → PE.⊥
+NoTrueNatαNe : ∀ {l : LCon} {m} → (t : Term n) → TrueNat t → αNeutral {l} m t → PE.⊥
 NoTrueNatαNe _ (Truesuc tε) () -- = {!!}
 
 
@@ -580,7 +583,7 @@ NoTrueNatαNe _ (Truesuc tε) () -- = {!!}
 
 -- These are the (lazy) values of our language.
 
-data Whnf {l : LCon} {lε : ⊢ₗ l} {n : Nat} : Term n → Set where
+data Whnf {l : LCon} {n : Nat} : Term n → Set where
 
   -- Type constructors are whnfs.
   Uₙ     : Whnf U
@@ -604,7 +607,7 @@ data Whnf {l : LCon} {lε : ⊢ₗ l} {n : Nat} : Term n → Set where
   ne    : Neutral t → Whnf t
 
   -- α's are whnfs if their argument is not in the list l. Otherwise it will reduce.
-  αₙ : ∀ {m} → αNeutral {l} {lε} m t → Whnf t
+  αₙ : ∀ {m} → αNeutral {l} m t → Whnf t
 
 
 -- Whnf inequalities.
@@ -615,19 +618,19 @@ data Whnf {l : LCon} {lε : ⊢ₗ l} {n : Nat} : Term n → Set where
 U≢ne : Neutral A → U PE.≢ A
 U≢ne () PE.refl
 
-U≢αne : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → αNeutral {l} {lε} m A → U PE.≢ A
+U≢αne : ∀ {l : LCon} {m} → αNeutral {l} m A → U PE.≢ A
 U≢αne () PE.refl
 
 ℕ≢ne : Neutral A → ℕ PE.≢ A
 ℕ≢ne () PE.refl
 
-ℕ≢αne : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → αNeutral {l} {lε} m A → ℕ PE.≢ A
+ℕ≢αne : ∀ {l : LCon} {m} → αNeutral {l} m A → ℕ PE.≢ A
 ℕ≢αne () PE.refl
 
 𝔹≢ne : Neutral A → 𝔹 PE.≢ A
 𝔹≢ne () PE.refl
 
-𝔹≢αne : ∀ {l : LCon} {lε : ⊢ₗ l} {m} → αNeutral {l} {lε} m A → 𝔹 PE.≢ A
+𝔹≢αne : ∀ {l : LCon} {m} → αNeutral {l} m A → 𝔹 PE.≢ A
 𝔹≢αne () PE.refl
 
 -- Empty≢ne : Neutral A → Empty PE.≢ A
@@ -643,7 +646,7 @@ U≢αne () PE.refl
 -- Unit≢αne () PE.refl
 
 mutual 
-  ne≢αne : ∀ {n m : Nat} {A B : Term n} {l : LCon} {lε : ⊢ₗ l} → Neutral A → αNeutral {l} {lε} m B → A PE.≢ B
+  ne≢αne : ∀ {n m : Nat} {A B : Term n} {l : LCon} → Neutral A → αNeutral {l} m B → A PE.≢ B
   ne≢αne (αₙ contn) (αₙ-base m e tε) PE.refl rewrite e = NoTrueNatConNe _ (TrueNatToTerm _ m) contn
   ne≢αne (αₙ contn) (αₙ-rec tε) PE.refl = conne≢αne contn tε PE.refl
   ne≢αne (∘ₙ net) (∘ₙ αnet) PE.refl = ne≢αne net αnet PE.refl
@@ -653,7 +656,7 @@ mutual
   ne≢αne (boolrecₙ net) (boolrecₙ αnet) PE.refl = ne≢αne net αnet PE.refl
 --  ne≢αne (Emptyrecₙ net) (Emptyrecₙ αnet) PE.refl = ne≢αne net αnet PE.refl
   
-  conne≢αne : ∀ {n m} {A B : Term n} {l : LCon} {lε : ⊢ₗ l} → ContainsNeutral A → αNeutral {l} {lε} m B → A PE.≢ B
+  conne≢αne : ∀ {n m} {A B : Term n} {l : LCon} → ContainsNeutral A → αNeutral {l} m B → A PE.≢ B
   conne≢αne (ncontn net) αt = ne≢αne net αt
   conne≢αne (Scontn contn) () PE.refl
 
@@ -661,7 +664,7 @@ B≢ne : ∀ W → Neutral A → ⟦ W ⟧ F ▹ G PE.≢ A
 B≢ne BΠ () PE.refl
 B≢ne BΣ () PE.refl
 
-B≢αne : ∀ {l lε m} W → αNeutral {l} {lε} m A → ⟦ W ⟧ F ▹ G PE.≢ A
+B≢αne : ∀ {l m} W → αNeutral {l} m A → ⟦ W ⟧ F ▹ G PE.≢ A
 B≢αne BΠ () PE.refl
 B≢αne BΣ () PE.refl
 
@@ -711,25 +714,25 @@ TrueBool≢U ()
 
 -- A whnf of type ℕ is either zero, suc t, or neutral.
 
-data Natural {n : Nat} {l} {lε} : Term n → Set where
+data Natural {n : Nat} {l} : Term n → Set where
   zeroₙ :             Natural zero
   sucₙ  :             Natural (suc t)
   ne    : Neutral t → Natural t
-  neα   : ∀ {m} → αNeutral {l} {lε} m t → Natural t
+  neα   : ∀ {m} → αNeutral {l} m t → Natural t
 
 
 -- A whnf of type 𝔹 is either true, false, or neutral.
 
-data Boolean {n : Nat} {l} {lε} : Term n → Set where
+data Boolean {n : Nat} {l} : Term n → Set where
   trueₙ :             Boolean true
   falseₙ  :           Boolean false
   ne    : Neutral t → Boolean t
-  neα   : ∀ {m} → αNeutral {l} {lε} m t → Boolean t
+  neα   : ∀ {m} → αNeutral {l} m t → Boolean t
 
 -- A (small) type in whnf is either Π A B, Σ A B, ℕ, Empty, Unit or neutral.
 -- Large types could also be U.
 
-data Type {n : Nat} {l : LCon} {lε : ⊢ₗ l} : Term n → Set where
+data Type {n : Nat} {l : LCon} : Term n → Set where
   Πₙ     :             Type (Π A ▹ B)
   Σₙ     :             Type (Σ A ▹ B)
   ℕₙ     :             Type ℕ
@@ -737,45 +740,46 @@ data Type {n : Nat} {l : LCon} {lε : ⊢ₗ l} : Term n → Set where
 --  Emptyₙ :             Type Empty
 --  Unitₙ  :             Type Unit
   ne     : Neutral t → Type t
-  αne   : ∀ {m} → αNeutral {l} {lε} m t → Type t
+  αne   : ∀ {m} → αNeutral {l} m t → Type t
 
-⟦_⟧-type : ∀ {l lε} (W : BindingType) → Type {_} {l} {lε} (⟦ W ⟧ F ▹ G)
+⟦_⟧-type : ∀ {l} (W : BindingType) → Type {_} {l} (⟦ W ⟧ F ▹ G)
 ⟦ BΠ ⟧-type = Πₙ
 ⟦ BΣ ⟧-type = Σₙ
 
 -- A whnf of type Π A ▹ B is either lam t or neutral.
 
-data Function {n : Nat} {l} {lε} : Term n → Set where
+data Function {n : Nat} {l} : Term n → Set where
   lamₙ : Function (lam t)
   ne   : Neutral t → Function t
-  neα : ∀ {m} → αNeutral {l} {lε} m t → Function t
+  neα : ∀ {m} → αNeutral {l} m t → Function t
 
 -- A whnf of type Σ A ▹ B is either prod t u or neutral.
 
-data Product {n : Nat} : Term n → Set where
+data Product {n : Nat} {l} : Term n → Set where
   prodₙ : Product (prod t u)
   ne    : Neutral t → Product t
+  neα : ∀ {m} → αNeutral {l} m t → Product t
 
 -- These views classify only whnfs.
 -- Natural, Type, Function and Product are a subsets of Whnf.
 
-TrueNatNatural : ∀ {l lε} → TrueNat t → Natural {_} {l} {lε} t
+TrueNatNatural : ∀ {l} → TrueNat t → Natural {_} {l} t
 TrueNatNatural Truezero = zeroₙ
 TrueNatNatural (Truesuc tε) = sucₙ
 
-naturalWhnf : ∀ {l : LCon} {lε} → Natural {_} {l} {lε} t → Whnf {l} {lε} t
+naturalWhnf : ∀ {l : LCon} → Natural {_} {l} t → Whnf {l} t
 naturalWhnf sucₙ   = sucₙ
 naturalWhnf zeroₙ  = zeroₙ
 naturalWhnf (ne x) = ne x
 naturalWhnf (neα x) = αₙ x
 
-booleanWhnf : ∀ {l : LCon} {lε} → Boolean {_} {l} {lε} t → Whnf {l} {lε} t
+booleanWhnf : ∀ {l : LCon} → Boolean {_} {l} t → Whnf {l} t
 booleanWhnf trueₙ   = trueₙ
 booleanWhnf falseₙ  = falseₙ
 booleanWhnf (ne x) = ne x
 booleanWhnf (neα x) = αₙ x
 
-typeWhnf : ∀ {l : LCon} {lε} → Type {_} {l} {lε} A → Whnf {l} {lε} A
+typeWhnf : ∀ {l : LCon} → Type {_} {l} A → Whnf {l} A
 typeWhnf Πₙ     = Πₙ
 typeWhnf Σₙ     = Σₙ
 typeWhnf ℕₙ     = ℕₙ
@@ -785,16 +789,17 @@ typeWhnf 𝔹ₙ     = 𝔹ₙ
 typeWhnf (ne x) = ne x
 typeWhnf (αne x) = αₙ x
 
-functionWhnf : ∀ {l : LCon} {lε} → Function {_} {l} {lε} t → Whnf {l} {lε} t
+functionWhnf : ∀ {l : LCon} → Function {_} {l} t → Whnf {l} t
 functionWhnf lamₙ   = lamₙ
 functionWhnf (ne x) = ne x
 functionWhnf (neα x) = αₙ x
 
-productWhnf : ∀ {l : LCon} {lε} → Product t → Whnf {l} {lε} t
+productWhnf : ∀ {l : LCon} → Product {_} {l} t → Whnf {l} t
 productWhnf prodₙ  = prodₙ
 productWhnf (ne x) = ne x
+productWhnf (neα x) = αₙ x
 
-⟦_⟧ₙ : ∀ {l : LCon} {lε} → (W : BindingType) → Whnf {l} {lε} (⟦ W ⟧ F ▹ G)
+⟦_⟧ₙ : ∀ {l : LCon} → (W : BindingType) → Whnf {l} (⟦ W ⟧ F ▹ G)
 ⟦_⟧ₙ BΠ = Πₙ
 ⟦_⟧ₙ BΣ = Σₙ
 
@@ -896,7 +901,7 @@ wkNotInLCon : ∀ l ρ → NotInLCon t l → NotInLCon {n} (wk ρ t) l
 wkNotInLCon _ ρ (NotInε tε) = NotInε (wkTrueNat _ tε)
 wkNotInLCon (addₗ m b γ) ρ (NotInThere .γ γε .m .b e) = NotInThere γ (wkNotInLCon _ _ γε) m b (PE.subst (λ h → DifferentTrueNat _ h) ((wkNatToTerm ρ m)) (wkDifferentTrueNat ρ _ _ e))
 
-αwkNeutral : ∀ {l lε m} ρ → αNeutral {l} {lε} m t → αNeutral {l} {lε} {n} m (wk ρ t)
+αwkNeutral : ∀ {l m} ρ → αNeutral {l} m t → αNeutral {l} {n} m (wk ρ t)
 αwkNeutral ρ (αₙ-base m e notn) rewrite e = αₙ-base m (wkNatToTerm ρ m) notn
 αwkNeutral ρ (αₙ-rec n)       = αₙ-rec (αwkNeutral _ n)
 αwkNeutral  ρ (∘ₙ n)        = ∘ₙ (αwkNeutral ρ n)
@@ -906,7 +911,7 @@ wkNotInLCon (addₗ m b γ) ρ (NotInThere .γ γε .m .b e) = NotInThere γ (wk
 αwkNeutral ρ (boolrecₙ n)   = boolrecₙ (αwkNeutral ρ n)
 -- αwkNeutral ρ (Emptyrecₙ e) = Emptyrecₙ (αwkNeutral ρ e)
 
-αNeutralHProp : ∀ {l lε m m'} → αNeutral {l} {lε} m t → αNeutral {l} {lε} m' t → m PE.≡ m'
+αNeutralHProp : ∀ {l m m'} → αNeutral {l} m t → αNeutral {l} m' t → m PE.≡ m'
 αNeutralHProp (αₙ-base m e notn) (αₙ-base m' e' notn') rewrite e rewrite e' = EqNatToTermEqNat _ _ e'
 αNeutralHProp (αₙ-rec n) (αₙ-rec m)       = αNeutralHProp n m
 αNeutralHProp (∘ₙ n) (∘ₙ m)        = αNeutralHProp n m
@@ -920,19 +925,19 @@ wkNotInLCon (addₗ m b γ) ρ (NotInThere .γ γε .m .b e) = NotInThere γ (wk
 
 -- Weakening can be applied to our whnf views.
 
-wkNatural : ∀ ρ {l} {lε} → Natural  {_} {l} {lε} t → Natural {n} {l} {lε} (wk ρ t)
+wkNatural : ∀ ρ {l} → Natural  {_} {l} t → Natural {n} {l} (wk ρ t)
 wkNatural ρ sucₙ   = sucₙ
 wkNatural ρ zeroₙ  = zeroₙ
 wkNatural ρ (ne x) = ne (wkNeutral ρ x)
 wkNatural ρ (neα x) = neα (αwkNeutral ρ x)
 
-wkBoolean : ∀ {l} {lε} ρ → Boolean  {_} {l} {lε} t → Boolean {n} {l} {lε} (wk ρ t)
+wkBoolean : ∀ {l} ρ → Boolean  {_} {l} t → Boolean {n} {l} (wk ρ t)
 wkBoolean ρ trueₙ   = trueₙ
 wkBoolean ρ falseₙ  = falseₙ
 wkBoolean ρ (ne x) = ne (wkNeutral ρ x)
 wkBoolean ρ (neα x) = neα (αwkNeutral ρ x)
 
-wkType : ∀ {l lε} ρ → Type {_} {l} {lε} t → Type {n} {l} {lε} (wk ρ t)
+wkType : ∀ {l} ρ → Type {_} {l} t → Type {n} {l} (wk ρ t)
 wkType ρ Πₙ     = Πₙ
 wkType ρ Σₙ     = Σₙ
 wkType ρ ℕₙ     = ℕₙ
@@ -942,16 +947,16 @@ wkType ρ 𝔹ₙ     = 𝔹ₙ
 wkType ρ (ne x) = ne (wkNeutral ρ x)
 wkType ρ (αne x) = αne (αwkNeutral ρ x)
 
-wkFunction : ∀ {l lε} ρ → Function {_} {l} {lε} t → Function {n} {l} {lε} (wk ρ t)
+wkFunction : ∀ {l} ρ → Function {_} {l} t → Function {n} {l} (wk ρ t)
 wkFunction ρ lamₙ   = lamₙ
 wkFunction ρ (ne x) = ne (wkNeutral ρ x)
 wkFunction ρ (neα x) = neα (αwkNeutral ρ x)
 
 
-wkProduct : ∀ ρ → Product t → Product {n} (wk ρ t)
+wkProduct : ∀ {l} ρ → Product {_} {l} t → Product {n} {l} (wk ρ t)
 wkProduct ρ prodₙ  = prodₙ
 wkProduct ρ (ne x) = ne (wkNeutral ρ x)
-
+wkProduct ρ (neα x) = neα (αwkNeutral ρ x)
 
 wkBboolToTerm :  ∀ {n m } (ρ : Wk m n) (b : Bbool) →  wk ρ (BboolToTerm n b) PE.≡ BboolToTerm m b
 wkBboolToTerm ρ Btrue = PE.refl
@@ -962,7 +967,7 @@ wkInLCon _ ρ (InHere t b t=m u=b l) rewrite  t=m rewrite u=b rewrite (wkBboolTo
 wkInLCon _ ρ (InThere l tbε t2 b2) = InThere l (wkInLCon l ρ tbε) t2 b2
 
 
-wkWhnf : ∀ {l lε} ρ → Whnf {l} {lε} t → Whnf {l} {lε} {n} (wk ρ t)
+wkWhnf : ∀ {l} ρ → Whnf {l} t → Whnf {l} {n} (wk ρ t)
 wkWhnf ρ Uₙ      = Uₙ
 wkWhnf ρ Πₙ      = Πₙ
 wkWhnf ρ Σₙ      = Σₙ
