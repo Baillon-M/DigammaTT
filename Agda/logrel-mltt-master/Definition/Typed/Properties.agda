@@ -91,7 +91,7 @@ wfEqTerm (boolrec-true F t f) = wfTerm t
 wfEqTerm (boolrec-false F t f) = wfTerm f
 wfEqTerm (α-cong x) = wfEqTerm x
 wfEqTerm (ϝ-cong l r) = ϝ (wfEqTerm l) (wfEqTerm r)
-wfEqTerm (α-conv x tε) = wfTerm x
+wfEqTerm (α-conv x tε t≡n b≡b') = wfTerm x
 
 wfEq : Γ / lε ⊢ A ≡ B → ⊢ Γ / lε
 wfEq (univ A≡B) = wfEqTerm A≡B
@@ -158,7 +158,7 @@ subsetTerm (boolrec-subst F t f b⇒b') = boolrec-cong (refl F) (refl t) (refl f
 subsetTerm (boolrec-true F t f) = boolrec-true F t f
 subsetTerm (boolrec-false F t f) = boolrec-false F t f
 subsetTerm (α-subst t⇒u) = α-cong (subsetTerm t⇒u)
-subsetTerm (α-red {b = b} ⊢n inl) = α-conv ⊢n inl -- α-conv x (InHere _ b _)
+subsetTerm (α-red {b = b} ⊢n inl t≡n b≡b') = α-conv ⊢n inl t≡n b≡b' -- α-conv x (InHere _ b _)
   
 subset : Γ / lε ⊢ A ⇒ B → Γ / lε ⊢ A ≡ B
 subset (univ A⇒B) = univ (subsetTerm A⇒B)
@@ -189,7 +189,7 @@ redFirstTerm (boolrec-subst F t f b⇒b') = boolrecⱼ F t f (redFirstTerm b⇒b
 redFirstTerm (boolrec-true F t f) = boolrecⱼ F t f (trueⱼ (wfTerm t))
 redFirstTerm (boolrec-false F t f) = boolrecⱼ F t f (falseⱼ (wfTerm f))
 redFirstTerm (α-subst t⇒u) = αⱼ (redFirstTerm t⇒u)
-redFirstTerm (α-red ⊢n inl) = αⱼ ⊢n -- αⱼ x
+redFirstTerm (α-red ⊢n inl t≡n b≡b') = αⱼ ⊢n -- αⱼ x
 
 
 redFirst : Γ / lε ⊢ A ⇒ B → Γ / lε ⊢ A
@@ -245,9 +245,12 @@ mutual
   αneRedTerm (α-subst d) (αₙ-base 0 e tε) rewrite e = whnfRedTerm d zeroₙ
   αneRedTerm (α-subst d) (αₙ-base (1+ k) e tε) rewrite e = whnfRedTerm d sucₙ
   αneRedTerm (α-subst d) (αₙ-rec d') = αneRedTerm d d'
-  αneRedTerm (α-red ⊢n inl) (αₙ-rec n) = NoTrueNatαNe _ (InLConTrueNat _ _ _ inl) n
-  αneRedTerm {lε =  ⊢ₗ• l lε n b nε} (α-red ⊢n inl) (αₙ-base m e (NotInThereNat l notinl n b notn)) =
-    NotInLConNotInLCon _ _ (addₗ n b l) (NotInLConNatNotInLCon _ _ _ (NotInThereNat _ notinl _ _ notn) e) inl 
+  αneRedTerm (α-red ⊢n inl PE.refl b≡b') (αₙ-rec n) = NoTrueNatαNe _ (TrueNatToTerm _ _) n -- NoTrueNatαNe _ (InLConTrueNat _ _ _ inl) n
+  αneRedTerm (α-red ⊢n inl t=m u=b) (αₙ-base m e notinl)
+    with EqNatToTermEqNat _ _ (PE.trans (PE.sym t=m) e)
+  αneRedTerm (α-red ⊢n inl t=m u=b) (αₙ-base m e notinl)
+    | PE.refl =
+    NotInLConNat⊥ notinl inl -- NotInLConNotInLCon _ _ (addₗ n b l) (NotInLConNatNotInLCon _ _ _ (NotInThereNat _ notinl _ _ notn) e) inl 
   
   neRedTerm : (d : Γ / lε ⊢ t ⇒ u ∷ A) (n : Neutral t) → ⊥
   neRedTerm (conv d x) n = neRedTerm d n
@@ -265,7 +268,7 @@ mutual
   neRedTerm (boolrec-true x x₁ x₂) (boolrecₙ ())
   neRedTerm (boolrec-false x x₁ x₂) (boolrecₙ ())
   neRedTerm (α-subst d) (αₙ cnen) = ContainsNeRedTerm d cnen
-  neRedTerm (α-red ⊢n inl) (αₙ n) = TrueNat≢Cne n (InLConTrueNat _ _ _ inl) -- TrueNat≢Cne n (TrueNatToTerm _ _)
+  neRedTerm (α-red ⊢n inl PE.refl b≡b') (αₙ n) = TrueNat≢Cne n (TrueNatToTerm _ _)
   
   ContainsNeRedTerm : (d : Γ / lε ⊢ t ⇒ u ∷ A) (n : ContainsNeutral t) → ⊥
   ContainsNeRedTerm d (ncontn neT) = neRedTerm d neT
@@ -288,7 +291,7 @@ mutual
   whnfRedTerm (boolrec-false x x₁ x₂) (ne (boolrecₙ ()))
   whnfRedTerm d (αₙ αn) = αneRedTerm d αn
   whnfRedTerm (α-subst d) (ne (αₙ cnet)) = ContainsNeRedTerm d cnet
-  whnfRedTerm (α-red ⊢n inl) (ne (αₙ cnet)) = TrueNat≢Cne cnet (InLConTrueNat _ _ _ inl) -- TrueNat≢Cne cnet (TrueNatToTerm _ _)
+  whnfRedTerm (α-red ⊢n inl PE.refl PE.refl) (ne (αₙ cnet)) = TrueNat≢Cne cnet (TrueNatToTerm _ _)
     
 neRed : (d : Γ / lε ⊢ A ⇒ B) (N : Neutral A) → ⊥
 neRed (univ x) N = neRedTerm x N
@@ -357,17 +360,27 @@ whrDetTerm  (boolrec-false x x₁ x₂) (boolrec-subst x₃ x₄ x₅ d′) = �
 whrDetTerm  (boolrec-true x x₁ x₂) (boolrec-true x₃ x₄ x₅) = PE.refl
 whrDetTerm  (boolrec-false x x₁ x₂) (boolrec-false x₃ x₄ x₅) = PE.refl
 whrDetTerm  (α-subst d) (α-subst d′) rewrite whrDetTerm  d d′ = PE.refl
-whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n (InHere _ _ t=m u=b _)) (α-red ⊢n' (InHere _ _ t=m' u=b' _)) =
+whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n (InHereNat _) t=m u=b) (α-red ⊢n' (InHereNat _) t=m' u=b' ) =
   PE.trans u=b (PE.sym u=b')
-whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n (InHere _ _ t=m u=b _)) (α-red ⊢n' (InThere _ inl' _ _)) =
-  ⊥-elim (NotInLConNotInLCon _ _ _ (NotInLConNatNotInLCon _ _ _ nε t=m) inl')
-whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n' (InThere _ inl' _ _))  (α-red ⊢n (InHere _ _ t=m u=b _)) =
-  ⊥-elim (NotInLConNotInLCon _ _ _ (NotInLConNatNotInLCon _ _ _ nε t=m) inl')
-whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n (InThere _ inl _ _)) (α-red ⊢n' (InThere  _ inl' _ _)) = InLConUnique _ _ _ _ lε inl inl'
-whrDetTerm {l = addₗ m b l}  (α-red ⊢n inl) (α-subst d′)  =
-  ⊥-elim (whnfRedTerm d′ (naturalWhnf (TrueNatNatural (InLConTrueNat _ _ _ inl))))
-whrDetTerm {l = addₗ m b l} (α-subst d′) (α-red ⊢n inl) =
-  ⊥-elim (whnfRedTerm d′ (naturalWhnf (TrueNatNatural (InLConTrueNat _ _ _ inl))))
+whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n (InHereNat _) t=m u=b) (α-red ⊢n' (InThereNat _ inl' _ _) t=m' u=b')
+  with EqNatToTermEqNat _ _ (PE.trans (PE.sym t=m) t=m')
+whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n (InHereNat _) t=m u=b) (α-red ⊢n' (InThereNat _ inl' _ _) t=m' u=b')
+  | PE.refl = ⊥-elim (NotInLConNat⊥ nε inl') --(NotInLConNotInLCon _ _ _ (NotInLConNatNotInLCon _ _ _ nε t=m) inl')
+whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n' (InThereNat _ inl' _ _) t=m u=b)  (α-red ⊢n (InHereNat _) t=m' u=b')
+  with EqNatToTermEqNat _ _ (PE.trans (PE.sym t=m) t=m')
+whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n' (InThereNat _ inl' _ _) t=m u=b)  (α-red ⊢n (InHereNat _) t=m' u=b')
+  | PE.refl = ⊥-elim (NotInLConNat⊥ nε inl') -- (NotInLConNotInLCon _ _ _ (NotInLConNatNotInLCon _ _ _ nε t=m) inl')
+whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n (InThereNat _ inl _ _) t=m u=b) (α-red ⊢n' (InThereNat  _ inl' _ _) t=m' u=b')
+  with EqNatToTermEqNat _ _ (PE.trans (PE.sym t=m) t=m')
+whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n (InThereNat _ inl _ _) t=m u=b) (α-red ⊢n' (InThereNat  _ inl' _ _) t=m' u=b')
+  | PE.refl with InLConNatUnique lε inl inl' PE.refl PE.refl
+whrDetTerm {lε = ⊢ₗ• l lε n b nε} (α-red ⊢n (InThereNat _ inl _ _) t=m u=b) (α-red ⊢n' (InThereNat  _ inl' _ _) t=m' u=b')
+  | PE.refl | PE.refl =
+  PE.trans u=b (PE.sym u=b') --InLConUnique _ _ _ _ lε inl inl'
+whrDetTerm {l = addₗ m b l}  (α-red ⊢n inl PE.refl u=b) (α-subst d′)  =
+  ⊥-elim (whnfRedTerm d′ (naturalWhnf (TrueNatNatural (TrueNatToTerm _ _))))
+whrDetTerm {l = addₗ m b l} (α-subst d′) (α-red ⊢n inl PE.refl u=b) =
+  ⊥-elim (whnfRedTerm d′ (naturalWhnf (TrueNatNatural (TrueNatToTerm _ _))))
 
 
 whrDet : (d : Γ / lε ⊢ A ⇒ B) (d′ : Γ / lε ⊢ A ⇒ B′) → B PE.≡ B′
@@ -450,8 +463,9 @@ redU*Term′ PE.refl (Σ-β₁ F G x x₁) = UnotInA x
 redU*Term′ PE.refl (Σ-β₂ F G x x₁) = UnotInA x₁
 redU*Term′ PE.refl (boolrec-true x₁ x₂ x₃) = UnotInA x₂
 redU*Term′ PE.refl (boolrec-false x₁ x₂ x₃) = UnotInA x₃
-redU*Term′ PE.refl (α-red ⊢n k) = TrueBool≢U (InLConTrueBool _ _ _ k)
-  
+redU*Term′ PE.refl (α-red {b' = Btrue} ⊢n k t=m ()) --= TrueBool≢U {!!} --(InLConTrueBool _ _ _ k)
+redU*Term′ PE.refl (α-red {b' = Bfalse} ⊢n k t=m ())
+
 redU*Term : Γ / lε ⊢ A ⇒* U ∷ B → ⊥
 redU*Term (id x) = UnotInA x
 redU*Term (x ⇨ A⇒*U) = redU*Term A⇒*U
@@ -483,8 +497,9 @@ mutual
   ConvUTerm-r (boolrec-true x₁ x₂ x₃) PE.refl = UnotInA x₂
   ConvUTerm-r (boolrec-false x₁ x₂ x₃) PE.refl = UnotInA x₃
   ConvUTerm-r (ϝ-cong x₁ x₂) PE.refl = ConvUTerm-r x₁ PE.refl 
-  ConvUTerm-r (α-conv x₁ tε) PE.refl with InLConTrueBool _ _ _ tε
-  ConvUTerm-r (α-conv x₁ tε) PE.refl | ()
+  ConvUTerm-r (α-conv {b' = Btrue} x₁ tε t=m ()) PE.refl
+  ConvUTerm-r (α-conv {b' = Bfalse} x₁ tε t=m ()) PE.refl -- with {!!} --InLConTrueBool _ _ _ tε
+--  ConvUTerm-r (α-conv x₁ tε t=m u=b) PE.refl | ()
 
   ConvUTerm-l : ∀ {l} {lε : ⊢ₗ l} {C}
                 → Γ / lε ⊢ A ≡ B ∷ C

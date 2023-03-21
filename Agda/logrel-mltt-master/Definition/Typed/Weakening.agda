@@ -297,7 +297,7 @@ mutual
                                     (wkTerm [ρ] ⊢Δ ⊢f)))
   wkEqTerm {l = l} {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (α-cong x₂) = α-cong (wkEqTerm [ρ] ⊢Δ x₂)
   wkEqTerm {l = l} {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (ϝ-cong g d) = ϝ-cong (wkEqTerm [ρ] (τCon _ _ _ _ ⊢Δ) g) (wkEqTerm [ρ] (τCon _ _ _ _ ⊢Δ) d)
-  wkEqTerm {l = l} {Δ = Δ} {ρ = ρ} [ρ] ⊢Δ (α-conv ⊢t tε) = α-conv (wkTerm [ρ] ⊢Δ ⊢t) (wkInLCon l ρ tε)
+  wkEqTerm {ρ = ρ} [ρ] ⊢Δ (α-conv ⊢t tε PE.refl PE.refl) = α-conv (wkTerm [ρ] ⊢Δ ⊢t) tε (wkNatToTerm ρ _) (wkBboolToTerm ρ _)
   
 
 mutual
@@ -411,7 +411,7 @@ mutual
                                     (wk-β F)
                                     (wkTerm [ρ] ⊢Δ ⊢f)))
   wkRedTerm [ρ] ⊢Δ (α-subst n⇒n') = α-subst (wkRedTerm [ρ] ⊢Δ n⇒n')
-  wkRedTerm {l = addₗ m k l} {ρ = ρ} [ρ] ⊢Δ (α-red ⊢n inl) = α-red (wkTerm [ρ] ⊢Δ ⊢n) (wkInLCon _ _ inl)
+  wkRedTerm {ρ = ρ} [ρ] ⊢Δ (α-red ⊢n inl PE.refl PE.refl) = α-red (wkTerm [ρ] ⊢Δ ⊢n) inl (wkNatToTerm ρ _) (wkBboolToTerm ρ _)
   
 wkRed* : ∀ {l} {lε : ⊢ₗ l} → ρ ∷ Δ ⊆ Γ →
            let ρA = U.wk ρ A

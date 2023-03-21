@@ -188,6 +188,21 @@ suc-PE-injectivity PE.refl = PE.refl
 α-PE-injectivity : α t PE.≡ α u → t PE.≡ u
 α-PE-injectivity PE.refl = PE.refl
 
+Suc≠0 : ∀ n → (1+ n) PE.≡ 0 → PE.⊥
+Suc≠0 n ()
+
+Suc= : ∀ n m → (1+ n) PE.≡ (1+ m) → n PE.≡ m
+Suc= n m PE.refl = PE.refl
+
+decidEqNat : ∀ (n m : Nat) → (n PE.≡ m) ⊎ (n PE.≡ m → PE.⊥)
+decidEqNat 0 0 = inj₁ PE.refl
+decidEqNat (1+ n) 0 = inj₂ (Suc≠0 n)
+decidEqNat 0 (1+ m) = inj₂ λ e → Suc≠0 m (PE.sym e)
+decidEqNat (1+ n) (1+ m) with decidEqNat n m 
+decidEqNat (1+ n) (1+ m) | inj₁ e rewrite e = inj₁ PE.refl
+decidEqNat (1+ n) (1+ m) | inj₂ neq = inj₂ λ e → neq (Suc= n m e)
+
+
 data TrueNat {n : Nat} : Term n → Set where
   Truezero : TrueNat zero
   Truesuc : TrueNat t → TrueNat (suc t)
@@ -196,6 +211,19 @@ data TrueNat {n : Nat} : Term n → Set where
 data Bbool : Set where
   Btrue : Bbool
   Bfalse : Bbool
+
+
+decidEqBbool : ∀ (n m : Bbool) → (n PE.≡ m) ⊎ (n PE.≡ m → PE.⊥)
+decidEqBbool Btrue Btrue = inj₁ PE.refl
+decidEqBbool Btrue Bfalse = let H : Bbool → Set
+                                H = λ {Btrue → Nat ;
+                                       Bfalse → PE.⊥}
+                            in inj₂ λ e → PE.subst H e 0
+decidEqBbool Bfalse Btrue = let H : Bbool → Set
+                                H = λ {Bfalse → Nat ;
+                                       Btrue → PE.⊥}
+                            in inj₂ λ e → PE.subst H e 0
+decidEqBbool Bfalse Bfalse = inj₁ PE.refl
 
 
 data TrueBool {n : Nat} : Term n → Set where
@@ -267,14 +295,67 @@ data ⊢ₗ_ : LCon → Set
     ⊢ₗₑ : ⊢ₗ εₗ
     ⊢ₗ• : ∀ (γ : LCon) (γε : ⊢ₗ γ) (n : Nat) (b : Bbool) (nbε : NotInLConNat n γ) → ⊢ₗ (addₗ n b γ) 
 
+
+
+DifferentNatDifferent : ∀ (t u : Nat) → DifferentNat t u → t PE.≡ u → PE.⊥
+DifferentNatDifferent _ _ (Diff0l u) ()
+DifferentNatDifferent _ _ (Diff0r t) ()
+DifferentNatDifferent _ _ (DiffSuc t u tuε) PE.refl = DifferentNatDifferent t t tuε PE.refl
+
+
+DifferentDifferentNat : ∀ (n m : Nat) → (n PE.≡ m → PE.⊥) → DifferentNat n m
+DifferentDifferentNat 0 0 neq = PE.⊥-elim (neq PE.refl)
+DifferentDifferentNat 0 (1+ m) neq = Diff0l m
+DifferentDifferentNat (1+ n) 0 neq = Diff0r n
+DifferentDifferentNat (1+ n) (1+ m) neq = DiffSuc n m (DifferentDifferentNat n m λ e → neq (PE.cong 1+ e))
+
+DifferentNatSym : ∀ (n m : Nat) (n≠m : DifferentNat n m) → DifferentNat m n
+DifferentNatSym _ _ (Diff0l u)  = Diff0r u
+DifferentNatSym _ _ (Diff0r t) = Diff0l t
+DifferentNatSym _ _ (DiffSuc t u tuε) = DiffSuc u t (DifferentNatSym t u tuε)
+
+DifferentNatHProp :  ∀ (n m : Nat) (e e' : DifferentNat n m) → e PE.≡ e'
+DifferentNatHProp _ _ (Diff0l u) (Diff0l u)  = PE.refl
+DifferentNatHProp _ _ (Diff0r t) (Diff0r u) = PE.refl
+DifferentNatHProp _ _ (DiffSuc t u tuε) (DiffSuc t u tuε') rewrite DifferentNatHProp t u tuε tuε' = PE.refl
+
+NotInLConNat⊥ : ∀ {t b l} → NotInLConNat t l → InLConNat t b l → PE.⊥
+NotInLConNat⊥ {l = εₗ} _ ()
+NotInLConNat⊥ (NotInThereNat l lε n b notn) (InHereNat l) = DifferentNatDifferent n n notn PE.refl
+NotInLConNat⊥ (NotInThereNat l notlε n b notn) (InThereNat l lε n b) = NotInLConNat⊥ notlε lε
+
+
 permut : ∀ (n : Nat) (l : LCon) → LCon
 permut n εₗ = εₗ
 permut 0 (addₗ n2 b2 εₗ) = addₗ n2 b2 εₗ
 permut 0 (addₗ n1 b1 (addₗ n2 b2 l)) = (addₗ n2 b2 (addₗ n1 b1 l))
 permut (1+ n) (addₗ n1 b1 l) = addₗ n1 b1 (permut n l)
 
+RemoveElt : ∀ {n b l} (nε : InLConNat n b l) → LCon
+RemoveElt (InHereNat l) = l
+RemoveElt (InThereNat l nε m b) = addₗ m b (RemoveElt nε)
+
+UpToFront : ∀ {n b l} (nε : InLConNat n b l) → LCon
+UpToFront {n = n} {b = b} nε = addₗ n b (RemoveElt nε)
+
+size-RemoveElt :  ∀ {n b l} (nε : InLConNat n b l) → 1+ (sizeₗ (RemoveElt nε)) PE.≡ sizeₗ l
+size-RemoveElt (InHereNat l) = PE.refl
+size-RemoveElt (InThereNat l nε m b)
+  = PE.subst (λ n → 1+ (1+ (sizeₗ (RemoveElt nε))) PE.≡ 1+ n) (size-RemoveElt nε) PE.refl
+    
+size-UpToFront : ∀ {n b l} (nε : InLConNat n b l) → sizeₗ (UpToFront nε) PE.≡ sizeₗ l
+size-UpToFront nε = size-RemoveElt nε
+
+RemoveNotInLConNat : ∀ {n m b l} (nε : InLConNat n b l) → NotInLConNat m l → NotInLConNat m (RemoveElt nε)
+RemoveNotInLConNat (InHereNat l) (NotInThereNat l lε n b notn) = lε
+RemoveNotInLConNat (InThereNat _ inl _ _) (NotInThereNat l lε n b notn) = NotInThereNat _ (RemoveNotInLConNat inl lε) n b notn
+
+⊢ₗ-RemoveElt : ∀ {n b l} (nε : InLConNat n b l) → ⊢ₗ l → ⊢ₗ (RemoveElt nε)
+⊢ₗ-RemoveElt (InHereNat l) (⊢ₗ• l lε n b nε) = lε
+⊢ₗ-RemoveElt (InThereNat _ inl _ _) (⊢ₗ• l lε n b nε) = ⊢ₗ• _ (⊢ₗ-RemoveElt inl lε) _ _ (RemoveNotInLConNat inl nε)
+
 _≤ₗ_ : LCon → LCon → Set
-_≤ₗ_ l l' = ∀ {n} (t u : Term n) → InLCon t u l → InLCon t u l'
+_≤ₗ_ l l' = ∀ t u → InLConNat t u l → InLConNat t u l'
 
 suc-inj : ∀ {n} {t u : Term n} (e : suc t PE.≡ suc u) → t PE.≡ u
 suc-inj PE.refl = PE.refl
@@ -314,45 +395,47 @@ InLConInLConNat e1 e2 (InThere l inl m b') = InThereNat l (InLConInLConNat e1 e2
 ≤ₗ-• f< f<' n b inl = f<' n b (f< n b inl)
 
 ≤ₗ-add : ∀ {l} n b l' → l ≤ₗ l' → InLConNat n b l' → (addₗ n b l) ≤ₗ l'
-≤ₗ-add n b l' f< inl' t u  (InHere n b t=n u=m l) rewrite u=m rewrite t=n = InLConNatInLCon inl'
-≤ₗ-add n b l' f< inl' t u  (InThere l inl m b) = f< _ _ inl
+≤ₗ-add n b l' f< inl' t u  (InHereNat l) = inl'
+≤ₗ-add n b l' f< inl' t u  (InThereNat l inl m b) = f< _ _ inl
 
 ≤ₗ-add-r : ∀ {l l' n b} → l ≤ₗ l' → l ≤ₗ (addₗ n b l')
-≤ₗ-add-r f< n b nε = InThere _ (f< n b nε) _ _
+≤ₗ-add-r f< n b nε = InThereNat _ (f< n b nε) _ _
 
 ≤ₗ-add-b : ∀ {l l' n b} → l ≤ₗ l' → (addₗ n b l) ≤ₗ (addₗ n b l')
 ≤ₗ-add-b f< = ≤ₗ-add _ _ _ (≤ₗ-add-r f<) (InHereNat _)
 
+≤ₗ-rev : ∀ {l l' m b} (nε : NotInLConNat m l) → (addₗ m b l) ≤ₗ (addₗ m b l') → l ≤ₗ l'
+≤ₗ-rev mε f< n b inl with f< n b (InThereNat _ inl _ _)
+≤ₗ-rev mε f< n b inl | InHereNat _ = PE.⊥-elim (NotInLConNat⊥ mε inl)
+≤ₗ-rev mε f< n b inl | InThereNat _ inl' _ _ = inl'
+
+
 ≤ₗ-rev-l : ∀ {l l' m b} → (addₗ m b l) ≤ₗ l' → l ≤ₗ l'
-≤ₗ-rev-l {l = l} {m = m} {b = b} f t u inl = f t u (InThere l inl m b)
+≤ₗ-rev-l {l = l} {m = m} {b = b} f t u inl = f t u (InThereNat l inl m b)
 
-Suc≠0 : ∀ n → (1+ n) PE.≡ 0 → PE.⊥
-Suc≠0 n ()
+≤ₗ-RemoveElt : ∀ {n n' b b' l} (nε : InLConNat n b l) (nε' : InLConNat n' b' l) → ((n PE.≡ n' → PE.⊥) ⊎ (b PE.≡ b' → PE.⊥)) → InLConNat n' b' (RemoveElt nε)
+≤ₗ-RemoveElt (InHereNat _) (InHereNat _) (inj₁ n≠n') = PE.⊥-elim (n≠n' PE.refl)
+≤ₗ-RemoveElt (InHereNat _) (InHereNat _) (inj₂ b≠b') = PE.⊥-elim (b≠b' PE.refl)
+≤ₗ-RemoveElt (InHereNat _) (InThereNat _ nε' _ _) n≠n' = nε'
+≤ₗ-RemoveElt (InThereNat l nε _ _) (InHereNat _) n≠n' = InHereNat _
+≤ₗ-RemoveElt (InThereNat l nε _ _) (InThereNat _ nε' _ _) n≠n' = InThereNat _ (≤ₗ-RemoveElt nε nε' n≠n') _ _
 
-Suc= : ∀ n m → (1+ n) PE.≡ (1+ m) → n PE.≡ m
-Suc= n m PE.refl = PE.refl
+≤ₗ-UpToFront : ∀ {m b l} (nε : InLConNat m b l) → l ≤ₗ (UpToFront nε)
+≤ₗ-UpToFront {m = m} nε n b nε' with decidEqNat m n
+≤ₗ-UpToFront {m = m} {b = b} nε n b' nε' | inj₁ PE.refl with decidEqBbool b b'
+≤ₗ-UpToFront {m = m} {b = b} nε n b' nε' | inj₁ PE.refl | inj₁ PE.refl = InHereNat _
+≤ₗ-UpToFront {m = m} {b = b} nε n b' nε' | inj₁ PE.refl | inj₂ b≠b' = InThereNat _ (≤ₗ-RemoveElt nε nε' (inj₂ b≠b')) _ _
+≤ₗ-UpToFront {m = m} nε n b nε' | inj₂ m≠n = InThereNat _ (≤ₗ-RemoveElt nε nε' (inj₁ m≠n)) _ _
 
-
-DifferentNatDifferent : ∀ (t u : Nat) → DifferentNat t u → t PE.≡ u → PE.⊥
-DifferentNatDifferent _ _ (Diff0l u) ()
-DifferentNatDifferent _ _ (Diff0r t) ()
-DifferentNatDifferent _ _ (DiffSuc t u tuε) PE.refl = DifferentNatDifferent t t tuε PE.refl
-
-DifferentDifferentNat : ∀ (n m : Nat) → (n PE.≡ m → PE.⊥) → DifferentNat n m
-DifferentDifferentNat 0 0 neq = PE.⊥-elim (neq PE.refl)
-DifferentDifferentNat 0 (1+ m) neq = Diff0l m
-DifferentDifferentNat (1+ n) 0 neq = Diff0r n
-DifferentDifferentNat (1+ n) (1+ m) neq = DiffSuc n m (DifferentDifferentNat n m λ e → neq (PE.cong 1+ e))
-
-DifferentNatSym : ∀ (n m : Nat) (n≠m : DifferentNat n m) → DifferentNat m n
-DifferentNatSym _ _ (Diff0l u)  = Diff0r u
-DifferentNatSym _ _ (Diff0r t) = Diff0l t
-DifferentNatSym _ _ (DiffSuc t u tuε) = DiffSuc u t (DifferentNatSym t u tuε)
-
-DifferentNatHProp :  ∀ (n m : Nat) (e e' : DifferentNat n m) → e PE.≡ e'
-DifferentNatHProp _ _ (Diff0l u) (Diff0l u)  = PE.refl
-DifferentNatHProp _ _ (Diff0r t) (Diff0r u) = PE.refl
-DifferentNatHProp _ _ (DiffSuc t u tuε) (DiffSuc t u tuε') rewrite DifferentNatHProp t u tuε tuε' = PE.refl
+≤ₗ-size : ∀ {l l'} (lε : ⊢ₗ l) → l ≤ₗ l' → sizeₗ l ≤ sizeₗ l'
+≤ₗ-size {εₗ} {l'} lε f< = ≤-0 (sizeₗ l')
+≤ₗ-size {addₗ n b l} {εₗ} lε f< with f< _ _ (InHereNat _)
+... | ()
+≤ₗ-size {addₗ n b l} {addₗ m b' l'} (⊢ₗ• l lε n b nε) f< =
+  let f<' = ≤ₗ-rev nε (≤ₗ-• f< (≤ₗ-UpToFront (f< n b (InHereNat _))))
+      size≤ = ≤-s (≤ₗ-size lε f<')
+      size= = size-UpToFront (f< n b (InHereNat _))
+  in PE.subst (λ j → 1+ (sizeₗ l) ≤ j) size= size≤
 
 NotInLConNatHProp : ∀ (n : Nat) (l : LCon) (nε nε' : NotInLConNat n l) → nε PE.≡ nε'
 NotInLConNatHProp n εₗ NotInεNat NotInεNat = PE.refl
@@ -388,27 +471,19 @@ NotInLConNotInLCon t u (addₗ n b l) (NotInThere l lε n b notn) (InHere n b t=
 NotInLConNotInLCon _ _ (addₗ n b l) (NotInThere l notlε n b notn) (InThere l lε n b) = NotInLConNotInLCon _ _ l notlε lε
 
 NotInLCon≤ₗ : ∀ {l l'} {t : Term n} {m b} → ((addₗ m b l) ≤ₗ l') → NotInLCon t l' → t PE.≡ (natToTerm n m) → PE.⊥
-NotInLCon≤ₗ f≤ notinl e = NotInLConNotInLCon _ _ _ notinl (f≤ _ _ (InHere _ _ e PE.refl _))
+NotInLCon≤ₗ f≤ notinl PE.refl = NotInLConNotInLCon _ _ _ notinl (InLConNatInLCon (f≤ _ _ (InHereNat _)))
 
 ≤ₗ-rev-r : ∀ {l l' m b} → l ≤ₗ (addₗ m b l') → NotInLConNat m l → l ≤ₗ l'
 ≤ₗ-rev-r {m = m} {b = b} f< nε n b' inl with f< n b' inl
-≤ₗ-rev-r {m = m} {b = b} f< nε n b' inl | InHere m b PE.refl PE.refl l' =
-  PE.⊥-elim (NotInLConNotInLCon _ _ _ (NotInLConNatNotInLCon _ _ _ nε PE.refl) inl)
-≤ₗ-rev-r {m = m} {b = b} f< nε n b' inl | InThere l' inl' _ _ = inl'
+≤ₗ-rev-r {m = m} {b = b} f< nε n b' inl | InHereNat l' =
+  PE.⊥-elim (NotInLConNotInLCon {n = n} _ _ _ (NotInLConNatNotInLCon _ _ _ nε PE.refl) (InLConNatInLCon inl))
+≤ₗ-rev-r {m = m} {b = b} f< nε n b' inl | InThereNat l' inl' _ _ = inl'
 
 ≤εEq : ∀ {l} (≤ε : l ≤ₗ εₗ) → l PE.≡ εₗ
 ≤εEq {l = εₗ} ≤ε = PE.refl
-≤εEq {l = addₗ m b l} ≤ε with (≤ε {n = 0} _ _ (InHere m b PE.refl PE.refl l))
+≤εEq {l = addₗ m b l} ≤ε with (≤ε _ _ (InHereNat l))
 ≤εEq {l = addₗ n b l} ≤ε | ()
 
-
-decidEqNat : ∀ (n m : Nat) → (n PE.≡ m) ⊎ (n PE.≡ m → PE.⊥)
-decidEqNat 0 0 = inj₁ PE.refl
-decidEqNat (1+ n) 0 = inj₂ (Suc≠0 n)
-decidEqNat 0 (1+ m) = inj₂ λ e → Suc≠0 m (PE.sym e)
-decidEqNat (1+ n) (1+ m) with decidEqNat n m 
-decidEqNat (1+ n) (1+ m) | inj₁ e rewrite e = inj₁ PE.refl
-decidEqNat (1+ n) (1+ m) | inj₂ neq = inj₂ λ e → neq (Suc= n m e)
 
 
 
@@ -449,9 +524,9 @@ decidInLConNat (addₗ m b γ) t | inj₂ k | inj₂ j = inj₂ (NotInThereNat _
 BackNotInLConNat≤ : ∀ {m l l'} (≤ε : l ≤ₗ l') → NotInLConNat m l' → NotInLConNat m l
 BackNotInLConNat≤ {m = m} {l = l} f< notinl' with  decidInLConNat l m
 BackNotInLConNat≤ {m = m} {l = l} f< notinl' | inj₁ (inj₁ inl) =
-  PE.⊥-elim (NotInLConNotInLCon {n = 0} _ _ _ (NotInLConNatNotInLCon _ _ _ notinl' PE.refl) (f< _ _ (InLConNatInLCon inl)))
+  PE.⊥-elim (NotInLConNotInLCon {n = 0} _ _ _ (NotInLConNatNotInLCon _ _ _ notinl' PE.refl) (InLConNatInLCon (f< _ _ inl)))
 BackNotInLConNat≤ {m = m} {l = l} f< notinl' | inj₁ (inj₂ inl) = 
-  PE.⊥-elim (NotInLConNotInLCon {n = 0} _ _ _ (NotInLConNatNotInLCon _ _ _ notinl' PE.refl) (f< _ _ (InLConNatInLCon inl)))
+  PE.⊥-elim (NotInLConNotInLCon {n = 0} _ _ _ (NotInLConNatNotInLCon _ _ _ notinl' PE.refl) (InLConNatInLCon (f< _ _ inl)))
 BackNotInLConNat≤ {m = m} {l = l} f< notinl' | inj₂ notinl = notinl
 
 
@@ -469,6 +544,14 @@ InLConUnique t u u' (addₗ n b l) (⊢ₗ• l lε n b nbε) (InHere n b t=n u=
 InLConUnique t u u' (addₗ n b l) (⊢ₗ• l lε n b nbε) (InHere n b t=n u=b l) (InThere _ inl n b) = PE.⊥-elim (NotInLConNotInLCon _ _ _ (NotInLConNatNotInLCon _ _ _ nbε t=n) inl)
 InLConUnique t u u' (addₗ n b l) (⊢ₗ• l lε n b nbε) (InThere _ inl n b) (InHere n b t=n u=b l) = PE.⊥-elim (NotInLConNotInLCon _ _ _ (NotInLConNatNotInLCon _ _ _ nbε t=n) inl)
 InLConUnique t u u' (addₗ n b l) (⊢ₗ• l lε n b nbε) (InThere _ inl n b) (InThere _ inl' n b) = InLConUnique _ _ _ l lε inl inl'
+
+
+InLConNatUnique : ∀ {t t₁ t₂ b b' l} (lε : ⊢ₗ l) → InLConNat t₁ b l → InLConNat t₂ b' l → t PE.≡ t₁ → t PE.≡ t₂ → b PE.≡ b'
+InLConNatUnique ⊢ₗₑ () () _ _
+InLConNatUnique (⊢ₗ• l lε n b nbε) (InHereNat l) (InHereNat l) e₁ e₂ = PE.refl
+InLConNatUnique (⊢ₗ• l lε n b nbε) (InHereNat l) (InThereNat _ inl n b) PE.refl PE.refl = PE.⊥-elim (NotInLConNat⊥ nbε inl) 
+InLConNatUnique (⊢ₗ• l lε n b nbε) (InThereNat _ inl n b) (InHereNat l) PE.refl PE.refl = PE.⊥-elim (NotInLConNat⊥ nbε inl) 
+InLConNatUnique (⊢ₗ• l lε n b nbε) (InThereNat _ inl n b) (InThereNat _ inl' n b) = InLConNatUnique lε inl inl'
 
 -- InLConUnique .(natToTerm _ n) .(BboolToTerm _ Btrue) false _ (⊢ₗ• l lε n Btrue nbε) (InHere n Btrue l) (InThere _ false l inl' _ _) = PE.⊥-elim (NotInLConNotInLCon _ _ l (NotInLConNatNotInLCon _ _ l nbε PE.refl) inl')
 --InLConUnique t b b' (addₗ n b₁ γ) (⊢ₗ• .γ lε .n .b₁ nbε)
@@ -488,6 +571,17 @@ permutInLCon 0 (addₗ x x₁ (addₗ x₂ x₃ l)) t _ (InThere .(addₗ x₂ x
 permutInLCon (1+ m) (addₗ t b εₗ) _ _ (InHere t b t=m u=b .εₗ) = InHere t b t=m u=b εₗ
 permutInLCon (1+ m) (addₗ x x₁ l) t _ (InThere .l x₂ .x .x₁) = InThere (permut _ l) (permutInLCon _ _ _ _ x₂) _ _
 permutInLCon (1+ m) (addₗ x x₁ (addₗ x₂ x₃ l)) .(natToTerm _ x) _ (InHere .x .x₁ PE.refl PE.refl .(addₗ x₂ x₃ l)) = InHere x _ PE.refl PE.refl _
+
+permutInLConNat : ∀ (m : Nat) (l : LCon) {t b}
+               → InLConNat t b l
+               → InLConNat t b (permut m l)
+permutInLConNat 0 (addₗ t b εₗ) (InHereNat εₗ) = InHereNat εₗ       
+permutInLConNat 0 (addₗ t b (addₗ t2 b2 l)) (InHereNat (addₗ t2 b2 l)) = InThereNat _ (InHereNat l) t2 b2
+permutInLConNat 0 (addₗ x x₁ (addₗ m b l)) (InThereNat (addₗ m b l) (InHereNat l) .x .x₁) = InHereNat (addₗ x x₁ _)
+permutInLConNat 0 (addₗ x x₁ (addₗ x₂ x₃ l)) (InThereNat .(addₗ x₂ x₃ l) (InThereNat .l x₄ .x₂ .x₃) .x .x₁) = InThereNat _ (InThereNat _ x₄ _ _) _ _
+permutInLConNat (1+ m) (addₗ t b εₗ) (InHereNat .εₗ) = InHereNat εₗ
+permutInLConNat (1+ m) (addₗ x x₁ l) (InThereNat .l x₂ .x .x₁) = InThereNat (permut _ l) (permutInLConNat _ _ x₂) _ _
+permutInLConNat (1+ m) (addₗ x x₁ (addₗ x₂ x₃ l)) (InHereNat (addₗ x₂ x₃ l)) = InHereNat _
 
 permutNotInLCon : ∀ {n} (m : Nat) (l : LCon) (t : Term n)
                → NotInLCon t l

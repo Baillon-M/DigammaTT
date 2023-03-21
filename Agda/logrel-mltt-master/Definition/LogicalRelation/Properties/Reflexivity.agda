@@ -36,7 +36,6 @@ mutual
               (reflNatural-prop prop))
   reflNatural-prop zeroᵣ = zeroᵣ
   reflNatural-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
-  reflNatural-prop (sucᵣ (ℕϝ tn fn)) = sucᵣ (ℕ₌ϝ (reflEqTermℕ tn) (reflEqTermℕ fn))
   -- reflNatural-prop (ne (neNfϝ {[A]t = [A]t} ⊢k αk tk fk)) =
   --  PE.⊥-elim (ℕ≢ne (_/_⊩ne_.neK [A]t) (whnfRed* (red (_/_⊩ne_.D [A]t)) ℕₙ))
   --reflNatural-prop (ℕϝ ⊢n αn (ℕₜ k red k=k prop) (ℕₜ k' red' k'=k' prop')) = ?
@@ -47,8 +46,7 @@ mutual
            → Γ / lε ⊩ℕ n ∷ℕ
            → Γ / lε ⊩ℕ n ≡ n ∷ℕ
   reflEqTermℕ (ℕₜ n d t≡t prop) = ℕₜ₌ n n d d t≡t (reflNatural-prop prop)
-  reflEqTermℕ (ℕϝ tn fn) = ℕ₌ϝ (reflEqTermℕ tn) (reflEqTermℕ fn)
-
+  
 reflBoolean-prop : ∀ {n}
                  → Boolean-prop Γ lε n
                  → [Boolean]-prop Γ lε n n
@@ -65,7 +63,6 @@ reflEqTerm𝔹 : ∀ {n}
            → Γ / lε ⊩𝔹 n ∷𝔹
            → Γ / lε ⊩𝔹 n ≡ n ∷𝔹
 reflEqTerm𝔹 (𝔹ₜ n d t≡t prop) = 𝔹ₜ₌ n n d d t≡t (reflBoolean-prop prop)
-reflEqTerm𝔹 (𝔹ϝ tn fn) = 𝔹₌ϝ (reflEqTerm𝔹 tn) (reflEqTerm𝔹 fn)
 
 -- reflEmpty-prop : ∀ {n}
 --                 → Empty-prop Γ lε n
@@ -87,12 +84,15 @@ reflEqTerm (𝔹ᵣ D) ⊢t = reflEqTerm𝔹 ⊢t
 --   Unitₜ₌ ⊢t ⊢t
 reflEqTerm {k = k} (ne neA) [t] = LogRel.reflEqTermNe k (logRelRec _) neA [t]
 reflEqTerm (Bᵣ′ BΠ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Πₜ ⊢ff f≡f [f] [f]₁) =
-  Πₜ₌ f≡f [t] [t] λ ρ ⊢Δ [a] → [f] ρ ⊢Δ [a] [a] (reflEqTerm ([F] ρ ⊢Δ) [a])
---  Πₜ₌ f f d d funcF funcF f≡f [t] [t]
---      (λ ρ ⊢Δ [a] → [f] ρ ⊢Δ [a] [a] (reflEqTerm ([F] ρ ⊢Δ) [a]))
-reflEqTerm (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d pProd p≅p [fst] [snd]) =
-  Σₜ₌ p p d d pProd pProd p≅p [t] [t] [fst] [fst]
-    (reflEqTerm ([F] id (wf ⊢F)) [fst])
-    (reflEqTerm ([G] id (wf ⊢F) [fst]) [snd])
+  Πₜ₌ f≡f [t] [t]
+    (λ [ρ] ≤ε lε' N<s ⊢Δ [a] ≤ε' lε'' M<s →
+      [f] [ρ] ≤ε lε' N<s ⊢Δ [a] [a] (reflEqTerm (proj₂ ([F] [ρ]) ≤ε lε' N<s ⊢Δ) [a]) ≤ε' lε'' M<s) 
+reflEqTerm (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d pProd p≅p [prop]) =
+  Σₜ₌ p p d d pProd pProd p≅p [t] [t] λ ≤ε lε' N<s →
+    let [fst] , [snd] = [prop] ≤ε lε' N<s
+    in [fst] , ([fst] , (reflEqTerm (proj₂ ([F] id) ≤ε lε' N<s (Con≤ ≤ε (wf ⊢F))) [fst] ,
+      λ ≤ε' lε'' M<s → reflEqTerm (proj₂ ([G] id ≤ε lε' N<s (Con≤ ≤ε (wf ⊢F)) (proj₁ ([prop] ≤ε lε' N<s))) ≤ε' lε'' M<s)
+                                  ([snd] ≤ε' lε'' M<s)))
+    -- (reflEqTerm ([F] id (wf ⊢F)) [fst])
+    -- (reflEqTerm ([G] id (wf ⊢F) [fst]) [snd])
 reflEqTerm (emb 0<1 [A]) t = reflEqTerm [A] t
-reflEqTerm (ϝᵣ mε tA fA) ( x , y ) = reflEqTerm tA x , reflEqTerm fA y 
