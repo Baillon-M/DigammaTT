@@ -8,6 +8,7 @@ open import Tools.PropositionalEquality
 open import Tools.Nullary
 open import Tools.Bool
 open import Tools.Product
+open import Tools.Sum hiding (sym)
 
 -- We reexport Agda's built-in type of natural numbers.
 
@@ -22,6 +23,14 @@ pattern 1+ n = suc n
 pred : Nat → Nat
 pred zero = zero
 pred (suc n) = n
+
+
+-- substraction
+_-_ : Nat → Nat → Nat
+n     - zero = n
+zero  - suc m = zero
+suc n - suc m = n - m
+
 
 -- Decision of number equality.
 
@@ -117,6 +126,22 @@ MaxLess (≤-s k<m) (≤-s l<n) = ≤-s (MaxLess k<m l<n)
 ≤₊-assoc-r {l = zero} = ≤-refl _
 ≤₊-assoc-r {l = 1+ l} = ≤-s (≤₊-assoc-r {l = l})
 
+≤₋-0⇒≤ : ∀ {n m} → n - m ≡ 0 → n ≤ m
+≤₋-0⇒≤ {n = 0} e = ≤-0 _
+≤₋-0⇒≤ {n = 1+ n} {1+ m} e = ≤-s (≤₋-0⇒≤ e)
+
+≤₋-≤⇒0 : ∀ {n m} → n ≤ m → n - m ≡ 0
+≤₋-≤⇒0 (≤-0 0) = refl
+≤₋-≤⇒0 (≤-0 (1+ m)) = refl
+≤₋-≤⇒0 (≤-s n<m) = ≤₋-≤⇒0 n<m
+
+≤-Decide : ∀ n m → (n ≤ m) ⊎ (m ≤ n)
+≤-Decide 0 m = inj₁ (≤-0 m)
+≤-Decide n (0) = inj₂ (≤-0 n)
+≤-Decide (1+ n) (1+ m) with ≤-Decide n m
+≤-Decide (1+ n) (1+ m) | inj₁ n<m = inj₁ (≤-s n<m)
+≤-Decide (1+ n) (1+ m) | inj₂ m<n = inj₂ (≤-s m<n)
+
 
 
 ≤-pred : ∀ {n m} → (1+ n) ≤ (1+ m) → n ≤ m
@@ -129,3 +154,18 @@ data _≤₃_ : (Nat × Nat × Nat) → (Nat × Nat × Nat) → Set where
 
 =-pred : ∀ {n m} → suc n ≡ suc m → n ≡ m
 =-pred {n} {m} refl = refl
+
+-assoc-l : ∀ {n m} → m ≤ n → (1+ n - m) ≡ 1+ (n - m)
+-assoc-l (≤-0 n) = refl
+-assoc-l {1+ n} {1+ m} (≤-s m<n) = -assoc-l m<n
+
+≤₋≠0⇒≤ : ∀ {n m k} → (1+ n) - m ≡ 1+ k → m ≤ n
+≤₋≠0⇒≤ {n} {0} e = ≤-0 _
+≤₋≠0⇒≤ {0} {1+ 0} ()
+≤₋≠0⇒≤ {0} {1+ (1+ m)} ()
+≤₋≠0⇒≤ {1+ n} {1+ m} e = ≤-s (≤₋≠0⇒≤ e)
+
+-suc : ∀ {n m k} → (n - m) ≡ 1+ k → (n - (1+ m)) ≡ k
+-suc {n = 0} {m = 0} ()
+-suc {n = 0} {m = 1+ m} ()
+-suc {n = 1+ n} {m = m} e = =-pred (trans (sym (-assoc-l (≤₋≠0⇒≤ {n = n} {m = m} e))) e)

@@ -83,16 +83,16 @@ reflEqTerm (𝔹ᵣ D) ⊢t = reflEqTerm𝔹 ⊢t
 -- reflEqTerm (Unitᵣ D) (Unitₜ n [ ⊢t , ⊢u , d ] prop) =
 --   Unitₜ₌ ⊢t ⊢t
 reflEqTerm {k = k} (ne neA) [t] = LogRel.reflEqTermNe k (logRelRec _) neA [t]
-reflEqTerm (Bᵣ′ BΠ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Πₜ ⊢ff f≡f [f] [f]₁) =
+reflEqTerm (Bᵣ′ BΠ F G D ⊢F ⊢G A≡A [Fₙ] [F] [G] G-ext) [t]@(Πₜ ⊢ff f≡f N [f] N₁  [f]₁) =
   Πₜ₌ f≡f [t] [t]
-    (λ [ρ] ≤ε lε' N<s ⊢Δ [a] ≤ε' lε'' M<s →
-      [f] [ρ] ≤ε lε' N<s ⊢Δ [a] [a] (reflEqTerm (proj₂ ([F] [ρ]) ≤ε lε' N<s ⊢Δ) [a]) ≤ε' lε'' M<s) 
-reflEqTerm (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [F] [G] G-ext) [t]@(Σₜ p d pProd p≅p [prop]) =
-  Σₜ₌ p p d d pProd pProd p≅p [t] [t] λ ≤ε lε' N<s →
-    let [fst] , [snd] = [prop] ≤ε lε' N<s
-    in [fst] , ([fst] , (reflEqTerm (proj₂ ([F] id) ≤ε lε' N<s (Con≤ ≤ε (wf ⊢F))) [fst] ,
-      λ ≤ε' lε'' M<s → reflEqTerm (proj₂ ([G] id ≤ε lε' N<s (Con≤ ≤ε (wf ⊢F)) (proj₁ ([prop] ≤ε lε' N<s))) ≤ε' lε'' M<s)
-                                  ([snd] ≤ε' lε'' M<s)))
+    N (λ [ρ] ≤ε lε' N<s N<s' ⊢Δ [a] →
+      [f] [ρ] ≤ε lε' N<s N<s' ⊢Δ [a] [a] (reflEqTerm (([F] [ρ]) ≤ε lε' N<s ⊢Δ) [a])) 
+reflEqTerm (Bᵣ′ BΣ F G D ⊢F ⊢G A≡A [Fₙ] [F] [G] G-ext) [t]@(Σₜ p d pProd p≅p N [prop]) =
+  Σₜ₌ p p d d pProd pProd p≅p [t] [t] N λ ≤ε lε' N<s N<s' →
+    let [fst] , K , [snd] = [prop] ≤ε lε' N<s N<s'
+    in [fst] , ([fst] , (reflEqTerm ([F] id ≤ε lε' N<s (Con≤ ≤ε (wf ⊢F))) [fst] ,
+      K , λ ≤ε' lε'' M<s K<s → reflEqTerm (proj₂ ([G] id ≤ε lε' N<s (Con≤ ≤ε (wf ⊢F)) (proj₁ ([prop] ≤ε lε' N<s N<s'))) ≤ε' lε'' M<s)
+                                  ([snd] ≤ε' lε'' M<s K<s)))
     -- (reflEqTerm ([F] id (wf ⊢F)) [fst])
     -- (reflEqTerm ([G] id (wf ⊢F) [fst]) [snd])
 reflEqTerm (emb 0<1 [A]) t = reflEqTerm [A] t

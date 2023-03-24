@@ -309,21 +309,41 @@ DifferentDifferentNat 0 (1+ m) neq = Diff0l m
 DifferentDifferentNat (1+ n) 0 neq = Diff0r n
 DifferentDifferentNat (1+ n) (1+ m) neq = DiffSuc n m (DifferentDifferentNat n m λ e → neq (PE.cong 1+ e))
 
-DifferentNatSym : ∀ (n m : Nat) (n≠m : DifferentNat n m) → DifferentNat m n
-DifferentNatSym _ _ (Diff0l u)  = Diff0r u
-DifferentNatSym _ _ (Diff0r t) = Diff0l t
-DifferentNatSym _ _ (DiffSuc t u tuε) = DiffSuc u t (DifferentNatSym t u tuε)
+DifferentNatSym : ∀ {n m : Nat} (n≠m : DifferentNat n m) → DifferentNat m n
+DifferentNatSym (Diff0l u)  = Diff0r u
+DifferentNatSym (Diff0r t) = Diff0l t
+DifferentNatSym (DiffSuc t u tuε) = DiffSuc u t (DifferentNatSym tuε)
 
 DifferentNatHProp :  ∀ (n m : Nat) (e e' : DifferentNat n m) → e PE.≡ e'
 DifferentNatHProp _ _ (Diff0l u) (Diff0l u)  = PE.refl
 DifferentNatHProp _ _ (Diff0r t) (Diff0r u) = PE.refl
 DifferentNatHProp _ _ (DiffSuc t u tuε) (DiffSuc t u tuε') rewrite DifferentNatHProp t u tuε tuε' = PE.refl
 
+LessDifferentNat : ∀ {n m : Nat} → n ≤ m → DifferentNat n (1+ m)
+LessDifferentNat (≤-0 m) = Diff0l m
+LessDifferentNat (≤-s n<m) = DiffSuc _ _ (LessDifferentNat n<m)
+
 NotInLConNat⊥ : ∀ {t b l} → NotInLConNat t l → InLConNat t b l → PE.⊥
 NotInLConNat⊥ {l = εₗ} _ ()
 NotInLConNat⊥ (NotInThereNat l lε n b notn) (InHereNat l) = DifferentNatDifferent n n notn PE.refl
 NotInLConNat⊥ (NotInThereNat l notlε n b notn) (InThereNat l lε n b) = NotInLConNat⊥ notlε lε
 
+MaxLCon : LCon → Nat
+MaxLCon εₗ = 0
+MaxLCon (addₗ n b l) = max n (MaxLCon l)
+
+LessMaxLCon : ∀ {n b l} → InLConNat n b l → n ≤ (MaxLCon l)
+LessMaxLCon (InHereNat l) = MaxLess-l _ _
+LessMaxLCon (InThereNat _ inl _ _) = ≤-trans (LessMaxLCon inl) (MaxLess-r _ _)
+
+LessNotInLConNat : ∀ {n} l → (∀ m b → InLConNat m b l → m ≤ n) → NotInLConNat (1+ n) l
+LessNotInLConNat εₗ h = NotInεNat
+LessNotInLConNat (addₗ m b l) h =
+  NotInThereNat l (LessNotInLConNat l (λ k b' inl → h k b' (InThereNat _ inl _ _))) m b
+                  (DifferentNatSym (LessDifferentNat (h m b (InHereNat l))))
+
+NewNotInLConNat : ∀ l → NotInLConNat (1+ (MaxLCon l)) l
+NewNotInLConNat l = LessNotInLConNat l λ m b → LessMaxLCon
 
 permut : ∀ (n : Nat) (l : LCon) → LCon
 permut n εₗ = εₗ
@@ -607,7 +627,7 @@ permutε : ∀ (n : Nat) {l : LCon} (lε : ⊢ₗ l)
             → ⊢ₗ (permut n l)
 permutε n ⊢ₗₑ = ⊢ₗₑ
 permutε 0 (⊢ₗ• εₗ ⊢ₗₑ m b mbε) = ⊢ₗ• εₗ ⊢ₗₑ m b mbε
-permutε 0 (⊢ₗ• _ (⊢ₗ• γ γε m b mbε) m' b' (NotInThereNat _ mbε' _ _ neq)) = ⊢ₗ• _ (⊢ₗ• _ γε m' b' mbε') m b (NotInThereNat _ mbε _ _ (DifferentNatSym m' m neq))
+permutε 0 (⊢ₗ• _ (⊢ₗ• γ γε m b mbε) m' b' (NotInThereNat _ mbε' _ _ neq)) = ⊢ₗ• _ (⊢ₗ• _ γε m' b' mbε') m b (NotInThereNat _ mbε _ _ (DifferentNatSym neq))
 permutε (1+ n) (⊢ₗ• γ γε m b mbε) =  ⊢ₗ• _ (permutε n γε) m b (permutNotInLConNat n γ m mbε)
 
 --permutfindBoolLCon : ∀ {n : Nat} (m : Nat) (l : LCon) (t : Term n)
